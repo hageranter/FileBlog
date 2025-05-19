@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "zJn3PejTU5E=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Hager Tarek Anter\\Downloads\\Silverkey\\project1\\FileBlogApi\\FileBlogApi.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Hager Tarek Anter\\.nuget\\packages\\markdig\\0.41.1\\markdig.0.41.1.nupkg.sha512",
+    "C:\\Users\\Hager Tarek Anter\\.nuget\\packages\\yamldotnet\\16.3.0\\yamldotnet.16.3.0.nupkg.sha512"
+  ],
+  "logs": []
+}
