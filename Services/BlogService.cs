@@ -98,6 +98,35 @@ public Post? GetPostBySlug(string slug)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public IEnumerable<Post> GetPostsByTag(string tag){
+    return GetAllPosts().
+    Where(post => post.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
+}
+
+public IEnumerable<Post> GetPostsByCategory(string category){
+    return GetAllPosts().
+    Where(post =>post.Categories.Contains(category,StringComparer.OrdinalIgnoreCase));
+}
+
+
+
+
+
+
     private class Meta
     {
         public string? Title { get; set; }

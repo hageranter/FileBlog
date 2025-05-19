@@ -27,4 +27,8 @@ C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\bin\Debug\ne
 C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\FileBlogApi.csproj.AssemblyReference.cache
 C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\FileBlog.F672005A.Up2Date
 C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\yqjde9teve-{0}-rke7oxsy7y-rke7oxsy7y.gz
-C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\2mqfr2sc78-{0}-cpnwk9eenr-cpnwk9eenr.gz
+C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\FileBlogApi.sourcelink.json
+C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\2mqfr2sc78-{0}-dfxxd2h8rd-dfxxd2h8rd.gz
+C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\u085moln2q-{0}-ygvloa9dwl-ygvloa9dwl.gz
+C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\36zp24xgzd-{0}-ivxr47kjml-ivxr47kjml.gz
+C:\Users\Hager Tarek Anter\Downloads\Silverkey\project1\FileBlogApi\obj\Debug\net10.0\compressed\pd3ix958fn-{0}-g6789vfyfu-g6789vfyfu.gz

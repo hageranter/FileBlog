@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>File-Based Blog</title>
+  <title>My Blog</title>
   <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
@@ -16,70 +16,6 @@
     <div id="post-content"></div>
   </div>
 
-  <script>
-    const postsContainer = document.getElementById('posts');
-    const postDetailsContainer = document.getElementById('post-details');
-    const postContent = document.getElementById('post-content');
-    const backButton = document.getElementById('back-button');
-
-    async function loadPosts() {
-      const res = await fetch('/posts');
-      const posts = await res.json();
-
-      postsContainer.innerHTML = '';
-      postDetailsContainer.style.display = 'none';
-      postsContainer.style.display = 'block';
-
-      posts.forEach(post => {
-        const postDiv = document.createElement('div');
-        postDiv.classList.add('post');
-
-        // Create a clickable link for the post title
-        postDiv.innerHTML = `
-          <h2><a href="#" data-slug="${post.slug}">${post.title}</a></h2>
-          <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
-          <p>${post.description}</p>
-          <hr />
-        `;
-
-        postsContainer.appendChild(postDiv);
-      });
-
-      // Add click event listeners on all post links
-      document.querySelectorAll('#posts a').forEach(link => {
-        link.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const slug = e.target.getAttribute('data-slug');
-          await loadPostDetails(slug);
-        });
-      });
-    }
-
-    async function loadPostDetails(slug) {
-      const res = await fetch(`/posts/${slug}`);
-      if (!res.ok) {
-        alert('Post not found');
-        return;
-      }
-      const post = await res.json();
-
-      postsContainer.style.display = 'none';
-      postDetailsContainer.style.display = 'block';
-
-      postContent.innerHTML = `
-        <h2>${post.title}</h2>
-        <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
-        <div>${post.body}</div>
-      `;
-    }
-
-    backButton.addEventListener('click', () => {
-      postDetailsContainer.style.display = 'none';
-      postsContainer.style.display = 'block';
-    });
-
-    // Initial load
-    loadPosts();
-  </script>
+  <script src="/js/home.js"></script>
 </body>
 </html>
