@@ -14,7 +14,6 @@ public class BlogService
         _root = root;
     }
 
-    // جلب كل التدوينات مع تحويل Markdown إلى HTML وقراءة بيانات الصور
     public IEnumerable<Post> GetAllPosts()
     {
         var folder = Path.Combine(_root, "content", "posts");
@@ -105,15 +104,12 @@ public class BlogService
         };
     }
 
-    // فلترة التدوينات حسب الوسم
     public IEnumerable<Post> GetPostsByTag(string tag) =>
         GetAllPosts().Where(p => p.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
 
-    // فلترة التدوينات حسب التصنيف
     public IEnumerable<Post> GetPostsByCategory(string category) =>
         GetAllPosts().Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
 
-    // حفظ تدوينة جديدة في ملفات منفصلة
     public void SavePost(CreatePostRequest request)
     {
         string slug = string.IsNullOrWhiteSpace(request.CustomSlug)
@@ -166,11 +162,9 @@ public class BlogService
         return true;
     }
 
-    // تحويل النص إلى kebab-case (لعمل slug URL)
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
-    // قراءة بيانات الـ YAML front matter
     private Meta ParseYamlFrontMatter(string yaml)
     {
         var deserializer = new DeserializerBuilder()
