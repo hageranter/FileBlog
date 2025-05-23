@@ -68,7 +68,7 @@ async function loadPostDetails(slug) {
       console.log('Files to add:', post.assetFiles);
 
     post.assetFiles.forEach(filename => {
-  console.log(`Appending image: /content/posts/${post.folderName}/assets/${filename}`);
+  console.log(`Appending image: /content/posts/${posts.folderName}/assets/${posts.filename}`);
   const img = document.createElement('img');
   img.src = `/content/posts/${post.folderName}/assets/${filename}`;
   img.alt = filename;
