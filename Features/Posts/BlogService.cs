@@ -2,6 +2,9 @@ using System.Text.RegularExpressions;
 using Markdig;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -140,7 +143,9 @@ public class BlogService
         File.WriteAllText(Path.Combine(postPath, "content.md"), request.Body);
     }
 
-    // رفع ملف (صورة أو غيرها) داخل مجلد assets الخاص بالبوست
+
+
+
     public bool UploadFile(string slug, IFormFile file)
     {
         var folder = Path.Combine(_root, "content", "posts");
@@ -151,16 +156,71 @@ public class BlogService
             return false;
 
         var assetsPath = Path.Combine(dir, "assets");
+        var thumbsPath = Path.Combine(assetsPath, "thumbs");
+        var largePath = Path.Combine(assetsPath, "large");
+
         Directory.CreateDirectory(assetsPath);
+        Directory.CreateDirectory(thumbsPath);
+        Directory.CreateDirectory(largePath);
 
-        var safeFileName = Path.GetFileName(file.FileName);
-        var filePath = Path.Combine(assetsPath, safeFileName);
+        var fileName = Path.GetFileName(file.FileName);
+        var originalFilePath = Path.Combine(assetsPath, fileName);
 
-        using var stream = new FileStream(filePath, FileMode.Create);
-        file.CopyTo(stream);
+        using (var stream = new FileStream(originalFilePath, FileMode.Create))
+        {
+            file.CopyTo(stream);
+        }
+        // Save the orginal file
+        using var inputStream = file.OpenReadStream();
+        using var image = Image.Load(inputStream);
+        // Create thumbnail
+        image.Clone(x => x.Resize(new ResizeOptions
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(300, 0)
+        })).Save(Path.Combine(thumbsPath, fileName));
+
+        // Create large version
+        image.Clone(x => x.Resize(new ResizeOptions
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(1200, 0)
+        })).Save(Path.Combine(largePath, fileName));
 
         return true;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+    // public bool UploadFile(string slug, IFormFile file)
+    // {
+    //     var folder = Path.Combine(_root, "content", "posts");
+    //     var dir = Directory.GetDirectories(folder)
+    //         .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+    //     if (dir == null || file == null)
+    //         return false;
+
+    //     var assetsPath = Path.Combine(dir, "assets");
+    //     Directory.CreateDirectory(assetsPath);
+
+    //     var safeFileName = Path.GetFileName(file.FileName);
+    //     var filePath = Path.Combine(assetsPath, safeFileName);
+
+    //     using var stream = new FileStream(filePath, FileMode.Create);
+    //     file.CopyTo(stream);
+
+    //     return true;
+    // }
 
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');

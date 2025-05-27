@@ -67,15 +67,29 @@ async function loadPostDetails(slug) {
       console.log('Assets container:', postAssets);
       console.log('Files to add:', post.assetFiles);
 
-    post.assetFiles.forEach(filename => {
-  console.log(`Appending image: /content/posts/${posts.folderName}/assets/${posts.filename}`);
-  const img = document.createElement('img');
-  img.src = `/content/posts/${post.folderName}/assets/${filename}`;
-  img.alt = filename;
-  img.style.maxWidth = '100%';
-  img.style.marginTop = '10px';
-  postAssets.appendChild(img);
-});
+
+      post.assetFiles.forEach(filename => {
+        const img = document.createElement('img');
+
+        img.src = `/content/posts/${post.folderName}/assets/thumbs/${filename}`;
+        img.srcset = `
+    /content/posts/${post.folderName}/assets/thumbs/${filename} 300w,
+    /content/posts/${post.folderName}/assets/large/${filename} 1200w
+  `;
+        img.sizes = "(max-width: 600px) 300px, 1200px";
+        img.alt = filename;
+
+        img.style.maxWidth = '100%';
+        img.style.marginTop = '10px';
+        img.style.border = '2px solid red';
+
+        const link = document.createElement('a');
+        link.href = `/content/posts/${post.folderName}/assets/${filename}`;
+        link.target = '_blank';
+        link.appendChild(img);
+
+        postAssets.appendChild(link);
+      });
 
 
     } else {
