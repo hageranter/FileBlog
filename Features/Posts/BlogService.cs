@@ -192,36 +192,6 @@ public class BlogService
 
 
 
-
-
-
-
-
-
-
-
-
-    // public bool UploadFile(string slug, IFormFile file)
-    // {
-    //     var folder = Path.Combine(_root, "content", "posts");
-    //     var dir = Directory.GetDirectories(folder)
-    //         .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
-
-    //     if (dir == null || file == null)
-    //         return false;
-
-    //     var assetsPath = Path.Combine(dir, "assets");
-    //     Directory.CreateDirectory(assetsPath);
-
-    //     var safeFileName = Path.GetFileName(file.FileName);
-    //     var filePath = Path.Combine(assetsPath, safeFileName);
-
-    //     using var stream = new FileStream(filePath, FileMode.Create);
-    //     file.CopyTo(stream);
-
-    //     return true;
-    // }
-
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 

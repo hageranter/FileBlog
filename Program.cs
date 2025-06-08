@@ -1,8 +1,11 @@
 using FileBlogApi.Features.Posts;
+using FileBlogApi.Features.Users;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<UserService>();
+
 var app = builder.Build();
 
 var blogService = new BlogService(builder.Environment.ContentRootPath);
@@ -56,5 +59,32 @@ app.MapPost("/posts/{slug}/upload", async (HttpRequest request, string slug) =>
     var success = blogService.UploadFile(slug, file);
     return success ? Results.Ok("File uploaded") : Results.NotFound("Post not found");
 });
+
+
+app.MapPost("/login", (LoginRequest loginRequest, UserService userService) =>
+{
+    var user = userService.GetUser(loginRequest.Username);
+
+    if (user == null || !userService.VerifyPassword(loginRequest.Password, user.PasswordHash))
+    {
+        return Results.Unauthorized();
+    }
+
+    var token = userService.GenerateJwtToken(user);
+    return Results.Ok(new { token });
+});
+
+
+app.MapGet("/test-login", (UserService userService) =>
+{
+    var user = userService.GetUser("ahmed");
+
+    if (user == null)
+        return Results.NotFound("User not found");
+
+    var ok = userService.VerifyPassword("123456", user.PasswordHash);
+    return Results.Ok(ok ? "Password match" : "Wrong password");
+});
+
 
 app.Run();
