@@ -1,37 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>My Blog - Home</title>
-  <link rel="stylesheet" href="/css/home.css" />
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyBlog - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/home.css">
 <body>
-  <header class="main-header">
-    <div class="container">
-      <h1 class="logo">My<span>Blog</span></h1>
-      <nav>
-        <ul class="nav-links">
-          <li><a href="/index.html">Home</a></li>
-          <li><a href="/posts.html">Posts</a></li>
-          <li><a href="/login.html" class="btn small">Login</a></li>
-          <li><a href="/signup.html" class="btn small">Sign Up</a></li>
-        </ul>
-      </nav>
+  <header>
+    <div class="logo">MyBlog</div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+    <div class="nav-btns">
+      <button onclick="location.href='/login.html'">Login</button>
+      <button onclick="location.href='/signup.html'">Sign Up</button>
     </div>
   </header>
 
-  <main class="content">
-    <section class="welcome">
-      <h2>Welcome to My Personal Blog</h2>
-      <p>Explore featured posts, personal opinions, and curated insights.</p>
-    </section>
+  <section class="hero">
+    <h1>Discover Your Voice</h1>
+    <p>Share stories, explore ideas, and connect with a community of thoughtful readers.</p>
+  </section>
 
-    <section class="latest-posts">
-      <h3>Latest Posts</h3>
-      <div id="posts"></div>
-    </section>
-  </main>
+  <section class="features">
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png" alt="Posts">
+      <h3>Create & Read Posts</h3>
+      <p>Write and explore blog posts from various categories and tags.</p>
+    </div>
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png" alt="Tags">
+      <h3>Tag-Based Filtering</h3>
+      <p>Organize and browse content by relevant topics.</p>
+    </div>
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/535/535234.png" alt="Community">
+      <h3>Join the Community</h3>
+      <p>Get involved with readers and authors sharing your passion.</p>
+    </div>
+  </section>
 
-  <script src="/js/home.js"></script>
+  <footer>
+    &copy; 2025 MyBlog. All rights reserved.
+  </footer>
 </body>
 </html>
