@@ -2,21 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My Blog</title>
-  <link rel="stylesheet" href="/css/site.css" />
-  
+  <title>My Blog - Home</title>
+  <link rel="stylesheet" href="/css/home.css" />
 </head>
 <body>
-  <h1>My Blog Posts</h1>
-  <div id="posts"></div>
+  <header class="main-header">
+    <div class="container">
+      <h1 class="logo">My<span>Blog</span></h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/posts.html">Posts</a></li>
+          <li><a href="/login.html" class="btn small">Login</a></li>
+          <li><a href="/signup.html" class="btn small">Sign Up</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-  <hr />
+  <main class="content">
+    <section class="welcome">
+      <h2>Welcome to My Personal Blog</h2>
+      <p>Explore featured posts, personal opinions, and curated insights.</p>
+    </section>
 
-  <div id="post-details" >
-    <button id="back-button">Back to list</button>
-    <div id="post-content"></div>
-    <div id="post-assets"></div>
-  </div>
+    <section class="latest-posts">
+      <h3>Latest Posts</h3>
+      <div id="posts"></div>
+    </section>
+  </main>
 
   <script src="/js/home.js"></script>
 </body>

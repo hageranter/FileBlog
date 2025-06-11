@@ -4,6 +4,7 @@ const postContent = document.getElementById('post-content');
 const postAssets = document.getElementById('post-assets');
 const backButton = document.getElementById('back-button');
 
+
 async function loadPosts() {
   try {
     const res = await fetch('/posts');
@@ -21,7 +22,7 @@ async function loadPosts() {
       const categoriesHtml = (post.categories || []).map(cat => `<a href="#" class="filter-category" data-category="${cat}">${cat}</a>`).join(', ') || 'None';
 
       postDiv.innerHTML = `
-        <h2><a href="#" data-slug="${post.slug}">${post.title}</a></h2>
+        <h2><a href="post.html?slug=${post.slug}">${post.title}</a></h2>
         <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
         <p>${post.description}</p>
         <p><strong>Tags:</strong> ${tagsHtml}</p>
