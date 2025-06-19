@@ -1,0 +1,103 @@
+/* site.css - General Blog Styling */
+   .navbar {
+      background-color: #ffffff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .navbar .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #005f99;
+    }
+    .navbar .nav-links a {
+      margin: 0 1rem;
+      text-decoration: none;
+      color: #005f99;
+      font-weight: 500;
+    }
+    .profile-icon img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h1 {
+  color: #005f99;
+}
+
+.post {
+  background: white;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 0 5px #ccc;
+}
+
+.post h2 {
+  margin-top: 0;
+}
+
+.post small {
+  color: #777;
+}
+
+/* Image assets under post */
+#post-assets img {
+  border: 2px solid red;
+  min-height: 100px;
+  max-width: 100%;
+  margin-top: 10px;
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: #ffffff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.navbar .logo {
+  font-weight: bold;
+  font-size: 20px;
+  color: #005f99;
+}
+
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar .nav-links li a {
+  text-decoration: none;
+  color: #005f99;
+  font-weight: 500;
+}
+
+.navbar .nav-links li a.active {
+  text-decoration: underline;
+}
+
+.profile-icon img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
