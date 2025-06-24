@@ -1,35 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>My Blog</title>
   <link rel="stylesheet" href="/css/posts.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
-<header class="navbar">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
+    rel="stylesheet">
+  <header class="navbar">
     <div class="logo">MyBlog</div>
     <nav class="nav-links">
       <a href="/index.html">Home</a>
       <a href="#">About</a>
       <a href="#">Contact</a>
     </nav>
-    <div class="profile-icon" id="profile-icon">
-      <!-- gets replaced dynamically if token exists -->
-    </div>
+
+    <a href="/profile.html">
+      <div class="profile-icon" id="profile-icon"> </div>
+    </a>
+
   </header>
-  
+
 </head>
+
 <body>
   <h1>My Blog Posts</h1>
   <div id="posts"></div>
 
   <hr />
 
-  <div id="post-details" >
+  <div id="post-details">
     <button id="back-button">Back to list</button>
     <div id="post-content"></div>
     <div id="post-assets"></div>
   </div>
-<script>
+  <script>
     const token = localStorage.getItem("token");
     const profileEl = document.getElementById("profile-icon");
 
@@ -45,4 +50,5 @@
 
   <script src="/js/posts.js"></script>
 </body>
+
 </html>

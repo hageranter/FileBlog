@@ -3,6 +3,7 @@ const postDetailsContainer = document.getElementById('post-details');
 const postContent = document.getElementById('post-content');
 const postAssets = document.getElementById('post-assets');
 const backButton = document.getElementById('back-button');
+const avatarUploadInput = document.getElementById('avatar-upload'); // To select avatar image
 
 async function loadPosts() {
   try {
@@ -187,3 +188,28 @@ if (slugParam) {
 } else {
   loadPosts();
 }
+
+// Handle profile picture upload
+ avatarUploadInput = document.getElementById('avatar-upload');
+avatarUploadInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem("token");
+    const username = token ? JSON.parse(atob(token.split('.')[1])).unique_name : "guest";
+
+    fetch(`/users/${username}/avatar`, {
+        method: "POST",
+        body: formData
+    }).then(res => {
+        if (res.ok) {
+            const avatarPath = `/userfiles/${username}/avatar.png`;
+            document.getElementById('avatar').src = avatarPath;
+        } else {
+            alert("Upload failed");
+        }
+    });
+});

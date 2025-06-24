@@ -115,6 +115,42 @@ app.MapPost("/signup", (SignupRequest dto, UserService userService) =>
     return Results.Ok("User created successfully.");
 });
 
+// Upload user avatar
+app.MapPost("/users/{username}/avatar", async (HttpRequest request, string username) =>
+{
+    var form = await request.ReadFormAsync();
+    var file = form.Files.GetFile("file");
+
+    if (file is null) return Results.BadRequest("No file uploaded.");
+
+    var avatarPath = Path.Combine("Content", "Users", username, "avatar.png");
+    Directory.CreateDirectory(Path.GetDirectoryName(avatarPath)!);
+
+    using var stream = new FileStream(avatarPath, FileMode.Create);
+    await file.CopyToAsync(stream);
+
+    return Results.Ok("Avatar uploaded");
+});
+
+// Get user profile info
+app.MapGet("/users/{username}", (string username) =>
+{
+    var filePath = Path.Combine("Content", "Users", username, "profile.json");
+
+    if (!File.Exists(filePath))
+        return Results.NotFound();
+
+    var json = File.ReadAllText(filePath);
+    return Results.Content(json, "application/json");
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Content", "Users")),
+    RequestPath = "/userfiles"
+});
+
 // STATIC HTML PAGES
 app.MapGet("/login.html",  ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
 app.MapGet("/signup.html", ctx => ctx.Response.SendFileAsync("wwwroot/signup.html"));

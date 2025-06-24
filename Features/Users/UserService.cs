@@ -65,10 +65,16 @@ public class UserService
 
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Username),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim("username", user.Username),
+            new Claim("email", user.Email),
+            new Claim("role", user.Role),      
+                                 // ✅ هذا هو المهم
+
         };
 
         var token = new JwtSecurityToken(
@@ -82,25 +88,27 @@ public class UserService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-   public void CreateUser(string username, string email, string password, string role)
-{
-    var userDir = Path.Combine(_usersRoot, username);
-    Directory.CreateDirectory(userDir);
-
-    var hashBytes = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
-    var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-
-    var user = new User
+    public void CreateUser(string username, string email, string password, string role)
     {
-        Username = username,
-        Email = email,
-        PasswordHash = hash,
-        Role = role
-    };
+        var userDir = Path.Combine(_usersRoot, username);
+        Directory.CreateDirectory(userDir);
 
-    var json = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
-    File.WriteAllText(Path.Combine(userDir, "profile.json"), json);
-}
+        var hashBytes = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
+        var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+
+        var user = new User
+        {
+            Username = username,
+            Email = email,
+            PasswordHash = hash,
+            Role = role
+        };
+
+        var json = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(Path.Combine(userDir, "profile.json"), json);
+    }
+
+
 
 
 }
