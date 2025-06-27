@@ -113,7 +113,7 @@ public class BlogService
     public IEnumerable<Post> GetPostsByCategory(string category) =>
         GetAllPosts().Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
 
-    public void SavePost(CreatePostRequest request)
+    public string SavePost(CreatePostRequest request)
     {
         string slug = string.IsNullOrWhiteSpace(request.CustomSlug)
             ? ToKebabCase(request.Title)
@@ -141,6 +141,8 @@ public class BlogService
         var yaml = serializer.Serialize(meta);
         File.WriteAllText(Path.Combine(postPath, "meta.yaml"), yaml);
         File.WriteAllText(Path.Combine(postPath, "content.md"), request.Body);
+
+        return folderName;
     }
 
 

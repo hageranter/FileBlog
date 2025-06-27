@@ -189,31 +189,31 @@ if (slugParam) {
   loadPosts();
 }
 
- token = localStorage.getItem("token");
- profileEl = document.getElementById("profile-icon");
+token = localStorage.getItem("token");
+profileEl = document.getElementById("profile-icon");
 
-  if (token && profileEl) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const username = payload.username;
+if (token && profileEl) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const username = payload.username;
 
-      fetch(`/users/${username}`)
-        .then(res => res.json())
-        .then(user => {
-          const avatarUrl = user.avatarUrl || '/images/default-profile.png';
+    fetch(`/users/${username}`)
+      .then(res => res.json())
+      .then(user => {
+        const avatarUrl = user.avatarUrl || '/images/default-profile.png';
 
-          profileEl.innerHTML = `
+        profileEl.innerHTML = `
             <img src="${avatarUrl}" alt="Profile">
           `;
-        })
-        .catch(() => {
-          profileEl.innerHTML = `
+      })
+      .catch(() => {
+        profileEl.innerHTML = `
             <img src="/images/default-profile.png" alt="Profile">
           `;
-        });
+      });
 
-    } catch (err) {
-      console.error("Invalid token format");
-    }
+  } catch (err) {
+    console.error("Invalid token format");
   }
+}
 
