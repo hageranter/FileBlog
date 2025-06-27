@@ -66,7 +66,9 @@ public static class PostEndpoints
                 Tags = tags.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList(),
                 Categories = categories.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList(),
                 PublishedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
+                ModifiedDate = DateTime.UtcNow,
+                Username = username
+
             };
 
             var folderName = blogService.SavePost(dto);
@@ -78,6 +80,14 @@ public static class PostEndpoints
 
             return Results.Ok(new { message = "Post created", slug = folderName });
         });
+
+    app.MapGet("/posts/user/{username}", (string username) =>
+   {    
+    var posts = blogService.GetAllPosts()
+                           .Where(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+    return posts.Any() ? Results.Json(posts) : Results.NotFound();
+ });
+
 
     }
 }

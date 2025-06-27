@@ -1,3 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>My Blog</title>
+  <link rel="stylesheet" href="/css/posts.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
+    rel="stylesheet">
+  <header class="navbar">
+    <div class="logo">MyBlog</div>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <a href="/profile.html">
+      <div class="profile-icon" id="profile-icon"> </div>
+    </a>
+
+  </header>
+
+</head>
+
+<body>
+  <h1>My Blog Posts</h1>
+  <div id="posts"></div>
+
+  <hr />
+
+  <div id="post-details">
+    <button id="back-button">Back to list</button>
+    <div id="post-content"></div>
+    <div id="post-assets"></div>
+  </div>
+
+<script>
+
 const postsContainer = document.getElementById('posts');
 const postDetailsContainer = document.getElementById('post-details');
 const postContent = document.getElementById('post-content');
@@ -7,7 +46,20 @@ const avatarUploadInput = document.getElementById('avatar-upload'); // To select
 
 async function loadPosts() {
   try {
-    const res = await fetch('/posts');
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found");
+      postsContainer.innerHTML = "<p>User not authenticated.</p>";
+      return;
+    }
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const username = payload.username;
+
+    const res = await fetch(`/posts/user/${encodeURIComponent(username)}`);
+    if (!res.ok) throw new Error("Failed to fetch user posts");
+
     const posts = await res.json();
 
     postsContainer.innerHTML = '';
@@ -35,7 +87,6 @@ async function loadPosts() {
         <hr />
       `;
 
-      // Attach click handler to show post details inline
       postDiv.querySelector('a.post-link').addEventListener('click', e => {
         e.preventDefault();
         const slug = e.target.dataset.slug;
@@ -48,6 +99,7 @@ async function loadPosts() {
     addFilterListeners();
   } catch (error) {
     console.error("Error loading posts:", error);
+    postsContainer.innerHTML = "<p>Failed to load posts.</p>";
   }
 }
 
@@ -217,3 +269,26 @@ if (slugParam) {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>

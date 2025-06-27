@@ -57,7 +57,9 @@ public class BlogService
                 Tags = meta.Tags ?? new List<string>(),
                 Categories = meta.Categories ?? new List<string>(),
                 Body = html,
-                AssetFiles = assetFiles
+                AssetFiles = assetFiles,
+                Username = meta.Username ?? "",
+
             };
         }
     }
@@ -131,7 +133,8 @@ public class BlogService
             Categories = request.Categories,
             PublishedDate = request.PublishedDate,
             ModifiedDate = request.ModifiedDate,
-            CustomSlug = slug
+            CustomSlug = slug,
+            Username = request.Username 
         };
 
         var serializer = new SerializerBuilder()
@@ -222,5 +225,8 @@ public class BlogService
         public List<string>? Tags { get; set; }
         public List<string>? Categories { get; set; }
         public string? CustomSlug { get; set; }
+
+       public string? Username { get; set; } 
+
     }
 }

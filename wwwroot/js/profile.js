@@ -45,7 +45,10 @@ function logout () {
 }
 
 function goToMyPosts () {
-  window.location.href = '/posts.html?mine=true';
+  window.location.href = '/userPosts.html?mine=true';
+}
+function createPosts () {
+  window.location.href = '/createPosts.html';
 }
 
 function editField (fieldId) {
