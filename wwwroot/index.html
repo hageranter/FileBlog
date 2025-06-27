@@ -1,25 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MyBlog - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/home.css">
+</head>
 <body>
+
+  <!-- ========== HEADER ========== -->
   <header>
     <div class="logo">MyBlog</div>
+
     <nav>
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
+      <a href="/home.html">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
     </nav>
-    <div class="nav-btns">
+
+    <!-- Guest buttons -->
+    <div id="auth-buttons" class="nav-btns">
       <button onclick="location.href='/login.html'">Login</button>
       <button onclick="location.href='/signup.html'">Sign Up</button>
     </div>
+
+    <!-- User avatar (hidden by default) -->
+    <div id="user-profile" style="display: none;">
+      <a href="/profile.html">
+        <img id="profile-icon"
+             src="/images/avatar.jpg"
+             alt="Profile"
+             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+      </a>
+    </div>
   </header>
 
+  <!-- ========== MAIN CONTENT ========== -->
   <section class="hero">
     <h1>Discover Your Voice</h1>
     <p>Share stories, explore ideas, and connect with a community of thoughtful readers.</p>
@@ -46,5 +63,34 @@
   <footer>
     &copy; 2025 MyBlog. All rights reserved.
   </footer>
+
+  <!-- ========== AUTH LOGIC SCRIPT ========== -->
+  <script>
+    (function () {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Hide login/signup and show profile icon
+      document.getElementById('auth-buttons').style.display = 'none';
+      document.getElementById('user-profile').style.display = 'inline-block';
+
+      try {
+        const { username } = JSON.parse(atob(token.split('.')[1]));
+
+        fetch(`/users/${username}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(user => {
+            const avatarUrl = user?.avatarUrl || '/images/default-profile.png';
+            document.getElementById('profile-icon').src = avatarUrl;
+          })
+          .catch(() => {
+            // fallback: keep default profile icon
+          });
+      } catch {
+        // invalid token, fallback silently
+      }
+    })();
+  </script>
+
 </body>
 </html>

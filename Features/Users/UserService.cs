@@ -73,7 +73,7 @@ public class UserService
             new Claim("username", user.Username),
             new Claim("email", user.Email),
             new Claim("role", user.Role),      
-                                 // ✅ هذا هو المهم
+                                 
 
         };
 

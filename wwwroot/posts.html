@@ -34,19 +34,38 @@
     <div id="post-content"></div>
     <div id="post-assets"></div>
   </div>
-  <script>
-    const token = localStorage.getItem("token");
-    const profileEl = document.getElementById("profile-icon");
 
-    if (token && profileEl) {
-      // just show static placeholder for now
-      profileEl.innerHTML = `
-        <img src="/images/default-profile.png" alt="Profile">
-      `;
+
+
+ <script>
+  const token = localStorage.getItem("token");
+  const profileEl = document.getElementById("profile-icon");
+
+  if (token && profileEl) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const username = payload.username;
+
+      fetch(`/users/${username}`)
+        .then(res => res.json())
+        .then(user => {
+          const avatarUrl = user.avatarUrl || '/images/default-profile.png';
+
+          profileEl.innerHTML = `
+            <img src="${avatarUrl}" alt="Profile">
+          `;
+        })
+        .catch(() => {
+          profileEl.innerHTML = `
+            <img src="/images/default-profile.png" alt="Profile">
+          `;
+        });
+
+    } catch (err) {
+      console.error("Invalid token format");
     }
-  </script>
-
-
+  }
+</script>
 
   <script src="/js/posts.js"></script>
 </body>

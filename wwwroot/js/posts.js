@@ -189,27 +189,31 @@ if (slugParam) {
   loadPosts();
 }
 
-// Handle profile picture upload
- avatarUploadInput = document.getElementById('avatar-upload');
-avatarUploadInput.addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
+ token = localStorage.getItem("token");
+ profileEl = document.getElementById("profile-icon");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  if (token && profileEl) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const username = payload.username;
 
-    const token = localStorage.getItem("token");
-    const username = token ? JSON.parse(atob(token.split('.')[1])).unique_name : "guest";
+      fetch(`/users/${username}`)
+        .then(res => res.json())
+        .then(user => {
+          const avatarUrl = user.avatarUrl || '/images/default-profile.png';
 
-    fetch(`/users/${username}/avatar`, {
-        method: "POST",
-        body: formData
-    }).then(res => {
-        if (res.ok) {
-            const avatarPath = `/userfiles/${username}/avatar.png`;
-            document.getElementById('avatar').src = avatarPath;
-        } else {
-            alert("Upload failed");
-        }
-    });
-});
+          profileEl.innerHTML = `
+            <img src="${avatarUrl}" alt="Profile">
+          `;
+        })
+        .catch(() => {
+          profileEl.innerHTML = `
+            <img src="/images/default-profile.png" alt="Profile">
+          `;
+        });
+
+    } catch (err) {
+      console.error("Invalid token format");
+    }
+  }
+

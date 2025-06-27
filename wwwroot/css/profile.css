@@ -119,3 +119,23 @@
     input[type="file"] {
       display: none;
     }
+
+    /* Style for the input field that appears over the icon */
+.edit-input {
+  position: absolute;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #4CAF50; /* Green border */
+  font-size: 16px;
+  background-color: #f9f9f9;
+  color: #333;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  z-index: 1000; /* Ensure the input field is above other elements */
+}
+
+/* Focus effect for the input field */
+.edit-input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

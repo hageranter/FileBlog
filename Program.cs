@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +97,75 @@ app.MapPost("/posts", (CreatePostRequest dto) =>
     return Results.Ok(new { message = "Post created successfully" });
 });
 
+
+
+
+
+
+app.MapPost("/posts/create/{username}", async (HttpRequest request, string username) =>
+{
+    var form = await request.ReadFormAsync();
+    var files = form.Files;
+
+    var title = form["title"];
+    var description = form["description"];
+    var body = form["body"];
+    var tags = form["tags"];
+    var categories = form["categories"];
+
+    if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body))
+        return Results.BadRequest("Title and content are required.");
+
+    // generate slug from title
+    var slug = title.ToString().ToLower().Replace(" ", "-").Replace("?", "").Replace(".", "").Trim();
+    var postFolder = Path.Combine("Content", "Posts", slug);
+    var assetsFolder = Path.Combine(postFolder, "assets");
+
+    Directory.CreateDirectory(postFolder);
+    Directory.CreateDirectory(assetsFolder);
+
+    // save assets
+    var assetFileNames = new List<string>();
+    foreach (var file in files)
+    {
+        var fileName = Path.GetFileName(file.FileName);
+        var filePath = Path.Combine(assetsFolder, fileName);
+
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        assetFileNames.Add(fileName);
+    }
+
+    // create post object
+    var post = new {
+        title = title.ToString(),
+        description = description.ToString(),
+        body = body.ToString(),
+        tags = tags.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList(),
+        categories = categories.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList(),
+        publishedDate = DateTime.UtcNow,
+        slug = slug,
+        author = username,
+        folderName = slug,
+        assetFiles = assetFileNames
+    };
+
+    // save as JSON
+    var json = JsonSerializer.Serialize(post, new JsonSerializerOptions { WriteIndented = true });
+    await File.WriteAllTextAsync(Path.Combine(postFolder, "post.json"), json);
+
+    return Results.Ok(new { message = "Post created", slug });
+});
+
+
+
+
+
+
+
+
+
 // AUTH ROUTES
 app.MapPost("/login", (LoginRequest dto, UserService userService) =>
 {
@@ -120,17 +191,23 @@ app.MapPost("/users/{username}/avatar", async (HttpRequest request, string usern
 {
     var form = await request.ReadFormAsync();
     var file = form.Files.GetFile("file");
-
     if (file is null) return Results.BadRequest("No file uploaded.");
 
-    var avatarPath = Path.Combine("Content", "Users", username, "avatar.png");
-    Directory.CreateDirectory(Path.GetDirectoryName(avatarPath)!);
+    var uploadsFolder = Path.Combine("wwwroot", "userfiles", username);
+    Directory.CreateDirectory(uploadsFolder);
 
-    using var stream = new FileStream(avatarPath, FileMode.Create);
+    var uniqueName = $"avatar_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+    var filePath = Path.Combine(uploadsFolder, uniqueName);
+
+    using var stream = new FileStream(filePath, FileMode.Create);
     await file.CopyToAsync(stream);
 
-    return Results.Ok("Avatar uploaded");
+
+    var avatarUrl = $"/userfiles/{username}/{uniqueName}";
+    return Results.Ok(new { avatarUrl });
 });
+
+
 
 // Get user profile info
 app.MapGet("/users/{username}", (string username) =>
@@ -141,8 +218,31 @@ app.MapGet("/users/{username}", (string username) =>
         return Results.NotFound();
 
     var json = File.ReadAllText(filePath);
-    return Results.Content(json, "application/json");
+
+    var user = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+    var avatarFolder = Path.Combine("wwwroot", "userfiles", username);
+    string? avatarUrl = null;
+
+    if (Directory.Exists(avatarFolder))
+    {
+        var latestAvatar = Directory.GetFiles(avatarFolder, "avatar_*.png")
+                                    .OrderByDescending(f => f)
+                                    .FirstOrDefault();
+
+        if (latestAvatar != null)
+        {
+            var fileName = Path.GetFileName(latestAvatar);
+            avatarUrl = $"/userfiles/{username}/{fileName}";
+        }
+    }
+
+    user["avatarUrl"] = avatarUrl;
+
+    var updatedJson = JsonSerializer.Serialize(user);
+    return Results.Content(updatedJson, "application/json");
 });
+
 
 app.UseStaticFiles(new StaticFileOptions
 {
