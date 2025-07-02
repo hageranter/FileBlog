@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>My Blog</title>
-  <link rel="stylesheet" href="/css/posts.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
-    rel="stylesheet">
+  <link rel="stylesheet" href="/css/post.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
   <header class="navbar">
     <div class="logo">MyBlog</div>
     <nav class="nav-links">
@@ -14,60 +14,23 @@
       <a href="#">About</a>
       <a href="#">Contact</a>
     </nav>
-
     <a href="/profile.html">
-      <div class="profile-icon" id="profile-icon"> </div>
+      <div class="profile-icon" id="profile-icon"></div>
     </a>
-
   </header>
 
-</head>
-
-<body>
-  <h1>My Blog Posts</h1>
+  <h1> Blog Posts</h1>
   <div id="posts"></div>
+<div id="post-details" style="display: none;">
+  <button id="back-detail-button">Back to Post List</button>
+  <div id="post-content"></div>
+  <div id="post-assets"></div>
+</div>
 
-  <hr />
-
-  <div id="post-details">
-    <button id="back-button">Back to list</button>
-    <div id="post-content"></div>
-    <div id="post-assets"></div>
-  </div>
-
-
-
- <script>
-  const token = localStorage.getItem("token");
-  const profileEl = document.getElementById("profile-icon");
-
-  if (token && profileEl) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const username = payload.username;
-
-      fetch(`/users/${username}`)
-        .then(res => res.json())
-        .then(user => {
-          const avatarUrl = user.avatarUrl || '/images/default-profile.png';
-
-          profileEl.innerHTML = `
-            <img src="${avatarUrl}" alt="Profile">
-          `;
-        })
-        .catch(() => {
-          profileEl.innerHTML = `
-            <img src="/images/default-profile.png" alt="Profile">
-          `;
-        });
-
-    } catch (err) {
-      console.error("Invalid token format");
-    }
-  }
-</script>
+<div id="controls">
+  <button id="back-category-button" style="display:none; margin: 10px 0;">Back to All Posts</button>
+</div>
 
   <script src="/js/posts.js"></script>
 </body>
-
 </html>

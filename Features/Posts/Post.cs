@@ -1,5 +1,4 @@
 namespace FileBlogApi.Features.Posts;
-
 public class Post
 {
     public string Slug { get; set; } = string.Empty;
@@ -12,6 +11,8 @@ public class Post
     public List<string> Categories { get; set; } = [];
     public string Body { get; set; } = string.Empty;
     public List<string> AssetFiles { get; set; } = [];
-        public string Username { get; set; } = string.Empty; // The username of the author who created the post
+    public string Username { get; set; } = string.Empty; // The username of the author who created the post
+    public string Status { get; set; } = string.Empty;
+    public DateTime? ScheduledDate { get; set; }
 
 }

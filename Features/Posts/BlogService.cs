@@ -59,8 +59,54 @@ public class BlogService
                 Body = html,
                 AssetFiles = assetFiles,
                 Username = meta.Username ?? "",
-
+                Status = meta.Status ?? "published",
+                ScheduledDate = meta.ScheduledDate
             };
+        }
+    }
+
+    public IEnumerable<Post> GetAllPostsAndUpdateStatusIfNeeded()
+    {
+        foreach (var post in GetAllPosts())
+        {
+            if (post.Status == "scheduled" && post.ScheduledDate.HasValue && post.ScheduledDate <= DateTime.UtcNow)
+            {
+                post.Status = "published";
+                UpdatePostStatus(post);
+            }
+            yield return post;
+        }
+    }
+
+    public IEnumerable<Post> GetPostsByTagAndUpdateStatusIfNeeded(string tag)
+    {
+        return GetAllPostsAndUpdateStatusIfNeeded()
+            .Where(p => p.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
+    }
+
+    public IEnumerable<Post> GetPostsByCategoryAndUpdateStatusIfNeeded(string category)
+    {
+        return GetAllPostsAndUpdateStatusIfNeeded()
+            .Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
+    }
+
+    private void UpdatePostStatus(Post post)
+    {
+        var folder = Path.Combine(_root, "content", "posts", post.FolderName);
+        var metaPath = Path.Combine(folder, "meta.yaml");
+
+        if (File.Exists(metaPath))
+        {
+            var yaml = File.ReadAllText(metaPath);
+            var meta = ParseYamlFrontMatter(yaml);
+            meta.Status = post.Status;
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var updatedYaml = serializer.Serialize(meta);
+            File.WriteAllText(metaPath, updatedYaml);
         }
     }
 
@@ -105,7 +151,10 @@ public class BlogService
             Tags = meta.Tags ?? new List<string>(),
             Categories = meta.Categories ?? new List<string>(),
             Body = html,
-            AssetFiles = assetFiles
+            AssetFiles = assetFiles,
+            Username = meta.Username ?? "",
+            Status = meta.Status ?? "published",
+            ScheduledDate = meta.ScheduledDate
         };
     }
 
@@ -134,7 +183,9 @@ public class BlogService
             PublishedDate = request.PublishedDate,
             ModifiedDate = request.ModifiedDate,
             CustomSlug = slug,
-            Username = request.Username 
+            Username = request.Username,
+            Status = request.Status,
+            ScheduledDate = request.ScheduledDate
         };
 
         var serializer = new SerializerBuilder()
@@ -147,9 +198,6 @@ public class BlogService
 
         return folderName;
     }
-
-
-
 
     public bool UploadFile(string slug, IFormFile file)
     {
@@ -175,17 +223,16 @@ public class BlogService
         {
             file.CopyTo(stream);
         }
-        // Save the orginal file
+
         using var inputStream = file.OpenReadStream();
         using var image = Image.Load(inputStream);
-        // Create thumbnail
+
         image.Clone(x => x.Resize(new ResizeOptions
         {
             Mode = ResizeMode.Max,
             Size = new Size(300, 0)
         })).Save(Path.Combine(thumbsPath, fileName));
 
-        // Create large version
         image.Clone(x => x.Resize(new ResizeOptions
         {
             Mode = ResizeMode.Max,
@@ -194,8 +241,6 @@ public class BlogService
 
         return true;
     }
-
-
 
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
@@ -216,6 +261,40 @@ public class BlogService
         }
     }
 
+    public void UpdateScheduledToPublishedIfDue()
+    {
+        var posts = GetAllPosts()
+            .Where(p => p.Status == "scheduled" && p.ScheduledDate.HasValue && p.ScheduledDate <= DateTime.UtcNow)
+            .ToList();
+
+        foreach (var post in posts)
+        {
+            var metaPath = Path.Combine(_root, "content", "posts", post.FolderName, "meta.yaml");
+
+            var meta = new Meta
+            {
+                Title = post.Title,
+                Description = post.Description,
+                Tags = post.Tags,
+                Categories = post.Categories,
+                PublishedDate = post.PublishedDate,
+                ModifiedDate = DateTime.UtcNow,
+                CustomSlug = post.Slug,
+                Username = post.Username,
+                Status = "published", // Update status to published
+                ScheduledDate = post.ScheduledDate
+            };
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var yaml = serializer.Serialize(meta);
+            File.WriteAllText(metaPath, yaml);
+        }
+    }
+
+
     private class Meta
     {
         public string? Title { get; set; }
@@ -225,8 +304,8 @@ public class BlogService
         public List<string>? Tags { get; set; }
         public List<string>? Categories { get; set; }
         public string? CustomSlug { get; set; }
-
-       public string? Username { get; set; } 
-
+        public string? Username { get; set; }
+        public string? Status { get; set; }
+        public DateTime? ScheduledDate { get; set; }
     }
 }

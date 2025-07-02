@@ -3,35 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <title>Create New Post</title>
- <style src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></style>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/creatPosts.css" />
-
+  <link rel="stylesheet" href="/css/creatPosts.css" />
 </head>
+
 <body>
 
   <h1>Create New Post</h1>
 
   <form id="create-post-form">
     <label for="title">Title:</label>
-    <input type="text" id="title" required />
+    <input type="text" id="title" name="title" required />
 
     <label for="description">Short Description:</label>
-    <textarea id="description" rows="2"></textarea>
+    <textarea id="description" name="description" rows="2"></textarea>
 
     <label for="body">Content:</label>
-    <textarea id="body" rows="8" required></textarea>
+    <textarea id="body" name="body" rows="8" required></textarea>
 
     <label for="tags">Tags (comma-separated):</label>
-    <input type="text" id="tags" placeholder="e.g. tech, life, AI" />
+    <input type="text" id="tags" name="tags" placeholder="e.g. tech, life, AI" />
 
     <label for="categories">Categories:</label>
-    <input type="text" id="categories" placeholder="e.g. Tutorial, Personal" />
+    <input type="text" id="categories" name="categories" placeholder="e.g. Tutorial, Personal" />
 
     <label for="assets">Upload Images:</label>
-    <input type="file" id="assets" multiple accept="image/*" />
+    <input type="file" id="assets" name="assets" multiple accept="image/*" />
 
-    <button type="submit">Publish Post</button>
+    <!-- Hidden status input with name -->
+    <input type="hidden" id="post-status" name="status" />
+
+    <!-- Schedule datetime -->
+    <input type="datetime-local" id="scheduled-date" name="scheduledDate" style="display: none;" />
+
+    <!-- Confirm schedule button -->
+    <button type="button" id="btn-confirm-schedule" style="display:none;">Confirm Schedule</button>
+
+    <div id="post-actions">
+      <button type="button" id="btn-draft" class="action-btn secondary">Save as Draft</button>
+      <button type="button" id="btn-schedule" class="action-btn secondary">Schedule</button>
+      <button type="button" id="btn-discard" class="action-btn danger">Discard</button>
+      <button type="button" id="btn-publish" class="action-btn publish">Publish</button>
+    </div>
+    <button type="submit" style="display:none;"></button>
+
   </form>
 
   <script src="/js/createPosts.js"></script>

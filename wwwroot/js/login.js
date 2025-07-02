@@ -1,5 +1,4 @@
-console.log("✅ login.js loaded");  
-
+console.log("✅ login.js loaded");
 const form = document.getElementById('login-form');
 const errorMsg = document.getElementById('error-msg');
 
@@ -25,10 +24,11 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('token', data.token);
 
     const redirectUrl = `${window.location.origin}/posts.html`;
-console.log("Login successful →", redirectUrl);
-alert("✅ About to redirect to posts.html");
-window.location.href = redirectUrl;
+    console.log("Login successful →", redirectUrl);
 
+    document.getElementById('redirect-modal').style.display = 'block';
+    window.pendingRedirectUrl = redirectUrl;
+    setTimeout(() => window.location.href = '/posts.html', 1000);
 
   } catch (err) {
     console.error('Login error:', err);
@@ -52,11 +52,5 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "/login.html";
 }
-window.addEventListener('beforeunload', function (e) {
-  console.log("❌ reload triggered - prevented");
-  e.preventDefault();
-  e.returnValue = '';
-});
-
 
 updateAuthLinks();

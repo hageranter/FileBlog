@@ -6,7 +6,13 @@ public static class PostEndpoints
 {
     public static void MapPostEndpoints(this WebApplication app, BlogService blogService)
     {
-        app.MapGet("/posts", () => Results.Json(blogService.GetAllPosts()));
+        app.MapGet("/posts", () =>
+        {
+            var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+                .Where(p =>
+                    p.Status != "draft");
+            return Results.Json(posts);
+        });
 
         app.MapGet("/posts/{slug}", (string slug) =>
         {
@@ -16,13 +22,13 @@ public static class PostEndpoints
 
         app.MapGet("/posts/categories/{category}", (string category) =>
         {
-            var posts = blogService.GetPostsByCategory(category);
+            var posts = blogService.GetPostsByCategoryAndUpdateStatusIfNeeded(category);
             return posts.Any() ? Results.Json(posts) : Results.NotFound();
         });
 
         app.MapGet("/posts/tags/{tag}", (string tag) =>
         {
-            var posts = blogService.GetPostsByTag(tag);
+            var posts = blogService.GetPostsByTagAndUpdateStatusIfNeeded(tag);
             return posts.Any() ? Results.Json(posts) : Results.NotFound();
         });
 
@@ -54,6 +60,14 @@ public static class PostEndpoints
             var body = form["body"];
             var tags = form["tags"];
             var categories = form["categories"];
+            var status = form["status"];
+            var scheduledDateStr = form["scheduledDate"];
+
+            DateTime? scheduledDate = null;
+            if (DateTime.TryParse(scheduledDateStr, out var dt))
+            {
+                scheduledDate = dt;
+            }
 
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body))
                 return Results.BadRequest("Title and content are required.");
@@ -67,9 +81,12 @@ public static class PostEndpoints
                 Categories = categories.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).ToList(),
                 PublishedDate = DateTime.UtcNow,
                 ModifiedDate = DateTime.UtcNow,
-                Username = username
-
+                Username = username,
+                Status = status,
+                ScheduledDate = scheduledDate
             };
+
+            Console.WriteLine($"Received status: {dto.Status}");
 
             var folderName = blogService.SavePost(dto);
 
@@ -81,13 +98,24 @@ public static class PostEndpoints
             return Results.Ok(new { message = "Post created", slug = folderName });
         });
 
-    app.MapGet("/posts/user/{username}", (string username) =>
-   {    
-    var posts = blogService.GetAllPosts()
-                           .Where(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-    return posts.Any() ? Results.Json(posts) : Results.NotFound();
- });
+        app.MapGet("/posts/user/{username}", (string username) =>
+        {
+            var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+                               .Where(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return posts.Any() ? Results.Json(posts) : Results.NotFound();
+        });
 
+        app.MapGet("/posts/drafts", () =>
+        {
+            var drafts = blogService.GetAllPostsAndUpdateStatusIfNeeded().Where(p => p.Status == "draft");
+            return Results.Json(drafts);
+        });
 
+        app.MapGet("/posts/scheduled", () =>
+        {
+            var drafts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+                .Where(p => p.Status == "scheduled" && p.ScheduledDate > DateTime.UtcNow);
+            return Results.Json(drafts);
+        });
     }
 }

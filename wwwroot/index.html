@@ -14,7 +14,7 @@
 
     <nav>
       <a href="/home.html">Home</a>
-      <a href="/about.html">About</a>
+      <a href="/posts.html">Posts</a>
       <a href="/contact.html">Contact</a>
     </nav>
 
@@ -24,11 +24,10 @@
       <button onclick="location.href='/signup.html'">Sign Up</button>
     </div>
 
-    <!-- User avatar (hidden by default) -->
+    <!-- User avatar -->
     <div id="user-profile" style="display: none;">
       <a href="/profile.html">
         <img id="profile-icon"
-             src="/images/avatar.jpg"
              alt="Profile"
              style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
       </a>
@@ -61,33 +60,6 @@
   <footer>
     &copy; 2025 MyBlog. All rights reserved.
   </footer>
-
-  <script>
-    (function () {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      // Hide login/signup and show profile icon
-      document.getElementById('auth-buttons').style.display = 'none';
-      document.getElementById('user-profile').style.display = 'inline-block';
-
-      try {
-        const { username } = JSON.parse(atob(token.split('.')[1]));
-
-        fetch(`/users/${username}`)
-          .then(res => res.ok ? res.json() : null)
-          .then(user => {
-            const avatarUrl = user?.avatarUrl || '/images/default-profile.png';
-            document.getElementById('profile-icon').src = avatarUrl;
-          })
-          .catch(() => {
-            // fallback: keep default profile icon
-          });
-      } catch {
-        // invalid token, fallback silently
-      }
-    })();
-  </script>
-
+<script src="/js/index.js"></script>
 </body>
 </html>
