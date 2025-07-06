@@ -28,12 +28,6 @@ async function loadProfile (payload) {
    if (user.avatarUrl) {
   document.getElementById('avatar').src = user.avatarUrl;
 }
-
-
-    // const headReq   = await fetch(avatarUrl, { method: 'HEAD' });
-    // if (headReq.ok) {
-    //   document.getElementById('avatar').src = `${avatarUrl}?t=${Date.now()}`;
-    // }
   } catch (err) {
     console.error('Failed to load profile:', err);
   }
