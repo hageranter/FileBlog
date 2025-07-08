@@ -7,6 +7,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json;
 using FileBlogApi.Features.Auth;
+using FileBlogApi.Features.Admin;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +68,9 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapPostEndpoints(blogService);
+app.MapAdminEndpoints();
+
+
 
 // HTML Pages
 app.MapGet("/login.html", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));

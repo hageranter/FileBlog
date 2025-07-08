@@ -294,7 +294,6 @@ public class BlogService
         }
     }
 
-
     private class Meta
     {
         public string? Title { get; set; }

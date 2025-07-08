@@ -18,8 +18,6 @@ public class UserService
         _usersRoot = Path.Combine(Directory.GetCurrentDirectory(), "Content", "Users");
     }
 
-
-
     public User? GetUser(string username)
     {
         var filePath = Path.Combine(_usersRoot, username, "profile.json");
@@ -39,9 +37,6 @@ public class UserService
 
         return user;
     }
-
-
-
 
     public bool VerifyPassword(string enteredPassword, string storedHash)
     {
@@ -72,8 +67,8 @@ public class UserService
             new Claim(ClaimTypes.Role, user.Role),
             new Claim("username", user.Username),
             new Claim("email", user.Email),
-            new Claim("role", user.Role),      
-                                 
+            new Claim("role", user.Role),
+
 
         };
 
@@ -108,7 +103,43 @@ public class UserService
         File.WriteAllText(Path.Combine(userDir, "profile.json"), json);
     }
 
+    public User? GetUserByUsername(string username)
+    {
+        return GetUser(username);
+    }
 
+    public void UpdateUser(User user)
+    {
+        var userDir = Path.Combine(_usersRoot, user.Username);
+        var filePath = Path.Combine(userDir, "profile.json");
+
+        if (!File.Exists(filePath))
+            return;
+
+        var json = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json);
+    }
+    public List<User> GetAllUsers()
+    {
+        if (!Directory.Exists(_usersRoot))
+            return new List<User>();
+
+        var users = new List<User>();
+
+        foreach (var dir in Directory.GetDirectories(_usersRoot))
+        {
+            var filePath = Path.Combine(dir, "profile.json");
+            if (File.Exists(filePath))
+            {
+                var json = File.ReadAllText(filePath);
+                var user = JsonSerializer.Deserialize<User>(json);
+                if (user != null)
+                    users.Add(user);
+            }
+        }
+
+        return users;
+    }
 
 
 }

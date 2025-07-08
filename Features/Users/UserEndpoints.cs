@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FileBlogApi.Features.Users;
 
@@ -48,5 +49,8 @@ public static class UserEndpoints
             user["avatarUrl"] = avatarUrl;
             return Results.Json(user);
         });
+
+       
+
     }
 }
