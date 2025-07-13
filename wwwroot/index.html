@@ -7,30 +7,25 @@
   <title>MyBlog - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/index.css">
 </head>
 
 <body>
 
   <header>
     <div class="logo">MyBlog</div>
-
     <nav>
-      <a href="/home.html">Home</a>
+      <a href="/index.html">Home</a>
       <a href="/posts.html">Posts</a>
-      <a href="/contact.html">Contact</a>
+      <a href="/contactUs.html">Contact</a>
     </nav>
-
-    <!-- Guest buttons -->
     <div id="auth-buttons" class="nav-btns">
       <button onclick="location.href='/login.html'">Login</button>
       <button onclick="location.href='/signup.html'">Sign Up</button>
     </div>
-
-    <!-- User avatar -->
     <div id="user-profile" style="display: none;">
       <a href="/profile.html">
-        <img id="profile-icon" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+        <img id="profile-icon" alt="Profile">
       </a>
     </div>
   </header>
@@ -38,6 +33,7 @@
   <section class="hero">
     <h1>Discover Your Voice</h1>
     <p>Share stories, explore ideas, and connect with a community of thoughtful readers.</p>
+    <button class="cta">Start Writing</button>
   </section>
 
   <section class="features">
@@ -59,9 +55,9 @@
   </section>
 
   <footer>
-    &copy; 2025 MyBlog. All rights reserved.
+    <p>&copy; 2025 MyBlog. All rights reserved.</p>
   </footer>
+
   <script src="/js/index.js"></script>
 </body>
-
 </html>
