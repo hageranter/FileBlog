@@ -1,7 +1,7 @@
 namespace FileBlogApi.Features.Posts;
 
 public class CreatePostRequest
-{ 
+{
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Body { get; set; } = string.Empty;
@@ -13,6 +13,8 @@ public class CreatePostRequest
     public List<string> AssetFiles { get; set; } = [];
     public string Username { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public string Id { get; set; }
+
     public DateTime? ScheduledDate { get; set; }
-    
+
 }

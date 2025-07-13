@@ -3,64 +3,80 @@ namespace FileBlogApi.Features.Admin;
 using FileBlogApi.Features.Users;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 public static class AdminEndpoints
 {
     public static void MapAdminEndpoints(this WebApplication app)
     {
-        // Serve admin page
         app.MapGet("/admin.html", ctx => ctx.Response.SendFileAsync("wwwroot/admin.html"));
 
-        // ✅ Get all posts by a specific user
+        //  Get all published posts by a user (from meta.yaml)
         app.MapGet("/admin/users/{username}/posts", [Authorize(Roles = "Admin")] (string username) =>
         {
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
             var postsDir = Path.Combine("Content", "Posts");
+
             if (!Directory.Exists(postsDir))
                 return Results.Json(new List<object>());
 
             var posts = new List<Dictionary<string, object>>();
 
-            foreach (var file in Directory.GetFiles(postsDir, "*.json"))
+            foreach (var dir in Directory.GetDirectories(postsDir))
             {
-                var json = File.ReadAllText(file);
-                Console.WriteLine(json); // Debug log
-                var post = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                var yamlPath = Path.Combine(dir, "meta.yaml");
+                if (!File.Exists(yamlPath)) continue;
 
-                if (post != null &&
-                    post.TryGetValue("author", out var author) &&
-                    author?.ToString()?.ToLower() == username.ToLower())
+                try
                 {
-                    post["id"] = Path.GetFileNameWithoutExtension(file);
-                    posts.Add(post);
+                    var yaml = File.ReadAllText(yamlPath);
+                    var post = deserializer.Deserialize<Dictionary<string, object>>(yaml);
+
+                    var author = post.ContainsKey("username") ? post["username"]?.ToString() : null;
+                    var status = post.ContainsKey("status") ? post["status"]?.ToString() : null;
+
+                    if (!string.IsNullOrEmpty(author) &&
+                        author.Equals(username, StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrEmpty(status) &&
+                        status.Equals("published", StringComparison.OrdinalIgnoreCase))
+                    {
+                        post["id"] = Path.GetFileName(dir); // folder name as ID
+                        posts.Add(post);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Error reading {yamlPath}: {ex.Message}");
+                    continue;
                 }
             }
 
             return Results.Json(posts);
         });
 
-        // ✅ Delete a post by ID (regardless of user)
+        // Delete post by ID  >it doesn't work yet<
         app.MapDelete("/admin/users/{username}/posts/{id}", [Authorize(Roles = "Admin")] (string username, string id) =>
         {
-            var filePath = Path.Combine("Content", "Posts", $"{id}.json");
+            var postDir = Path.Combine("Content", "Posts", id);
+            if (!Directory.Exists(postDir))
+                return Results.NotFound("Post folder not found");
 
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine($"⚠️ Failed to find file: {filePath}");
-                return Results.NotFound("Post not found");
-            }
-
-            File.Delete(filePath);
+            Directory.Delete(postDir, true);
             return Results.Ok(new { message = "Post deleted" });
         });
 
-        // ✅ List all users
+        //  Get all users
         app.MapGet("/admin/users", [Authorize(Roles = "Admin")] (UserService userService) =>
         {
             var users = userService.GetAllUsers();
             return Results.Json(users);
         });
 
-        // ✅ Change user role
+        // Update user role
         app.MapPost("/admin/users/{username}/role", [Authorize(Roles = "Admin")] async (
             string username,
             HttpRequest request,

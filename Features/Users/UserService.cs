@@ -69,7 +69,6 @@ public class UserService
             new Claim("email", user.Email),
             new Claim("role", user.Role),
 
-
         };
 
         var token = new JwtSecurityToken(
@@ -96,7 +95,8 @@ public class UserService
             Username = username,
             Email = email,
             PasswordHash = hash,
-            Role = role
+            Role = role,
+
         };
 
         var json = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
@@ -140,6 +140,5 @@ public class UserService
 
         return users;
     }
-
 
 }

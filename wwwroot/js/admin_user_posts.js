@@ -2,24 +2,25 @@ const params = new URLSearchParams(window.location.search);
 const username = params.get("user");
 const token = localStorage.getItem("token");
 
+const postsContainer = document.getElementById('posts');
 document.getElementById("page-title").innerText = `Posts by ${username}`;
 
-const postsContainer = document.getElementById("posts-container");
+async function loadPosts() {
+  try {
+    const res = await fetch(`/admin/users/${encodeURIComponent(username)}/posts`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
 
-fetch(`/admin/users/${username}/posts`, {
-  headers: {
-    "Authorization": `Bearer ${token}`
-  }
-})
-  .then(res => {
-    if (!res.ok) throw new Error("Failed to load posts");
-    return res.json();
-  })
-  .then(posts => {
+    if (!res.ok) throw new Error("Failed to fetch posts");
+
+    const posts = await res.json();
+
     postsContainer.innerHTML = "";
 
     if (posts.length === 0) {
-      postsContainer.innerText = "No posts found.";
+      postsContainer.innerHTML = "<p>No posts found.</p>";
       return;
     }
 
@@ -36,11 +37,11 @@ fetch(`/admin/users/${username}/posts`, {
 
       postsContainer.appendChild(div);
     });
-  })
-  .catch(err => {
+  } catch (err) {
     console.error("Error loading posts:", err);
     postsContainer.innerHTML = "<p>Failed to load posts.</p>";
-  });
+  }
+}
 
 function deletePost(username, postId) {
   if (!confirm("Are you sure you want to delete this post?")) return;
@@ -61,3 +62,5 @@ function deletePost(username, postId) {
       alert("Failed to delete post.");
     });
 }
+
+loadPosts();

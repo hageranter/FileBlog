@@ -20,7 +20,8 @@
                 document.getElementById('profile-icon').src = '/images/avatar.png';
             });
     } catch {
-        // invalid token, fallback silently
+        console.error('Invalid token format');
+        document.getElementById('profile-icon').src = '/images/avatar.png';
     }
 
 })();

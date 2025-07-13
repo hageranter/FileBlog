@@ -9,9 +9,6 @@ using System.Text.Json;
 using FileBlogApi.Features.Auth;
 using FileBlogApi.Features.Admin;
 
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Services
@@ -69,7 +66,6 @@ app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapPostEndpoints(blogService);
 app.MapAdminEndpoints();
-
 
 
 // HTML Pages

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -6,53 +7,60 @@ public static class PostEndpoints
 {
     public static void MapPostEndpoints(this WebApplication app, BlogService blogService)
     {
+        //  Get all published and scheduled posts (excluding drafts)
         app.MapGet("/posts", () =>
         {
             var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
-                .Where(p =>
-                    p.Status != "draft");
+                .Where(p => p.Status != "draft");
+
             return Results.Json(posts);
         });
 
+        //  Get a post by slug
         app.MapGet("/posts/{slug}", (string slug) =>
         {
             var post = blogService.GetPostBySlug(slug);
-            return post is null ? Results.NotFound() : Results.Json(post);
+            return post is null ? Results.NotFound("Post not found") : Results.Json(post);
         });
 
+        //  Get posts by category
         app.MapGet("/posts/categories/{category}", (string category) =>
         {
             var posts = blogService.GetPostsByCategoryAndUpdateStatusIfNeeded(category);
-            return posts.Any() ? Results.Json(posts) : Results.NotFound();
+            return posts.Any() ? Results.Json(posts) : Results.NotFound("No posts found for this category");
         });
 
+        //  Get posts by tag
         app.MapGet("/posts/tags/{tag}", (string tag) =>
         {
             var posts = blogService.GetPostsByTagAndUpdateStatusIfNeeded(tag);
-            return posts.Any() ? Results.Json(posts) : Results.NotFound();
+            return posts.Any() ? Results.Json(posts) : Results.NotFound("No posts found for this tag");
         });
 
+        // Create a post via JSON
         app.MapPost("/posts", (CreatePostRequest dto) =>
         {
-            blogService.SavePost(dto);
-            return Results.Ok(new { message = "Post created successfully" });
+            var folderName = blogService.SavePost(dto);
+            return Results.Ok(new { message = "Post created successfully", slug = folderName });
         });
 
+        //  Upload file for an existing post
         app.MapPost("/posts/{slug}/upload", async (HttpRequest request, string slug) =>
         {
             var form = await request.ReadFormAsync();
             var file = form.Files.GetFile("file");
-            if (file is null) return Results.BadRequest("No file uploaded.");
+
+            if (file is null)
+                return Results.BadRequest("No file uploaded.");
 
             var success = blogService.UploadFile(slug, file);
-            return success ? Results.Ok("Uploaded") : Results.NotFound("Post not found");
+            return success ? Results.Ok("Uploaded successfully") : Results.NotFound("Post not found");
         });
 
+        //  Create post
         app.MapPost("/posts/create/{username}", async (HttpContext context, string username) =>
         {
-            var blogService = context.RequestServices.GetRequiredService<BlogService>();
             var form = await context.Request.ReadFormAsync();
-
             var files = form.Files;
 
             var title = form["title"];
@@ -63,14 +71,12 @@ public static class PostEndpoints
             var status = form["status"];
             var scheduledDateStr = form["scheduledDate"];
 
-            DateTime? scheduledDate = null;
-            if (DateTime.TryParse(scheduledDateStr, out var dt))
-            {
-                scheduledDate = dt;
-            }
-
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body))
                 return Results.BadRequest("Title and content are required.");
+
+            DateTime? scheduledDate = null;
+            if (DateTime.TryParse(scheduledDateStr, out var parsedDate))
+                scheduledDate = parsedDate;
 
             var dto = new CreatePostRequest
             {
@@ -86,8 +92,6 @@ public static class PostEndpoints
                 ScheduledDate = scheduledDate
             };
 
-            Console.WriteLine($"Received status: {dto.Status}");
-
             var folderName = blogService.SavePost(dto);
 
             foreach (var file in files)
@@ -98,24 +102,31 @@ public static class PostEndpoints
             return Results.Ok(new { message = "Post created", slug = folderName });
         });
 
+        //  Get all posts by a user
         app.MapGet("/posts/user/{username}", (string username) =>
         {
             var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
-                               .Where(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-            return posts.Any() ? Results.Json(posts) : Results.NotFound();
+                .Where(p => p.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+            return posts.Any() ? Results.Json(posts) : Results.NotFound("No posts found for this user");
         });
 
+        // Get all drafts 
         app.MapGet("/posts/drafts", () =>
         {
-            var drafts = blogService.GetAllPostsAndUpdateStatusIfNeeded().Where(p => p.Status == "draft");
+            var drafts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+                .Where(p => p.Status == "draft");
+
             return Results.Json(drafts);
         });
 
+        // Get all scheduled posts
         app.MapGet("/posts/scheduled", () =>
         {
-            var drafts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+            var scheduled = blogService.GetAllPostsAndUpdateStatusIfNeeded()
                 .Where(p => p.Status == "scheduled" && p.ScheduledDate > DateTime.UtcNow);
-            return Results.Json(drafts);
+
+            return Results.Json(scheduled);
         });
     }
 }

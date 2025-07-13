@@ -36,7 +36,7 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-// ------- nav links based on token -------
+//  links based on token 
 function updateAuthLinks() {
   const authLinks = document.getElementById("auth-links");
   const token = localStorage.getItem("token");

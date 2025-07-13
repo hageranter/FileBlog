@@ -5,6 +5,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
+using FileBlogApi.Features.Users;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -60,7 +61,9 @@ public class BlogService
                 AssetFiles = assetFiles,
                 Username = meta.Username ?? "",
                 Status = meta.Status ?? "published",
-                ScheduledDate = meta.ScheduledDate
+                ScheduledDate = meta.ScheduledDate,
+                Id = Path.GetFileName(dir), 
+
             };
         }
     }
@@ -154,7 +157,8 @@ public class BlogService
             AssetFiles = assetFiles,
             Username = meta.Username ?? "",
             Status = meta.Status ?? "published",
-            ScheduledDate = meta.ScheduledDate
+            ScheduledDate = meta.ScheduledDate,
+
         };
     }
 
@@ -282,7 +286,8 @@ public class BlogService
                 CustomSlug = post.Slug,
                 Username = post.Username,
                 Status = "published", // Update status to published
-                ScheduledDate = post.ScheduledDate
+                ScheduledDate = post.ScheduledDate,
+
             };
 
             var serializer = new SerializerBuilder()

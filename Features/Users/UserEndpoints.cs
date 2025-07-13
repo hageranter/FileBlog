@@ -46,11 +46,8 @@ public static class UserEndpoints
                     avatarUrl = $"/userfiles/{username}/{Path.GetFileName(latestAvatar)}";
             }
 
-            user["avatarUrl"] = avatarUrl;
             return Results.Json(user);
         });
-
-       
 
     }
 }

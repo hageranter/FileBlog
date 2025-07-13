@@ -18,14 +18,17 @@ async function loadUsers() {
 
     users.forEach(user => {
       const userDiv = document.createElement("div");
+      userDiv.classList.add("user-card");
 
       userDiv.innerHTML = `
-        <a href="admin_user_posts.html?user=${user.username}" style="font-weight: bold;">
-          ${user.username}
-        </a> - ${user.role}
-        <button onclick="changeRole('${user.username}', 'Admin')">Make Admin</button>
-        <button onclick="changeRole('${user.username}', 'Author')">Make Author</button>
-        <hr>
+        <div class="user-info">
+          <a href="admin_user_posts.html?user=${user.username}">${user.username}</a> 
+          <span>- ${user.role}</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-admin" onclick="changeRole('${user.username}', 'Admin')">Make Admin</button>
+          <button class="btn btn-author" onclick="changeRole('${user.username}', 'Author')">Make Author</button>
+        </div>
       `;
 
       container.appendChild(userDiv);
@@ -47,18 +50,18 @@ function changeRole(username, newRole) {
     },
     body: JSON.stringify({ role: newRole })
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Failed to update role");
-    return res.json();
-  })
-  .then(data => {
-    alert(`${username} is now ${data.newRole}`);
-    location.reload(); 
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error: Failed to update role");
-  });
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to update role");
+      return res.json();
+    })
+    .then(data => {
+      alert(`${username} is now ${data.newRole}`);
+      location.reload();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error: Failed to update role");
+    });
 }
 
 loadUsers();

@@ -1,4 +1,4 @@
-function getUsernameFromToken () {
+function getUsernameFromToken() {
   const token = localStorage.getItem('token');
   if (!token) return null;
   try {
@@ -10,65 +10,65 @@ function getUsernameFromToken () {
   }
 }
 
-async function loadProfile (payload) {
+async function loadProfile(payload) {
   try {
     const res = await fetch(`/users/${payload.username}`);
     if (!res.ok) throw new Error('Profile not found');
     const user = await res.json();
 
     // Text fields
-    document.getElementById('username').textContent  = payload.username;
-    document.getElementById('email').textContent     = payload.email     ?? '—';
-    document.getElementById('role').textContent      = payload.role      ?? '—';
-    document.getElementById('nickname').textContent  = payload.nickname  ?? '—';
+    document.getElementById('username').textContent = payload.username;
+    document.getElementById('email').textContent = payload.email ?? '—';
+    document.getElementById('role').textContent = payload.role ?? '—';
+    document.getElementById('nickname').textContent = payload.nickname ?? '—';
     document.getElementById('birthdate').textContent = payload.birthDate ?? '—';
 
     // Avatar – HEAD request to see if it exists
-   if (user.avatarUrl) {
-  document.getElementById('avatar').src = user.avatarUrl;
-}
+    if (user.avatarUrl) {
+      document.getElementById('avatar').src = user.avatarUrl;
+    }
   } catch (err) {
     console.error('Failed to load profile:', err);
   }
 }
 
-function logout () {
+function logout() {
   localStorage.removeItem('token');
   window.location.href = '/login.html';
 }
 
-function goToMyPosts () {
+function goToMyPosts() {
   window.location.href = '/userPosts.html?mine=true';
 }
-function createPosts () {
+function createPosts() {
   window.location.href = '/createPosts.html';
 }
 
-function editField (fieldId) {
+function editField(fieldId) {
   const valueSpan = document.getElementById(fieldId);
-  const oldValue  = valueSpan.textContent;
+  const oldValue = valueSpan.textContent;
 
   const input = document.createElement('input');
-  input.type  = 'text';
+  input.type = 'text';
   input.value = oldValue;
 
   const icon = document.querySelector('.edit-icon');
-  input.style.position   = 'absolute';
-  input.style.top        = `${icon.offsetTop + 40}px`;
-  input.style.left       = `${icon.offsetLeft}px`;
-  input.style.zIndex     = '1000';
-  input.style.padding    = '8px 12px';
-  input.style.border     = '2px solid rgb(76, 145, 175)';
+  input.style.position = 'absolute';
+  input.style.top = `${icon.offsetTop + 40}px`;
+  input.style.left = `${icon.offsetLeft}px`;
+  input.style.zIndex = '1000';
+  input.style.padding = '8px 12px';
+  input.style.border = '2px solid rgb(76, 145, 175)';
   input.style.borderRadius = '16px';
-  input.style.fontSize   = '16px';
+  input.style.fontSize = '16px';
   input.style.background = '#f9f9f9';
-  input.style.color      = '#333';
-  input.style.boxShadow  = '0 4px 6px rgba(0, 0, 0, 0.1)';
+  input.style.color = '#333';
+  input.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
   input.style.transition = 'all 0.3s ease';
 
   input.addEventListener('focus', () => {
     input.style.borderColor = '#4CAF50';
-    input.style.boxShadow   = '0 4px 8px rgba(0, 0, 0, 0.2)';
+    input.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
   });
 
   document.body.appendChild(input);

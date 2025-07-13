@@ -3,11 +3,13 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       font-family: 'Open Sans', sans-serif;
       background-color: #fff;
       color: #333;
     }
+
     header {
       background-color: #f8f8f8;
       display: flex;
@@ -16,17 +18,20 @@
       padding: 1rem 2rem;
       border-bottom: 1px solid #ddd;
     }
+
     .logo {
       font-family: 'Playfair Display', serif;
       font-size: 1.8rem;
       font-weight: bold;
     }
+
     nav a {
       text-decoration: none;
       color: #333;
       margin: 0 1rem;
       font-weight: 500;
     }
+
     .nav-btns button {
       margin-left: 1rem;
       padding: 0.5rem 1rem;
@@ -36,35 +41,42 @@
       border-radius: 20px;
       cursor: pointer;
     }
+
     .hero {
       background: linear-gradient(to right, #7a96d5, #6e6e6e);
       color: #fff;
       text-align: center;
       padding: 4rem 1rem;
     }
+
     .hero h1 {
       font-size: 3rem;
       margin-bottom: 1rem;
     }
+
     .hero p {
       font-size: 1.2rem;
       max-width: 600px;
       margin: 0 auto;
     }
+
     .features {
       display: flex;
       justify-content: center;
       gap: 4rem;
       padding: 3rem 2rem;
     }
+
     .feature {
       text-align: center;
       max-width: 300px;
     }
+
     .feature img {
       width: 60px;
       margin-bottom: 1rem;
     }
+
     footer {
       background-color: #111;
       color: #fff;
