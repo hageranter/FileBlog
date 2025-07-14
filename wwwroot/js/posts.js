@@ -180,6 +180,10 @@ async function loadPostDetails(slug) {
   }
 }
 
+function createPosts() {
+  window.location.href = '/createPosts.html';
+}
+
 
 backDetailButton?.addEventListener('click', loadPosts);
 backCategoryButton?.addEventListener('click', loadPosts);

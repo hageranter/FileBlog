@@ -3,7 +3,7 @@ function getUsernameFromToken() {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.username || null;  // adjust if your claim key differs
+    return payload.username || null;
   } catch (err) {
     console.error('Failed to parse JWT', err);
     return null;
@@ -16,14 +16,12 @@ async function loadProfile(payload) {
     if (!res.ok) throw new Error('Profile not found');
     const user = await res.json();
 
-    // Text fields
     document.getElementById('username').textContent = payload.username;
     document.getElementById('email').textContent = payload.email ?? '—';
     document.getElementById('role').textContent = payload.role ?? '—';
     document.getElementById('nickname').textContent = payload.nickname ?? '—';
     document.getElementById('birthdate').textContent = payload.birthDate ?? '—';
 
-    // Avatar – HEAD request to see if it exists
     if (user.avatarUrl) {
       document.getElementById('avatar').src = user.avatarUrl;
     }
@@ -40,6 +38,7 @@ function logout() {
 function goToMyPosts() {
   window.location.href = '/userPosts.html?mine=true';
 }
+
 function createPosts() {
   window.location.href = '/createPosts.html';
 }
@@ -85,19 +84,35 @@ function editField(fieldId) {
   });
 }
 
-// Profile page script
-// This script handles loading the user profile, avatar upload, and editing fields
+// MAIN: Load everything on page ready
 document.addEventListener('DOMContentLoaded', () => {
-  // decode token & load profile
   const token = localStorage.getItem('token');
   if (!token) {
     console.warn('No JWT in localStorage → user is not logged in');
     return;
   }
+
   const payload = JSON.parse(atob(token.split('.')[1]));
   loadProfile(payload);
 
-  // Avatar upload input listener
+  // ✅ Show "Control Users" button if role is Admin
+  if (payload.role && payload.role.toLowerCase() === 'admin') {
+    const controlUsersBtn = document.createElement('button');
+    controlUsersBtn.className = 'btn btn-primary';
+    controlUsersBtn.textContent = 'Control Users';
+    controlUsersBtn.onclick = () => {
+      window.location.href = '/admin.html';
+    };
+
+    const btnGroup = document.querySelector('.btn-group');
+    if (btnGroup) {
+      // Insert before "Log Out" for better layout (optional)
+      const logoutBtn = btnGroup.querySelector('.btn-danger');
+      btnGroup.insertBefore(controlUsersBtn, logoutBtn);
+    }
+  }
+
+  // Avatar upload
   const avatarInput = document.getElementById('avatar-upload');
   if (avatarInput) {
     avatarInput.addEventListener('change', async function () {
@@ -112,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const formData = new FormData();
       formData.append('file', file);
-      console.log('Uploading file:', file.name, '→', `/users/${username}/avatar`);
 
       try {
         const res = await fetch(`/users/${username}/avatar`, {
@@ -124,12 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const text = await res.text();
           throw new Error(text || `HTTP ${res.status}`);
         }
+
         const data = await res.json();
         if (!data.avatarUrl) throw new Error('avatarUrl missing in response');
 
-        // Because backend now returns a unique filename, no cache‑buster needed
         document.getElementById('avatar').src = data.avatarUrl;
-        console.log('Avatar updated →', data.avatarUrl);
       } catch (err) {
         alert('Upload error: ' + err.message);
       }
