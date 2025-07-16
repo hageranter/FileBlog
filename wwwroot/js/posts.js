@@ -162,14 +162,29 @@ async function loadPostDetails(slug) {
     const username = post.username || "Unknown";
 
     postContent.innerHTML = `
-      <div class="post-user-info">
-        <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
-        <span class="post-username">@${username}</span>
-      </div>
-      <h2>${post.title}</h2>
-      <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
-      <div>${post.body}</div>
-    `;
+  <div class="post-header">
+    <div class="post-user-info">
+      <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
+      <span class="post-username">@${username}</span>
+    </div>
+
+    ${currentRole === "Admin" ? `
+     <div class="menu-wrapper">
+  <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+  <ul class="menu hidden">
+    <li onclick="enableDetailEdit(this)">Edit</li>
+  </ul>
+</div>
+
+    ` : ''}
+  </div>
+
+  <h2 id="detail-title" contenteditable="false">${post.title}</h2>
+  <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
+  <div id="detail-body" contenteditable="false">${post.body}</div>
+
+  <button id="save-detail-btn" class="hidden">Save</button>
+`;
 
     postAssets.innerHTML = post.assetFiles.map(f =>
       `<img src="/content/posts/${post.folderName}/assets/${f}" />`
@@ -183,6 +198,47 @@ async function loadPostDetails(slug) {
 function createPosts() {
   window.location.href = '/createPosts.html';
 }
+
+function toggleMenu(button) {
+  const menu = button.nextElementSibling;
+  menu.classList.toggle('hidden');
+}
+
+function enableDetailEdit(menuItem) {
+  const titleEl = document.getElementById('detail-title');
+  const bodyEl = document.getElementById('detail-body');
+  const saveBtn = document.getElementById('save-detail-btn');
+
+  titleEl.setAttribute('contenteditable', 'true');
+  bodyEl.setAttribute('contenteditable', 'true');
+  titleEl.focus();
+
+  saveBtn.classList.remove('hidden');
+  menuItem.closest('.menu').classList.add('hidden');
+
+  saveBtn.onclick = async () => {
+    titleEl.setAttribute('contenteditable', 'false');
+    bodyEl.setAttribute('contenteditable', 'false');
+    saveBtn.classList.add('hidden');
+
+    const newTitle = titleEl.innerText.trim();
+    const newBody = bodyEl.innerHTML.trim();
+
+    console.log('Saving edits:', newTitle, newBody);
+
+    // TODO: Replace with actual PUT or PATCH API request
+    // Example:
+    // await fetch(`/posts/${slug}`, {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${token}`
+    //   },
+    //   body: JSON.stringify({ title: newTitle, body: newBody })
+    // });
+  };
+}
+
 
 
 backDetailButton?.addEventListener('click', loadPosts);
