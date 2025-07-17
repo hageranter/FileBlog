@@ -56,9 +56,6 @@ function createPostCard(post) {
       <h2><a href="#" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
       <p>${post.description || ''}</p>
       <button class="category-btn" data-category="${category}">Discover Category</button>
-      ${currentRole === "Admin" && post.id ? `
-        <button class="delete-btn" data-id="${post.id}" data-username="${post.username}">🗑 Delete</button>
-      ` : ''}
     </div>
   `;
 
@@ -71,32 +68,6 @@ function createPostCard(post) {
     const categoryClicked = e.target.getAttribute('data-category');
     if (categoryClicked) await loadPostsByCategory(categoryClicked);
   });
-
-
-  const deleteBtn = postDiv.querySelector('.delete-btn');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', async () => {
-      if (!confirm("Are you sure you want to delete this post?")) return;
-
-      try {
-        const res = await fetch(`/admin/users/${deleteBtn.dataset.username}/posts/${deleteBtn.dataset.id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          alert("Post deleted successfully.");
-          postDiv.remove();
-        } else {
-          const err = await res.text();
-          alert("Failed to delete post: " + err);
-        }
-      } catch (error) {
-        console.error("Delete error:", error);
-        alert("An error occurred while deleting the post.");
-      }
-    });
-  }
 
   return postDiv;
 }
@@ -158,37 +129,38 @@ async function loadPostDetails(slug) {
     backDetailButton.style.display = 'inline-block';
     backCategoryButton.style.display = 'none';
 
+    const imageSrc = getImageSrc(post);
     const avatarUrl = post.avatarUrl || "/images/avatar.png";
     const username = post.username || "Unknown";
 
     postContent.innerHTML = `
-  <div class="post-header">
-    <div class="post-user-info">
-      <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
-      <span class="post-username">@${username}</span>
-    </div>
+      <div class="post-main-content">
+        <div class="post-meta">
+          <div class="author-info">
+            <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
+            <span class="post-username">@${username}</span>
+            <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
+          </div>
 
-    ${currentRole === "Admin" ? `
-     <div class="menu-wrapper">
-  <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
-  <ul class="menu hidden">
-    <li onclick="enableDetailEdit(this)">Edit</li>
-  </ul>
-</div>
+          ${currentUsername === post.username ? `
+            <div class="post-menu-wrapper">
+              <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+              <ul class="menu hidden">
+                <li onclick="enableDetailEdit(this)">Edit</li>
+              </ul>
+            </div>
+          ` : ''}
+        </div>
 
-    ` : ''}
-  </div>
+        <h1 id="detail-title" contenteditable="false">${post.title}</h1>
+        <div class="post-hero">
+          <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
+        </div>
+        <div id="detail-body" class="post-body" contenteditable="false">${post.body}</div>
+        <button id="save-detail-btn" class="hidden">Save</button>
+      </div>
+    `;
 
-  <h2 id="detail-title" contenteditable="false">${post.title}</h2>
-  <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
-  <div id="detail-body" contenteditable="false">${post.body}</div>
-
-  <button id="save-detail-btn" class="hidden">Save</button>
-`;
-
-    postAssets.innerHTML = post.assetFiles.map(f =>
-      `<img src="/content/posts/${post.folderName}/assets/${f}" />`
-    ).join('');
   } catch (err) {
     console.error("Error loading post details:", err);
     alert("Cannot load post details");
@@ -227,19 +199,8 @@ function enableDetailEdit(menuItem) {
     console.log('Saving edits:', newTitle, newBody);
 
     // TODO: Replace with actual PUT or PATCH API request
-    // Example:
-    // await fetch(`/posts/${slug}`, {
-    //   method: 'PUT',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${token}`
-    //   },
-    //   body: JSON.stringify({ title: newTitle, body: newBody })
-    // });
   };
 }
-
-
 
 backDetailButton?.addEventListener('click', loadPosts);
 backCategoryButton?.addEventListener('click', loadPosts);

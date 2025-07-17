@@ -78,8 +78,8 @@ h2 {
 /* Posts grid */
 #posts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
   padding: 1rem;
 }
 
@@ -250,7 +250,6 @@ h2 {
   color: #003d66;
   font-size: 1rem;
 }
-
 .menu-wrapper {
   position: absolute;
   top: 12px;
@@ -273,7 +272,7 @@ h2 {
   border-radius: 4px;
   list-style: none;
   padding: 4px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   z-index: 100;
 }
 
@@ -307,11 +306,62 @@ h2 {
   align-items: center;
   position: relative;
 }
+.post-hero {
+  width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+}
 
-.menu-wrapper {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+.post-hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.post-main-content {
+  max-width: 750px;
+  margin: -60px auto 3rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 1;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.post-date {
+  color: #999;
+  margin-left: 10px;
+}
+
+.post-main-content h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #003d66;
+  margin: 1rem 0;
+}
+
+.post-body {
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  color: #333;
 }
 
 .menu-icon {
@@ -319,21 +369,25 @@ h2 {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #444;
+  color: #555;
+}
+
+.post-menu-wrapper {
+  position: relative;
 }
 
 .menu {
   position: absolute;
-  top: 30px;
   right: 0;
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   list-style: none;
-  min-width: 80px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
+  padding: 0;
+  margin-top: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 100px;
 }
 
 .menu.hidden {
@@ -341,13 +395,23 @@ h2 {
 }
 
 .menu li {
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #333;
+  padding: 10px 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
 }
 
 .menu li:hover {
-  background-color: #f0f0f0;
+  background-color: #f7f7f7;
+}
+
+#save-detail-btn {
+  margin-top: 1.5rem;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
