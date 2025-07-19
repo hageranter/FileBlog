@@ -1,5 +1,5 @@
+const token = localStorage.getItem('token');
 function getUsernameFromToken() {
-  const token = localStorage.getItem('token');
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -79,14 +79,12 @@ function editField(fieldId) {
   });
 }
 
-// Utility to get image src from a post
 function getImageSrc(post) {
   return (post.assetFiles?.length > 0)
     ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
     : '/images/default-thumbnail.jpg';
 }
 
-// DOM containers
 const postsContainer = document.getElementById('posts');
 const postDetailsContainer = document.getElementById('post-details');
 const postContent = document.getElementById('post-content');
@@ -160,21 +158,81 @@ async function loadPostDetails(slug) {
     const imageSrc = getImageSrc(post);
 
     postContent.innerHTML = `
-      <h2>${post.title}</h2>
-      <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
-      <div class="post-assets">
-        <img src="${imageSrc}" alt="Post image" class="post-hero-image" />
-      </div>
-      <div class="post-body">${post.body}</div>
-    `;
+  <div class="post-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div id="post-title" class="editable-title"><h2 style="margin: 0;">${post.title}</h2></div>
+    <div class="post-menu-wrapper" style="position: relative;">
+      <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+      <ul class="menu hidden">
+        <li onclick="enableDetailEdit(this, '${post.slug}')">Edit</li>
+      </ul>
+    </div>
+  </div>
+  <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
 
-    postAssets.innerHTML = ''; // Clear if previously used
+  <div class="post-assets">
+    <img src="${imageSrc}" alt="Post image" class="post-hero-image" />
+  </div>
+  <div id="post-body" class="post-body">${post.body}</div>
+  <div id="post-save-wrapper" class="hidden" style="margin-top: 10px;">
+    <button id="save-detail-btn" class="btn btn-primary" style="diplay:hiddden">Save</button>
+  </div>
+`;
+
+    postAssets.innerHTML = '';
 
   } catch (err) {
     console.error(err);
     alert("Cannot load post details");
   }
 }
+
+function toggleMenu(button) {
+  const menu = button.nextElementSibling;
+  menu.classList.toggle('hidden');
+}
+
+function enableDetailEdit(menuItem, slug) {
+  const titleEl = document.getElementById('post-title');
+  const bodyEl = document.getElementById('post-body');
+  const saveWrapper = document.getElementById('post-save-wrapper');
+  const saveBtn = document.getElementById('save-detail-btn');
+
+  titleEl.setAttribute('contenteditable', 'true');
+  bodyEl.setAttribute('contenteditable', 'true');
+  titleEl.focus();
+
+  saveWrapper.classList.remove('hidden');
+  menuItem.closest('.menu').classList.add('hidden');
+
+  saveBtn.onclick = async () => {
+    titleEl.setAttribute('contenteditable', 'false');
+    bodyEl.setAttribute('contenteditable', 'false');
+    saveWrapper.classList.add('hidden');
+
+    const newTitle = titleEl.innerText.trim();
+    const newBody = bodyEl.innerHTML.trim();
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await fetch(`/posts/${encodeURIComponent(slug)}/meta`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/yaml',
+          'Authorization': `Bearer ${token}`
+        },
+        body: YAML.stringify({ title: newTitle })
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      alert('Post updated successfully!');
+    } catch (err) {
+      console.error('Error updating post:', err);
+      alert('Failed to save post');
+    }
+  };
+}
+
 
 function backToPosts() {
   postsContainer.style.display = 'block';
@@ -183,7 +241,6 @@ function backToPosts() {
   postAssets.innerHTML = '';
 }
 
-// Initial load on page ready
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -196,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProfile(payload);
     loadPosts();
 
-    // Admin: show control users button
     if (payload.role?.toLowerCase() === 'admin') {
       const btn = document.createElement('button');
       btn.textContent = 'Control Users';
@@ -208,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
       btnGroup.insertBefore(btn, logoutBtn);
     }
 
-    // Avatar upload
     const avatarInput = document.getElementById('avatar-upload');
     avatarInput?.addEventListener('change', async function () {
       const file = this.files[0];
@@ -231,6 +286,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!data.avatarUrl) throw new Error("Missing avatarUrl");
         document.getElementById('avatar').src = data.avatarUrl;
+
+        await fetch(`/posts/${encodeURIComponent(slug)}/content`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'text/markdown',
+            'Authorization': `Bearer ${token}`
+          },
+          body: newBody
+        });
+
+
       } catch (err) {
         alert("Upload failed: " + err.message);
       }

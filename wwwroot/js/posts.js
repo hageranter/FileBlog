@@ -204,8 +204,8 @@ function enableDetailEdit(menuItem) {
     const newBody = bodyEl.innerHTML.trim();
 
     console.log('Saving edits:', newTitle, newBody);
+    
 
-    // TODO: Replace with actual PUT or PATCH API request
   };
 }
 
