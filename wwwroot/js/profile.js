@@ -35,10 +35,6 @@ function logout() {
   window.location.href = '/login.html';
 }
 
-function goToMyPosts() {
-  window.location.href = '/userPosts.html?mine=true';
-}
-
 function createPosts() {
   window.location.href = '/createPosts.html';
 }
@@ -51,24 +47,23 @@ function editField(fieldId) {
   input.type = 'text';
   input.value = oldValue;
 
-  const icon = document.querySelector('.edit-icon');
-  input.style.position = 'absolute';
-  input.style.top = `${icon.offsetTop + 40}px`;
-  input.style.left = `${icon.offsetLeft}px`;
-  input.style.zIndex = '1000';
-  input.style.padding = '8px 12px';
-  input.style.border = '2px solid rgb(76, 145, 175)';
-  input.style.borderRadius = '16px';
-  input.style.fontSize = '16px';
-  input.style.background = '#f9f9f9';
-  input.style.color = '#333';
-  input.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-  input.style.transition = 'all 0.3s ease';
+  input.style.cssText = `
+    position: absolute;
+    z-index: 1000;
+    padding: 8px 12px;
+    border: 2px solid rgb(76, 145, 175);
+    border-radius: 16px;
+    font-size: 16px;
+    background: #f9f9f9;
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  `;
 
-  input.addEventListener('focus', () => {
-    input.style.borderColor = '#4CAF50';
-    input.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-  });
+  const icon = document.querySelector(`#${fieldId} ~ .edit-icon`);
+  const rect = icon.getBoundingClientRect();
+  input.style.top = `${window.scrollY + rect.bottom + 5}px`;
+  input.style.left = `${rect.left}px`;
 
   document.body.appendChild(input);
   input.focus();
@@ -79,51 +74,148 @@ function editField(fieldId) {
   };
 
   input.addEventListener('blur', save);
-  input.addEventListener('keydown', (e) => {
+  input.addEventListener('keydown', e => {
     if (e.key === 'Enter') save();
   });
 }
 
-// MAIN: Load everything on page ready
+// Utility to get image src from a post
+function getImageSrc(post) {
+  return (post.assetFiles?.length > 0)
+    ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
+    : '/images/default-thumbnail.jpg';
+}
+
+// DOM containers
+const postsContainer = document.getElementById('posts');
+const postDetailsContainer = document.getElementById('post-details');
+const postContent = document.getElementById('post-content');
+const postAssets = document.getElementById('post-assets');
+
+async function loadPosts() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      postsContainer.innerHTML = "<p>User not authenticated.</p>";
+      return;
+    }
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const username = payload.username;
+
+    const res = await fetch(`/posts/user/${encodeURIComponent(username)}`);
+    if (!res.ok) throw new Error("Failed to fetch user posts");
+
+    const posts = await res.json();
+    postsContainer.innerHTML = '';
+    postsContainer.style.display = '';
+    postDetailsContainer.style.display = 'none';
+
+    if (posts.length === 0) {
+      postsContainer.innerHTML = "<p>No posts found.</p>";
+      return;
+    }
+
+    displayPosts(posts);
+  } catch (error) {
+    console.error("Error loading posts:", error);
+    postsContainer.innerHTML = "<p>Failed to load posts.</p>";
+  }
+}
+
+function displayPosts(posts) {
+  posts.forEach(post => {
+    const postCard = document.createElement('a');
+    postCard.className = 'post-card';
+    postCard.href = '#';
+    postCard.onclick = e => {
+      e.preventDefault();
+      loadPostDetails(post.slug);
+    };
+
+    const imageUrl = getImageSrc(post);
+
+    postCard.innerHTML = `
+      <div class="post-image">
+        <img src="${imageUrl}" alt="${post.title}">
+      </div>
+      <div class="post-body">
+        <h3>${post.title}</h3>
+      </div>
+    `;
+
+    postsContainer.appendChild(postCard);
+  });
+}
+
+async function loadPostDetails(slug) {
+  try {
+    const res = await fetch(`/posts/${encodeURIComponent(slug)}`);
+    if (!res.ok) throw new Error("Post not found");
+
+    const post = await res.json();
+    postsContainer.style.display = 'none';
+    postDetailsContainer.style.display = 'block';
+
+    const imageSrc = getImageSrc(post);
+
+    postContent.innerHTML = `
+      <h2>${post.title}</h2>
+      <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
+      <div class="post-assets">
+        <img src="${imageSrc}" alt="Post image" class="post-hero-image" />
+      </div>
+      <div class="post-body">${post.body}</div>
+    `;
+
+    postAssets.innerHTML = ''; // Clear if previously used
+
+  } catch (err) {
+    console.error(err);
+    alert("Cannot load post details");
+  }
+}
+
+function backToPosts() {
+  postsContainer.style.display = 'block';
+  postDetailsContainer.style.display = 'none';
+  postContent.innerHTML = '';
+  postAssets.innerHTML = '';
+}
+
+// Initial load on page ready
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   if (!token) {
-    console.warn('No JWT in localStorage → user is not logged in');
+    console.warn('No JWT found. Not logged in.');
     return;
   }
 
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  loadProfile(payload);
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    loadProfile(payload);
+    loadPosts();
 
-  // ✅ Show "Control Users" button if role is Admin
-  if (payload.role && payload.role.toLowerCase() === 'admin') {
-    const controlUsersBtn = document.createElement('button');
-    controlUsersBtn.className = 'btn btn-primary';
-    controlUsersBtn.textContent = 'Control Users';
-    controlUsersBtn.onclick = () => {
-      window.location.href = '/admin.html';
-    };
+    // Admin: show control users button
+    if (payload.role?.toLowerCase() === 'admin') {
+      const btn = document.createElement('button');
+      btn.textContent = 'Control Users';
+      btn.className = 'btn btn-primary';
+      btn.onclick = () => window.location.href = '/admin.html';
 
-    const btnGroup = document.querySelector('.btn-group');
-    if (btnGroup) {
-      // Insert before "Log Out" for better layout (optional)
+      const btnGroup = document.querySelector('.btn-group');
       const logoutBtn = btnGroup.querySelector('.btn-danger');
-      btnGroup.insertBefore(controlUsersBtn, logoutBtn);
+      btnGroup.insertBefore(btn, logoutBtn);
     }
-  }
 
-  // Avatar upload
-  const avatarInput = document.getElementById('avatar-upload');
-  if (avatarInput) {
-    avatarInput.addEventListener('change', async function () {
+    // Avatar upload
+    const avatarInput = document.getElementById('avatar-upload');
+    avatarInput?.addEventListener('change', async function () {
       const file = this.files[0];
       if (!file) return;
 
       const username = getUsernameFromToken();
-      if (!username) {
-        alert('Session expired — please log in again.');
-        return;
-      }
+      if (!username) return alert("Session expired");
 
       const formData = new FormData();
       formData.append('file', file);
@@ -134,18 +226,17 @@ document.addEventListener('DOMContentLoaded', () => {
           body: formData
         });
 
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || `HTTP ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
-        if (!data.avatarUrl) throw new Error('avatarUrl missing in response');
 
+        if (!data.avatarUrl) throw new Error("Missing avatarUrl");
         document.getElementById('avatar').src = data.avatarUrl;
       } catch (err) {
-        alert('Upload error: ' + err.message);
+        alert("Upload failed: " + err.message);
       }
     });
+
+  } catch (err) {
+    console.error("Invalid token", err);
   }
 });

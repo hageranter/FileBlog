@@ -5,6 +5,7 @@ const postAssets = document.getElementById('post-assets');
 const backDetailButton = document.getElementById('back-detail-button');
 const backCategoryButton = document.getElementById('back-category-button');
 const profileEl = document.getElementById("profile-icon");
+const createPostBtn = document.getElementById("create-post-btn");
 
 let currentRole = "";
 let currentUsername = "";
@@ -165,6 +166,12 @@ async function loadPostDetails(slug) {
     console.error("Error loading post details:", err);
     alert("Cannot load post details");
   }
+}
+
+if (createPostBtn) createPostBtn.style.display = "none";
+
+if (token && currentUsername) {
+  createPostBtn.style.display = "inline-block"; 
 }
 
 function createPosts() {

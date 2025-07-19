@@ -2,59 +2,67 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>MyBlog – Profile</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/css/profile.css" />
+  <meta charset="UTF-8">
+  <title>MyBlog – Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/profile.css" />
 </head>
 
 <body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">MyBlog</div>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/posts.html">Posts</a>
+      <a href="/profile.html">Profile</a>
+    </nav>
+  </header>
 
-    <!-- Navbar -->
-    <header class="navbar">
-        <div class="logo">MyBlog</div>
-        <nav class="nav-links">
-            <a href="/index.html">Home</a>
-            <a href="/posts.html">Posts</a>
-            <a href="/profile.html">Profile</a>
-        </nav>
-    </header>
-
-    <!-- Profile card -->
-    <div class="container">
-        <div class="profile-pic-wrapper">
-            <img id="avatar" src="/images/avatar.png" alt="Profile" />
-            <label for="avatar-upload">📷</label>
-            <input type="file" id="avatar-upload" />
-        </div>
-
-        <div class="profile-info">
-            <div><label>Username:</label> <span id="username"></span></div>
-            <div><label>Email:</label> <span id="email"></span></div>
-            <div><label>Role:</label> <span id="role"></span></div>
-            <div><label>Nickname:</label>
-                <span id="nickname">—</span>
-                <span class="edit-icon" onclick="editField('nickname')">✏️</span>
-            </div>
-            <div><label>Birth Date:</label>
-                <span id="birthdate">—</span>
-                <span class="edit-icon" onclick="editField('birthdate')">✏️</span>
-            </div>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="goToMyPosts()">My Posts</button>
-            <button class="btn btn-primary" onclick="createPosts()">Create Post</button>
-
-            <button class="btn btn-danger" onclick="logout()">Log Out</button>
-            
-        </div>
-
-        
+  <!-- Profile Card -->
+  <div class="container">
+    <div class="profile-pic-wrapper">
+      <img id="avatar" src="/images/avatar.png" alt="Profile" />
+      <label for="avatar-upload">📷</label>
+      <input type="file" id="avatar-upload" />
     </div>
 
-    <script src="/js/profile.js"></script>
+    <div class="profile-info">
+      <div><label>Username:</label> <span id="username"></span></div>
+      <div><label>Email:</label> <span id="email"></span></div>
+      <div><label>Role:</label> <span id="role"></span></div>
+      <div>
+        <label>Nickname:</label>
+        <span id="nickname">—</span>
+        <span class="edit-icon" onclick="editField('nickname')">✏️</span>
+      </div>
+      <div>
+        <label>Birth Date:</label>
+        <span id="birthdate">—</span>
+        <span class="edit-icon" onclick="editField('birthdate')">✏️</span>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="createPosts()">Create Post</button>
+      <button class="btn btn-danger" onclick="logout()">Log Out</button>
+    </div>
+  </div>
+
+  <!-- Posts Section -->
+  <div class="posts-wrapper">
+    <h2 style="text-align: center;">My Posts</h2>
+    <div id="posts" class="posts-grid"></div>
+  </div>
+
+  <!-- Post Details -->
+  <div id="post-details" style="display: none;">
+    <div id="post-content"></div>
+    <div id="post-assets"></div>
+    <button class="btn btn-secondary" onclick="backToPosts()">Back</button>
+  </div>
+
+  <script src="/js/profile.js"></script>
 </body>
 
 </html>
