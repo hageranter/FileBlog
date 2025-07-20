@@ -72,6 +72,8 @@ app.MapAdminEndpoints();
 app.MapGet("/login.html", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
 app.MapGet("/signup.html", ctx => ctx.Response.SendFileAsync("wwwroot/signup.html"));
 
+
+
 app.Run();
 
 // DTOs

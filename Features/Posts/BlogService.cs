@@ -62,7 +62,7 @@ public class BlogService
                 Username = meta.Username ?? "",
                 Status = meta.Status ?? "published",
                 ScheduledDate = meta.ScheduledDate,
-                Id = Path.GetFileName(dir), 
+                Id = Path.GetFileName(dir),
 
             };
         }
@@ -298,6 +298,62 @@ public class BlogService
             File.WriteAllText(metaPath, yaml);
         }
     }
+
+    public bool UpdatePostContent(string slug, string newTitle, string newBody)
+    {
+        var folder = Path.Combine(_root, "content", "posts");
+        var dir = Directory.GetDirectories(folder)
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+        if (dir == null)
+            return false;
+
+        var metaPath = Path.Combine(dir, "meta.yaml");
+        var contentPath = Path.Combine(dir, "content.md");
+
+        if (!File.Exists(metaPath) || !File.Exists(contentPath))
+            return false;
+
+        // Update content.md
+        File.WriteAllText(contentPath, newBody);
+
+        // Update meta.yaml (just title + modified date)
+        var yaml = File.ReadAllText(metaPath);
+        var meta = ParseYamlFrontMatter(yaml);
+        meta.Title = newTitle;
+        meta.ModifiedDate = DateTime.UtcNow;
+
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+
+        var updatedYaml = serializer.Serialize(meta);
+        File.WriteAllText(metaPath, updatedYaml);
+
+        return true;
+    }
+
+    public bool DeletePostBySlug(string slug)
+    {
+        var folder = Path.Combine(_root, "content", "posts");
+        var dir = Directory.GetDirectories(folder)
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+        if (dir == null || !Directory.Exists(dir))
+            return false;
+
+        try
+        {
+            Directory.Delete(dir, recursive: true);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+
 
     private class Meta
     {

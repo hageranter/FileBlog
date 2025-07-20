@@ -128,5 +128,20 @@ public static class PostEndpoints
 
             return Results.Json(scheduled);
         });
+
+        // save post content after edits
+        app.MapPut("/posts/{slug}", (string slug, UpdatePostRequest request, BlogService blogService) =>
+        {
+           var success = blogService.UpdatePostContent(slug, request.Title, request.Body);
+           return success ? Results.Ok("Post updated successfully") : Results.NotFound("Post not found");
+      });
+
+        app.MapDelete("/posts/{slug}", (string slug, BlogService blogService) =>
+        {
+            var success = blogService.DeletePostBySlug(slug);
+            return success ? Results.Ok("Post deleted") : Results.NotFound("Post not found");
+        });
+
+
     }
 }

@@ -6,6 +6,8 @@ const backDetailButton = document.getElementById('back-detail-button');
 const backCategoryButton = document.getElementById('back-category-button');
 const profileEl = document.getElementById("profile-icon");
 const createPostBtn = document.getElementById("create-post-btn");
+let currentSlug = null;
+
 
 let currentRole = "";
 let currentUsername = "";
@@ -54,7 +56,7 @@ function createPostCard(post) {
     </div>
     <div class="post-content">
       <small>Published on ${new Date(post.publishedDate).toLocaleDateString()} • ${post.saves || 0} saves</small>
-      <h2><a href="#" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
+      <h2><a href="/posts/${post.slug}" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
       <p>${post.description || ''}</p>
       <button class="category-btn" data-category="${category}">Discover Category</button>
     </div>
@@ -121,6 +123,7 @@ async function loadPostsByCategory(category) {
 
 async function loadPostDetails(slug) {
   try {
+    currentSlug = slug;
     const res = await fetch(`/posts/${encodeURIComponent(slug)}`);
     if (!res.ok) throw new Error("Post not found");
 
@@ -171,7 +174,7 @@ async function loadPostDetails(slug) {
 if (createPostBtn) createPostBtn.style.display = "none";
 
 if (token && currentUsername) {
-  createPostBtn.style.display = "inline-block"; 
+  createPostBtn.style.display = "inline-block";
 }
 
 function createPosts() {
@@ -203,13 +206,42 @@ function enableDetailEdit(menuItem) {
     const newTitle = titleEl.innerText.trim();
     const newBody = bodyEl.innerHTML.trim();
 
-    console.log('Saving edits:', newTitle, newBody);
-    
+    // 🔥 Get slug from current path
+    const slug = currentSlug;
 
+    try {
+      const res = await fetch(`/posts/${slug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          body: newBody
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to save");
+
+      alert("Post updated successfully!");
+    } catch (err) {
+      console.error("Error saving post:", err);
+      alert("Failed to save post");
+    }
   };
 }
 
-backDetailButton?.addEventListener('click', loadPosts);
-backCategoryButton?.addEventListener('click', loadPosts);
+const currentPath = window.location.pathname;
+const isSinglePost = currentPath.startsWith("/posts/") && currentPath.split("/").length === 3;
 
-loadPosts();
+if (isSinglePost) {
+  const slug = currentPath.split("/")[2];
+  loadPostDetails(slug);
+  document.getElementById("back-detail-button").addEventListener("click", () => {
+    window.location.href = "/posts.html";
+  });
+} else {
+  backDetailButton?.addEventListener('click', loadPosts);
+  backCategoryButton?.addEventListener('click', loadPosts);
+  loadPosts();
+}
