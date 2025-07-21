@@ -135,6 +135,8 @@ async function loadPostsByTag(tag) {
     posts
       .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
+    backCategoryButton.style.display = 'inline-block';
+
   } catch (err) {
     console.error("Error loading posts by tag:", err);
     postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;

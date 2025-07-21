@@ -141,20 +141,18 @@ async function loadPostDetails(slug) {
 </div>
 
       <div style="margin-top: 10px;">
-  <button id="save-detail-btn" class="btn btn-primary hidden">Save</button>
-</div>
+      <button id="save-detail-btn" class="btn btn-primary hidden">Save</button>
+      </div>
 
     `;
-
-
     postAssets.innerHTML = '';
 
     document.querySelectorAll('.tag').forEach(tagEl => {
-  tagEl.addEventListener('click', e => {
-    const tag = e.target.dataset.tag;
-    if (tag) loadPostsByTag(tag);
-  });
-});
+      tagEl.addEventListener('click', e => {
+        const tag = e.target.dataset.tag;
+        if (tag) loadPostsByTag(tag);
+      });
+    });
 
   } catch (err) {
     console.error(err);
@@ -214,6 +212,55 @@ function enableDetailEdit(menuItem) {
     }
   };
 }
+
+// function editField(field) {
+//   const span = document.getElementById(field);
+//   const input = document.getElementById(`${field}-input`);
+
+//   input.value = span.textContent !== '—' ? span.textContent : '';
+//   span.classList.add('hidden');
+//   input.classList.remove('hidden');
+//   input.focus();
+
+//   input.onblur = async () => {
+//     const newValue = input.value.trim();
+//     const token = localStorage.getItem('token');
+
+//     if (!token) return;
+
+//     let username;
+//     try {
+//       const payload = JSON.parse(atob(token.split('.')[1]));
+//       username = payload.username;
+//     } catch (err) {
+//       console.error("Invalid token:", err);
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch(`/users/${username}`, {
+//         method: 'PUT',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//           [field === 'birthdate' ? 'birthDate' : 'nickname']: newValue
+//         })
+//       });
+
+//       if (!res.ok) throw new Error(await res.text());
+
+//       span.textContent = newValue || '—';
+//     } catch (err) {
+//       console.error(`Failed to update ${field}:`, err);
+//       alert(`Failed to save ${field}.`);
+//     } finally {
+//       span.classList.remove('hidden');
+//       input.classList.add('hidden');
+//     }
+//   };
+// }
+
 
 function backToPosts() {
   postsContainer.style.display = 'block';

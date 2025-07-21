@@ -96,5 +96,27 @@ public static class AdminEndpoints
 
             return Results.Ok(new { message = "Role updated", newRole });
         });
+
+ app.MapDelete("/admin/users/{username}", [Authorize(Roles = "Admin")] (string username) =>
+{
+    // Simulated user list - replace this with your database access (e.g. EF Core)
+    var users = new List<User>
+    {
+        new User { Username = "admin", Email = "admin@gmail.com", Role = "Admin" },
+        new User { Username = "john", Email = "john@example.com", Role = "Author" },
+        // etc...
+    };
+
+    var user = users.FirstOrDefault(u => u.Username == username);
+    if (user is null)
+    {
+        return Results.NotFound(new { error = "User not found" });
+    }
+
+    users.Remove(user); // simulate deletion
+    return Results.Ok(new { message = $"{username} deleted successfully" });
+});
+
+
     }
 }
