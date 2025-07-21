@@ -1,7 +1,12 @@
 const token = localStorage.getItem("token");
 if (!token) {
-  alert("Not logged in!");
-  window.location.href = "/login.html";
+  Swal.fire({
+    icon: "error",
+    title: "Not Logged In",
+    text: "You are not logged in. Redirecting to login page...",
+  }).then(() => {
+    window.location.href = "/login.html";
+  });
 }
 
 let selectedUser = null;
@@ -41,7 +46,12 @@ async function loadUsers() {
     });
   } catch (err) {
     console.error(err);
-    alert("Error loading users");
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Error loading users.",
+      footer: '<a href="#">Why do I have this issue?</a>'
+    });
   }
 }
 
@@ -49,7 +59,6 @@ function openUserActionModal(user) {
   selectedUser = user;
   document.getElementById("user-action-title").textContent = `User: ${user.username}`;
   document.getElementById("role-select").value = user.role;
-  document.getElementById("view-posts-btn").href = `/admin_user_posts.html?user=${user.username}`;
   document.getElementById("user-action-modal").classList.add("show");
 }
 
@@ -73,40 +82,25 @@ document.getElementById("save-role-btn").onclick = async () => {
     });
 
     if (!res.ok) throw new Error("Role update failed");
-    alert(`${selectedUser.username} is now ${newRole}`);
-    closeModals();
-    loadUsers();
-  } catch (err) {
-    alert("Failed to update role");
-  }
-};
 
-document.getElementById("close-modal-btn").onclick = closeModals;
+    // Close the modal before showing the success message
+    closeModals(); // Hide the modal
 
-document.getElementById("delete-user-btn").onclick = async () => {
-  if (!selectedUser) return;
-
-  const confirmDelete = confirm(`Are you sure you want to delete ${selectedUser.username}?`);
-  if (!confirmDelete) return;
-
-  try {
-    const res = await fetch(`/admin/users/${selectedUser.username}/delete`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    Swal.fire({
+      icon: "success",
+      title: `${selectedUser.username} is now ${newRole}`,
+      text: "Role updated successfully!"
+    }).then(() => {
+      loadUsers(); // Reload the user list
     });
-
-    if (!res.ok) throw new Error("Failed to delete user");
-
-    alert(`${selectedUser.username} has been deleted.`);
-    closeModals();
-    loadUsers();
   } catch (err) {
-    console.error(err);
-    alert("Error deleting user");
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Failed to update role.",
+      footer: '<a href="#">Why do I have this issue?</a>'
+    });
   }
 };
-
 
 loadUsers();

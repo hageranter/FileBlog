@@ -431,3 +431,161 @@ a {
   max-height: 300px;
   overflow-y: auto;
 }
+/* Modal Overlay (background behind the modal) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  width: 80%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  color: #333;
+  margin: 0;
+}
+
+.close-btn {
+  font-size: 24px;
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* Modal Body */
+.modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+}
+
+.modal-body button:hover {
+  background-color: #0056b3;
+}
+
+/* Action Menu */
+.action-menu {
+  display: none;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.action-menu.show {
+  display: flex;
+}
+
+/* Hide role section initially */
+#role-section {
+  display: none;
+}
+
+#role-section.hidden {
+  display: none;
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-footer button,
+.modal-footer a {
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-footer .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-footer .btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.modal-footer .btn:hover {
+  opacity: 0.9;
+}
+
+/* Animation for modal fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Modal */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 90%;
+  }
+  .modal-header h3 {
+    font-size: 16px;
+  }
+}
