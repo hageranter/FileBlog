@@ -58,16 +58,29 @@ async function loadUsers() {
 function openUserActionModal(user) {
   selectedUser = user;
   document.getElementById("user-action-title").textContent = `User: ${user.username}`;
-  document.getElementById("role-select").value = user.role;
+  
+  // Show the modal and menu, and ensure the menu options are visible.
   document.getElementById("user-action-modal").classList.add("show");
+  document.getElementById("action-menu").style.display = "block";
+  document.getElementById("change-role-section").style.display = "none";
+  document.getElementById("view-posts-section").style.display = "none";
+  document.getElementById("delete-user-section").style.display = "none";
 }
 
+// Close modal function
 function closeModals() {
   document.getElementById("user-action-modal").classList.remove("show");
-  document.getElementById("code-modal").classList.remove("show");
+  document.getElementById("change-role-section").style.display = "none";
+  document.getElementById("view-posts-section").style.display = "none";
+  document.getElementById("delete-user-section").style.display = "none";
+  document.getElementById("action-menu").style.display = "none";
 }
 
-document.getElementById("close-user-action-modal").onclick = closeModals;
+// Handle "Change Role" selection
+document.getElementById("change-role-btn").onclick = () => {
+  document.getElementById("action-menu").style.display = "none";
+  document.getElementById("change-role-section").style.display = "block";
+};
 
 document.getElementById("save-role-btn").onclick = async () => {
   const newRole = document.getElementById("role-select").value;
@@ -83,15 +96,14 @@ document.getElementById("save-role-btn").onclick = async () => {
 
     if (!res.ok) throw new Error("Role update failed");
 
-    // Close the modal before showing the success message
-    closeModals(); // Hide the modal
-
+    // Show success alert and close modal after
     Swal.fire({
       icon: "success",
       title: `${selectedUser.username} is now ${newRole}`,
       text: "Role updated successfully!"
     }).then(() => {
-      loadUsers(); // Reload the user list
+      closeModals(); // Close modal after the success alert
+      loadUsers(); // Reload the user list after updating the role
     });
   } catch (err) {
     Swal.fire({
@@ -101,6 +113,70 @@ document.getElementById("save-role-btn").onclick = async () => {
       footer: '<a href="#">Why do I have this issue?</a>'
     });
   }
+};
+
+// Handle "View Posts" selection
+document.getElementById("view-posts-btn").onclick = () => {
+  document.getElementById("action-menu").style.display = "none";
+  document.getElementById("view-posts-section").style.display = "block";
+  document.getElementById("view-posts-link").href = `/admin_user_posts.html?user=${selectedUser.username}`;
+};
+
+// Handle "Delete User" selection
+document.getElementById("delete-user-btn").onclick = () => {
+  document.getElementById("action-menu").style.display = "none";
+  document.getElementById("delete-user-section").style.display = "block";
+};
+
+// Handle user deletion
+document.getElementById("confirm-delete-btn").onclick = async () => {
+  const confirmDelete = await Swal.fire({
+    title: "Are you sure?",
+    text: `You are about to delete ${selectedUser.username}.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (!confirmDelete.isConfirmed) return;
+
+  try {
+    const res = await fetch(`/admin/users/${selectedUser.username}/delete`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Failed to delete user");
+
+    // Show success alert and close modal after
+    Swal.fire({
+      icon: "success",
+      title: `${selectedUser.username} has been deleted.`,
+      text: "User deleted successfully!"
+    }).then(() => {
+      closeModals(); // Close modal after the success alert
+      loadUsers(); // Reload the user list after deletion
+    });
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Error deleting user.",
+      footer: '<a href="#">Why do I have this issue?</a>'
+    });
+  }
+};
+
+// Close modal when clicking outside or on close button
+document.getElementById("close-user-action-modal").onclick = closeModals;
+
+document.getElementById("back-btn").onclick = () => {
+  document.getElementById("action-menu").style.display = "block";
+  document.getElementById("change-role-section").style.display = "none";
 };
 
 loadUsers();
