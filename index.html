@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyBlog - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/index.css">
+  <base href="/FileBlog/">
+
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">MyBlog</div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/posts.html">Posts</a>
+      <a href="/contactUs.html">Contact</a>
+    </nav>
+    <div id="auth-buttons" class="nav-btns">
+      <button onclick="location.href='/login.html'">Login</button>
+      <button onclick="location.href='/signup.html'">Sign Up</button>
+    </div>
+    <div id="user-profile" style="display: none;">
+      <a href="/profile.html">
+        <img id="profile-icon" alt="Profile">
+      </a>
+    </div>
+  </header>
+  <div id="search-container" style="margin: 20px 0; text-align: center;">
+  <input
+    type="text"
+    id="search-input"
+    placeholder="Search posts..."
+    style="padding: 10px; width: 60%; max-width: 500px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;"
+  />
+</div>
+
+
+  <section class="hero">
+    <h1>Discover Your Voice</h1>
+    <p>Share stories, explore ideas, and connect with a community of thoughtful readers.</p>
+    <button class="cta">Start Writing</button>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png" alt="Posts">
+      <h3>Create & Read Posts</h3>
+      <p>Write and explore blog posts from various categories and tags.</p>
+    </div>
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png" alt="Tags">
+      <h3>Tag-Based Filtering</h3>
+      <p>Organize and browse content by relevant topics.</p>
+    </div>
+    <div class="feature">
+      <img src="https://cdn-icons-png.flaticon.com/512/535/535234.png" alt="Community">
+      <h3>Join the Community</h3>
+      <p>Get involved with readers and authors sharing your passion.</p>
+    </div>
+  </section>
+
+  <section class="recent-posts">
+    <h2>Recent Blog Posts</h2>
+    <div id="recent-posts-grid" class="blog-gallery"></div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 MyBlog. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/index.js"></script>
+</body>
+</html>
