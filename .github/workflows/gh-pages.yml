@@ -2,7 +2,7 @@ name: Deploy wwwroot to GitHub Pages
 
 on:
   push:
-    branches: [main]  
+    branches: [main]  # You can change this if your default branch is not 'main'
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x' 
+        dotnet-version: '10.0.x'  # Update if your version is different
 
     - name: Restore dependencies
       run: dotnet restore
@@ -29,7 +29,7 @@ jobs:
     - name: Publish the project
       run: dotnet publish -c Release -o out
 
-    - name: Copy static files from wwwroot
+    - name: Copy all static files from wwwroot to temp-pages
       run: |
         mkdir temp-pages
         cp -r out/wwwroot/* temp-pages/
@@ -39,3 +39,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./temp-pages
+        
