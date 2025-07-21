@@ -1,0 +1,41 @@
+name: Deploy wwwroot to GitHub Pages
+
+on:
+  push:
+    branches: [main]  
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x' 
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build the project
+      run: dotnet build --configuration Release
+
+    - name: Publish the project
+      run: dotnet publish -c Release -o out
+
+    - name: Copy static files from wwwroot
+      run: |
+        mkdir temp-pages
+        cp -r out/wwwroot/* temp-pages/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./temp-pages
