@@ -317,3 +317,20 @@ input[type="file"] {
 .hidden {
   display: none !important;
 }
+.tag {
+  display: inline-block;
+  background-color: #e0f0ff;
+  color: #0077cc;
+  padding: 4px 10px;
+  margin: 4px 6px 0 0;
+  border-radius: 20px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+}
+
+.tag:hover {
+  background-color: #cce7ff;
+}
+

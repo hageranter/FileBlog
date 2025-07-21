@@ -6,11 +6,12 @@ const backDetailButton = document.getElementById('back-detail-button');
 const backCategoryButton = document.getElementById('back-category-button');
 const profileEl = document.getElementById("profile-icon");
 const createPostBtn = document.getElementById("create-post-btn");
+
 let currentSlug = null;
-
-
 let currentRole = "";
 let currentUsername = "";
+let allPosts = [];
+
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -88,18 +89,17 @@ async function loadPosts() {
     const res = await fetch('/posts');
     const posts = await res.json();
 
+    allPosts = posts.filter(p => p.status === "published" || 
+      (p.status === "scheduled" && new Date(p.scheduledDate) <= new Date()));
+
     showPostsView();
-    const now = new Date();
-
-    posts
-      .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.scheduledDate) <= now))
-      .forEach(post => postsContainer.appendChild(createPostCard(post)));
-
+    displayPosts(allPosts);
   } catch (error) {
     console.error("Error loading posts:", error);
     postsContainer.innerHTML = `<h2>Error loading posts</h2>`;
   }
 }
+
 
 async function loadPostsByCategory(category) {
   try {
@@ -120,6 +120,27 @@ async function loadPostsByCategory(category) {
     backCategoryButton.style.display = 'inline-block';
   }
 }
+
+async function loadPostsByTag(tag) {
+  try {
+    const res = await fetch(`/posts/tags/${encodeURIComponent(tag)}`);
+    if (!res.ok) throw new Error(`No posts found for tag: ${tag}`);
+
+    const posts = await res.json();
+    postsContainer.innerHTML = `<h2>Posts tagged with: "${tag}"</h2>`;
+    postsContainer.style.display = 'grid';
+    postDetailsContainer.style.display = 'none';
+
+    const now = new Date();
+    posts
+      .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
+      .forEach(post => postsContainer.appendChild(createPostCard(post)));
+  } catch (err) {
+    console.error("Error loading posts by tag:", err);
+    postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
+  }
+}
+
 
 async function loadPostDetails(slug) {
   try {
@@ -161,9 +182,20 @@ async function loadPostDetails(slug) {
           <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
         </div>
         <div id="detail-body" class="post-body" contenteditable="false">${post.body}</div>
+        <div class="post-tags">
+       ${post.tags.map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
+      </div>
+
         <button id="save-detail-btn" class="hidden">Save</button>
       </div>
     `;
+
+    document.querySelectorAll('.tag').forEach(tagEl => {
+  tagEl.addEventListener('click', e => {
+    const tag = e.target.dataset.tag;
+    if (tag) loadPostsByTag(tag);
+  });
+});
 
   } catch (err) {
     console.error("Error loading post details:", err);
@@ -230,6 +262,29 @@ function enableDetailEdit(menuItem) {
     }
   };
 }
+
+function displayPosts(posts) {
+  postsContainer.innerHTML = '';
+  if (posts.length === 0) {
+    postsContainer.innerHTML = `<p>No posts match your search.</p>`;
+    return;
+  }
+  posts.forEach(post => postsContainer.appendChild(createPostCard(post)));
+}
+
+
+
+const searchInput = document.getElementById('search-input');
+searchInput?.addEventListener('input', e => {
+  const keyword = e.target.value.toLowerCase();
+  const filteredPosts = allPosts.filter(post =>
+    post.title.toLowerCase().includes(keyword) ||
+    post.description?.toLowerCase().includes(keyword) ||
+    (post.tags || []).some(tag => tag.toLowerCase().includes(keyword))
+  );
+  displayPosts(filteredPosts);
+});
+
 
 const currentPath = window.location.pathname;
 const isSinglePost = currentPath.startsWith("/posts/") && currentPath.split("/").length === 3;

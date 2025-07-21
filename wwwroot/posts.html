@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <title>My Blog</title>
   <link rel="stylesheet" href="/css/post.css" />
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
 </head>
@@ -23,6 +23,12 @@
     </a>
   </header>
 
+  <div id="search-container" style="margin: 20px 0; text-align: center;">
+    <input type="text" id="search-input" placeholder="Search posts..."
+      style="padding: 10px; width: 60%; max-width: 500px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;" />
+  </div>
+
+
   <h1> Blog Posts</h1>
   <div id="posts"></div>
   <div id="post-details" style="display: none;">
@@ -34,7 +40,7 @@
   <div id="controls">
     <button id="back-category-button" style="display:none; margin: 10px 0;">Back to All Posts</button>
   </div>
-  
+
   <div class="create-post-wrapper">
     <button id="create-post-btn" onclick="createPosts()">Create Post</button>
   </div>

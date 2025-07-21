@@ -136,13 +136,26 @@ async function loadPostDetails(slug) {
         <img src="${imageSrc}" alt="Post image" class="post-hero-image" />
       </div>
       <div id="detail-body" class="post-body">${post.body}</div>
+      <div class="post-tags">
+  ${post.tags.map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
+</div>
+
       <div style="margin-top: 10px;">
   <button id="save-detail-btn" class="btn btn-primary hidden">Save</button>
 </div>
 
     `;
 
+
     postAssets.innerHTML = '';
+
+    document.querySelectorAll('.tag').forEach(tagEl => {
+  tagEl.addEventListener('click', e => {
+    const tag = e.target.dataset.tag;
+    if (tag) loadPostsByTag(tag);
+  });
+});
+
   } catch (err) {
     console.error(err);
     alert("Cannot load post details");
@@ -230,6 +243,26 @@ function confirmDeletePost() {
       alert("Could not delete post.");
     });
 }
+async function loadPostsByTag(tag) {
+  try {
+    const res = await fetch(`/posts/tags/${encodeURIComponent(tag)}`);
+    if (!res.ok) throw new Error(`No posts found for tag: ${tag}`);
+
+    const posts = await res.json();
+    postsContainer.innerHTML = `<h2>Posts tagged with: "${tag}"</h2>`;
+    postsContainer.style.display = 'grid';
+    postDetailsContainer.style.display = 'none';
+
+    const now = new Date();
+    posts
+      .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
+      .forEach(post => postsContainer.appendChild(createPostCard(post)));
+  } catch (err) {
+    console.error("Error loading posts by tag:", err);
+    postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
+  }
+}
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
