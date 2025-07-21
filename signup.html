@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="/css/signup.css" />
+</head>
+
+<body>
+  <div class="form-container">
+    <h2>Create Your Account</h2>
+    <form id="signup-form">
+      <input type="text" id="username" placeholder="Username" required />
+
+      <input type="email" id="email" placeholder="Email" required />
+
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirm-password" placeholder="Confirm Password" required />
+
+      <select id="role" required>
+        <option value="">Select Role</option>
+        <option value="Author">Author</option>
+        <option value="Admin">Admin</option>
+      </select>
+
+      <button type="submit">Sign Up</button>
+      <p id="signup-message" style="color: red;"></p>
+    </form>
+    <p>Already have an account? <a href="/login.html">Login here</a></p>
+  </div>
+
+  <script src="/js/signup.js"></script>
+</body>
+
+</html>

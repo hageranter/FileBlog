@@ -1,0 +1,105 @@
+ body {
+   font-family: 'Inter', sans-serif;
+   margin: 0;
+   padding: 2rem;
+   background-color: #f9f9f9;
+   color: #333;
+ }
+
+ h1 {
+   font-size: 2rem;
+   font-weight: 700;
+   margin-bottom: 1.5rem;
+   color: #222;
+   text-align: center;
+ }
+
+ .user-card {
+   background: white;
+   border-radius: 10px;
+   padding: 1rem 1.5rem;
+   margin-bottom: 1rem;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   transition: transform 0.2s;
+ }
+
+ .user-card:hover {
+   transform: translateY(-2px);
+ }
+
+ .user-info {
+   font-weight: 500;
+ }
+
+ .user-info a {
+   color: #5a32ea;
+   text-decoration: none;
+   font-weight: 600;
+ }
+
+ .user-info span {
+   font-weight: 400;
+   margin-left: 0.5rem;
+   color: #666;
+ }
+
+ .btn {
+   padding: 0.4rem 1rem;
+   border: none;
+   border-radius: 6px;
+   font-size: 0.9rem;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.2s ease-in-out;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+ }
+
+ .btn-admin {
+   background-color: #0056b3;
+   color: white;
+ }
+
+ .btn-admin:hover {
+   background-color: #497fab;
+   transform: translateY(-1px);
+ }
+
+ .btn-author {
+   background-color: #e0e0e0;
+   color: #333;
+ }
+
+ .btn-author:hover {
+   background-color: #cfcfcf;
+   transform: translateY(-1px);
+ }
+
+ .user-card {
+   background: white;
+   border-radius: 10px;
+   padding: 1rem 1.5rem;
+   margin-bottom: 1rem;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+ }
+
+ .user-info a {
+   color: #497fab;
+   font-weight: 600;
+   text-decoration: none;
+ }
+
+ .user-info span {
+   margin-left: 0.5rem;
+   color: #777;
+ }
+
+ .btn-group {
+   display: flex;
+   gap: 0.5rem;
+ }

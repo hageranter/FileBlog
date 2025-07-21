@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>My Blog</title>
+  <link rel="stylesheet" href="/css/post.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
+    rel="stylesheet">
+
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">MyBlog</div>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/contactUs.html">Contact</a>
+    </nav>
+    <a href="/profile.html">
+      <div class="profile-icon" id="profile-icon"> </div>
+    </a>
+  </header>
+
+  <h1>My Blog Posts</h1>
+  <div id="posts"></div>
+
+  <hr />
+
+  <div id="post-details">
+    <button id="back-button">Back to list</button>
+    <div id="post-content"></div>
+    <div id="post-assets"></div>
+  </div>
+
+  <div class="create-post-wrapper">
+    <button id="create-post-btn" onclick="createPosts()">Create Post</button>
+  </div>
+
+  <script src="/js/userPosts.js"></script>
+
+</body>
+
+</html>
