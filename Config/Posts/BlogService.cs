@@ -203,49 +203,53 @@ public class BlogService
         return folderName;
     }
 
-    public bool UploadFile(string slug, IFormFile file)
+   public bool UploadFile(string slug, IFormFile file)
+{
+    var folder = Path.Combine(_root, "content", "posts");
+    var dir = Directory.GetDirectories(folder)
+        .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+    if (dir == null || file == null)
+        return false;
+
+    var assetsPath = Path.Combine(dir, "assets");
+    var thumbsPath = Path.Combine(assetsPath, "thumbs");
+    var largePath = Path.Combine(assetsPath, "large");
+
+    Directory.CreateDirectory(assetsPath);
+    Directory.CreateDirectory(thumbsPath);
+    Directory.CreateDirectory(largePath);
+
+    var originalFileName = Path.GetFileName(file.FileName);
+    var fileExtension = Path.GetExtension(originalFileName);
+    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
+
+    var originalFilePath = Path.Combine(assetsPath, originalFileName);
+    var thumbFileName = $"{fileNameWithoutExt}_thumb{fileExtension}";
+    var largeFileName = $"{fileNameWithoutExt}_large{fileExtension}";
+
+    using (var stream = new FileStream(originalFilePath, FileMode.Create))
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
-
-        if (dir == null || file == null)
-            return false;
-
-        var assetsPath = Path.Combine(dir, "assets");
-        var thumbsPath = Path.Combine(assetsPath, "thumbs");
-        var largePath = Path.Combine(assetsPath, "large");
-
-        Directory.CreateDirectory(assetsPath);
-        Directory.CreateDirectory(thumbsPath);
-        Directory.CreateDirectory(largePath);
-
-        var fileName = Path.GetFileName(file.FileName);
-        var originalFilePath = Path.Combine(assetsPath, fileName);
-
-        using (var stream = new FileStream(originalFilePath, FileMode.Create))
-        {
-            file.CopyTo(stream);
-        }
-
-        using var inputStream = file.OpenReadStream();
-        using var image = Image.Load(inputStream);
-
-        image.Clone(x => x.Resize(new ResizeOptions
-        {
-            Mode = ResizeMode.Max,
-            Size = new Size(300, 0)
-        })).Save(Path.Combine(thumbsPath, fileName));
-
-        image.Clone(x => x.Resize(new ResizeOptions
-        {
-            Mode = ResizeMode.Max,
-            Size = new Size(1200, 0)
-        })).Save(Path.Combine(largePath, fileName));
-
-        return true;
+        file.CopyTo(stream);
     }
 
+    using var inputStream = file.OpenReadStream();
+    using var image = Image.Load(inputStream);
+
+    image.Clone(x => x.Resize(new ResizeOptions
+    {
+        Mode = ResizeMode.Max,
+        Size = new Size(300, 0)
+    })).Save(Path.Combine(thumbsPath, thumbFileName));
+
+    image.Clone(x => x.Resize(new ResizeOptions
+    {
+        Mode = ResizeMode.Max,
+        Size = new Size(1200, 0)
+    })).Save(Path.Combine(largePath, largeFileName));
+
+    return true;
+}
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
