@@ -11,6 +11,13 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.2/dist/sweetalert2.all.min.js"></script>
 </head>
 
+<style>
+  #user-action-modal.show .modal-content {
+    border: 2px solid #7E6BD6;
+    min-height: 200px;
+  }
+</style>
+
 <body>
   <!-- Admin Navigation -->
   <nav class="admin-navbar">
@@ -107,49 +114,54 @@
     <section class="user-list" id="user-list"></section>
   </main>
 
-  <!-- User Action Modal -->
-  <!-- User Action Modal -->
-<!-- User Action Modal -->
-<div class="modal-overlay" id="user-action-modal">
-  <div class="modal-content small">
-    <div class="modal-header">
-      <h3 id="user-action-title">User Actions</h3>
-      <button class="close-btn" id="close-user-action-modal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <!-- Menu to choose what action to perform -->
-      <div id="action-menu">
-        <button class="btn" id="change-role-btn">Change Role</button>
-        <button class="btn" id="view-posts-btn">View Posts</button>
-        <button class="btn" id="delete-user-btn">Delete User</button>
-      </div>
 
-      <!-- Change Role Section -->
-      <div id="change-role-section" class="modal-section" style="display: none;">
-        <button class="btn btn-back" id="back-btn">Back</button>
-        <label for="role-select">Change Role</label>
-        <select id="role-select" class="admin-select">
-          <option value="Admin">Admin</option>
-          <option value="Editor">Editor</option>
-          <option value="Author">Author</option>
-        </select>
-        <button class="btn btn-primary" id="save-role-btn">Save Role</button>
+  <div class="modal-overlay" id="user-action-modal">
+    <div class="modal-content small">
+      <div class="modal-header">
+        <h3 id="user-action-title">User Actions</h3>
+        <button class="close-btn" id="close-user-action-modal">&times;</button>
       </div>
+      <div class="modal-body">
+        <!-- Menu to choose what action to perform -->
+        <div id="action-menu">
+          <button class="btn" id="change-role-btn">Change Role</button>
+          <button class="btn" id="view-posts-btn">View Posts</button>
+          <button class="btn" id="delete-user-btn">Delete User</button>
+        </div>
 
-      <!-- View Posts Section -->
-      <div id="view-posts-section" class="modal-section" style="display: none;">
-        <p>Click below to view the user's posts.</p>
-        <a id="view-posts-link" class="btn btn-secondary" href="#">View Posts</a>
-      </div>
+        <!-- Change Role Section -->
+        <div id="change-role-section" class="modal-section" style="display: none;">
+          <form style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label for="role-select">Change Role</label>
+              <select id="role-select" class="admin-select">
+                <option value="Admin">Admin</option>
+                <option value="Editor">Editor</option>
+                <option value="Author">Author</option>
+              </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+              <button class="btn btn-back" type="button" id="back-btn">Cancel</button>
+              <button class="btn btn-primary" type="button" id="save-role-btn">Save</button>
+            </div>
+          </form>
+        </div>
 
-      <!-- Delete User Section -->
-      <div id="delete-user-section" class="modal-section" style="display: none;">
-        <p>Are you sure you want to delete this user?</p>
-        <button class="btn btn-danger" id="confirm-delete-btn">Yes, delete it!</button>
+
+        <!-- View Posts Section -->
+        <div id="view-posts-section" class="modal-section" style="display: none;">
+          <p>Click below to view the user's posts.</p>
+          <a id="view-posts-link" class="btn btn-secondary" href="#">View Posts</a>
+        </div>
+
+        <!-- Delete User Section -->
+        <div id="delete-user-section" class="modal-section" style="display: none;">
+          <p>Are you sure you want to delete this user?</p>
+          <button class="btn btn-danger" id="confirm-delete-btn">Yes, delete it!</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
 
@@ -182,7 +194,46 @@
     <span id="success-text"></span>
   </div>
 
-  <script src="/assets/admin/users.js" defer></script>
+
+
+
+  <!-- Create User Popup Overlay -->
+<div id="create-user-overlay" class="overlay hidden">
+  <div class="create-user-popup">
+    <h2><i class="fas fa-plus" style="color: #7E6BD6;"></i> Create New User</h2>
+    <form id="create-user-form" style="display: flex; flex-direction: column; gap: 1rem;">
+      <div>
+        <label for="new-username">Username</label>
+        <input type="text" id="new-username" class="admin-input" required />
+      </div>
+      <div>
+        <label for="new-email">Email</label>
+        <input type="email" id="new-email" class="admin-input" required />
+      </div>
+      <div>
+        <label for="new-password">Password</label>
+        <input type="password" id="new-password" class="admin-input" required />
+      </div>
+      <div>
+        <label for="new-role">Role</label>
+        <select id="new-role" class="admin-select">
+          <option value="Admin">Admin</option>
+          <option value="Editor">Editor</option>
+          <option value="Author" selected>Author</option>
+        </select>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <button type="button" class="btn btn-back" id="cancel-create-user">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <script src="/admin/users.js"></script>
+  <script src="/admin/createUser.js"></script>
+
+
 </body>
 
 </html>
