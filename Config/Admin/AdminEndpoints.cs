@@ -97,26 +97,42 @@ public static class AdminEndpoints
             return Results.Ok(new { message = "Role updated", newRole });
         });
 
- app.MapDelete("/admin/users/{username}", [Authorize(Roles = "Admin")] (string username) =>
-{
-    // Simulated user list - replace this with your database access (e.g. EF Core)
-    var users = new List<User>
+        app.MapDelete("/admin/users/{username}", [Authorize(Roles = "Admin")] (string username, UserService userService) =>
+ {
+     var user = userService.GetUserByUsername(username);
+     if (user == null)
+         return Results.NotFound(new { error = "User not found" });
+
+     var deleted = userService.DeleteUser(username);
+     if (!deleted)
+         return Results.StatusCode(500);
+
+     return Results.Ok(new { message = $"{username} deleted successfully" });
+ });
+
+
+
+        app.MapPost("/admin/users/create", [Authorize(Roles = "Admin")] async (
+        HttpRequest request,
+        UserService userService
+    ) =>
     {
-        new User { Username = "admin", Email = "admin@gmail.com", Role = "Admin" },
-        new User { Username = "john", Email = "john@example.com", Role = "Author" },
-        // etc...
-    };
+        var data = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(request.Body);
+        if (data is null ||
+            !data.TryGetValue("username", out var username) ||
+            !data.TryGetValue("email", out var email) ||
+            !data.TryGetValue("password", out var password) ||
+            !data.TryGetValue("role", out var role))
+        {
+            return Results.BadRequest("Missing required fields");
+        }
 
-    var user = users.FirstOrDefault(u => u.Username == username);
-    if (user is null)
-    {
-        return Results.NotFound(new { error = "User not found" });
-    }
+        if (userService.GetUserByUsername(username) != null)
+            return Results.Conflict("User already exists");
 
-    users.Remove(user); // simulate deletion
-    return Results.Ok(new { message = $"{username} deleted successfully" });
-});
-
+        userService.CreateUser(username, email, password, role);
+        return Results.Ok(new { message = "User created" });
+    });
 
     }
 }

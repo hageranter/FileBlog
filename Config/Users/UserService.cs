@@ -140,5 +140,14 @@ public class UserService
 
         return users;
     }
+public bool DeleteUser(string username)
+{
+    var userDir = Path.Combine(_usersRoot, username);
+    if (!Directory.Exists(userDir))
+        return false;
+
+    Directory.Delete(userDir, true); // delete entire user folder and contents
+    return true;
+}
 
 }
