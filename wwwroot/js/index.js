@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
         <div class="blog-card-content">
           <h3>${post.title}</h3>
-          <a href="/posts.html#${post.slug}">Read more</a>
+          <a href="/postDetail.html?slug=${post.slug}">Read more</a>
         </div>
       `;
 

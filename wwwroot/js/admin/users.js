@@ -122,11 +122,11 @@ document.getElementById("back-btn").addEventListener("click", () => {
   document.getElementById("action-menu").style.display = "block";
 });
 
-document.getElementById("view-posts-btn").addEventListener("click", () => {
-  document.getElementById("action-menu").style.display = "none";
-  document.getElementById("view-posts-section").style.display = "block";
-  document.getElementById("view-posts-link").href = `/admin_user_posts.html?user=${selectedUser.username}`;
-});
+// document.getElementById("view-posts-btn").addEventListener("click", () => {
+//   document.getElementById("action-menu").style.display = "none";
+//   document.getElementById("view-posts-section").style.display = "block";
+//   document.getElementById("view-posts-link").href = `/admin_user_posts.html?user=${selectedUser.username}`;
+// });
 
 document.getElementById("delete-user-btn").addEventListener("click", () => {
   document.getElementById("action-menu").style.display = "none";
