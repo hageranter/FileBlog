@@ -86,6 +86,7 @@ async function loadPostDetails(slug) {
       </div>
     `;
 
+    // Tag click event to go back to filtered view
     document.querySelectorAll('.tag').forEach(tagEl => {
       tagEl.addEventListener('click', e => {
         const tag = e.target.dataset.tag;
@@ -93,6 +94,7 @@ async function loadPostDetails(slug) {
       });
     });
 
+    // Save logic for editing
     const saveBtn = document.getElementById("save-detail-btn");
     saveBtn.onclick = async () => {
       const titleEl = document.getElementById('detail-title');
@@ -113,16 +115,30 @@ async function loadPostDetails(slug) {
         });
 
         if (!res.ok) throw new Error("Failed to save");
-        alert("Post updated successfully!");
+
+        Swal.fire({
+          icon: "success",
+          title: "Post updated",
+          text: "Your changes have been saved.",
+        });
       } catch (err) {
         console.error("Save failed:", err);
-        alert("Error saving post");
+        Swal.fire({
+          icon: "error",
+          title: "Error saving post",
+          text: "Please try again later.",
+        });
       }
     };
 
   } catch (err) {
     console.error("Error loading post details:", err);
     postContent.innerHTML = `<p>Failed to load post</p>`;
+    Swal.fire({
+      icon: "error",
+      title: "Error loading post",
+      text: "The post could not be found or loaded.",
+    });
   }
 }
 
@@ -144,11 +160,10 @@ function enableDetailEdit(menuItem) {
   menuItem.closest('.menu').classList.add('hidden');
 }
 
-document.getElementById("back-detail-button").addEventListener("click", () => {
+backDetailButton?.addEventListener("click", () => {
   window.location.href = "/posts.html";
 });
 
 const slug = getSlugFromURL();
 if (slug) loadPostDetails(slug);
 else postContent.innerHTML = `<p>No post slug provided.</p>`;
-
