@@ -99,6 +99,11 @@ async function loadPosts() {
     displayPosts(allPosts);
   } catch (error) {
     console.error("Error loading posts:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Failed to load posts",
+      text: "Please try again later.",
+    });
     postsContainer.innerHTML = `<h2>Error loading posts</h2>`;
   }
 }
@@ -117,6 +122,11 @@ async function loadPostsByCategory(category) {
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
   } catch (err) {
     console.error("Error loading posts by category:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Category not found",
+      text: `No posts found for category: ${category}`,
+    });
     postsContainer.innerHTML = `<h2>No posts found for category: ${category}</h2>`;
     backCategoryButton.style.display = 'inline-block';
   }
@@ -135,9 +145,15 @@ async function loadPostsByTag(tag) {
     posts
       .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
+
     backCategoryButton.style.display = 'inline-block';
   } catch (err) {
     console.error("Error loading posts by tag:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Tag not found",
+      text: `No posts found for tag: ${tag}`,
+    });
     postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
   }
 }
