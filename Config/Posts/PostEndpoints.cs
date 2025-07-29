@@ -146,7 +146,7 @@ public static class PostEndpoints
 
         app.MapGet("/posts/saved", (HttpContext ctx) =>
         {
-            var username = ctx.User?.Identity?.Name;
+            var username = ctx.User?.FindFirst("username")?.Value;
             if (string.IsNullOrWhiteSpace(username))
                 return Results.Unauthorized();
 
