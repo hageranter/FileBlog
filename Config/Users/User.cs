@@ -12,5 +12,6 @@ public class User
 
     [JsonPropertyName("role")]
     public string Role { get; set; } = "Author";
+    public string? AvatarUrl { get; set; } // <-- ✅ add this
 
 }

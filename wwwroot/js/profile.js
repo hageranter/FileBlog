@@ -21,12 +21,14 @@ async function loadProfile(payload) {
     document.getElementById('username').textContent = payload.username;
     document.getElementById('email').textContent = payload.email ?? '—';
     document.getElementById('role').textContent = payload.role ?? '—';
-    document.getElementById('nickname').textContent = payload.nickname ?? '—';
-    document.getElementById('birthdate').textContent = payload.birthDate ?? '—';
+    document.getElementById('avatar').alt = payload.AvatarUrl + "'s avatar";
 
     if (user.avatarUrl) {
-      document.getElementById('avatar').src = user.avatarUrl;
+      document.getElementById('avatar').src = user.avatarUrl; // ✅ force refresh
+    } else {
+      document.getElementById('avatar').src = '/images/default-avatar.png';
     }
+
   } catch (err) {
     console.error('Failed to load profile:', err);
   }
@@ -143,7 +145,6 @@ async function loadPostDetails(slug) {
       <div style="margin-top: 10px;">
       <button id="save-detail-btn" class="btn btn-primary hidden">Save</button>
       </div>
-
     `;
     postAssets.innerHTML = '';
 
@@ -212,56 +213,6 @@ function enableDetailEdit(menuItem) {
     }
   };
 }
-
-// function editField(field) {
-//   const span = document.getElementById(field);
-//   const input = document.getElementById(`${field}-input`);
-
-//   input.value = span.textContent !== '—' ? span.textContent : '';
-//   span.classList.add('hidden');
-//   input.classList.remove('hidden');
-//   input.focus();
-
-//   input.onblur = async () => {
-//     const newValue = input.value.trim();
-//     const token = localStorage.getItem('token');
-
-//     if (!token) return;
-
-//     let username;
-//     try {
-//       const payload = JSON.parse(atob(token.split('.')[1]));
-//       username = payload.username;
-//     } catch (err) {
-//       console.error("Invalid token:", err);
-//       return;
-//     }
-
-//     try {
-//       const res = await fetch(`/users/${username}`, {
-//         method: 'PUT',
-//         headers: {
-//           'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//           [field === 'birthdate' ? 'birthDate' : 'nickname']: newValue
-//         })
-//       });
-
-//       if (!res.ok) throw new Error(await res.text());
-
-//       span.textContent = newValue || '—';
-//     } catch (err) {
-//       console.error(`Failed to update ${field}:`, err);
-//       alert(`Failed to save ${field}.`);
-//     } finally {
-//       span.classList.remove('hidden');
-//       input.classList.add('hidden');
-//     }
-//   };
-// }
-
-
 function backToPosts() {
   postsContainer.style.display = 'block';
   postDetailsContainer.style.display = 'none';
@@ -355,7 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (!data.avatarUrl) throw new Error("Missing avatarUrl");
-        document.getElementById('avatar').src = data.avatarUrl;
+        document.getElementById('avatar').src = data.avatarUrl + `?t=${Date.now()}`; // bust cache
+
       } catch (err) {
         alert("Upload failed: " + err.message);
       }
