@@ -24,8 +24,9 @@ if (token && profileEl && currentUsername) {
   fetch(`/users/${currentUsername}`)
     .then(res => res.json())
     .then(user => {
-      const avatarUrl = user.avatarUrl || '/images/avatar.png';
-      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Profile">`;
+      const avatarUrl = user.avatarUrl || "/images/avatar.png";
+      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/avatar.png'" />`;
+
     })
     .catch(() => {
       profileEl.innerHTML = `<img src="/images/avatar.png" alt="Profile">`;
@@ -82,44 +83,57 @@ async function loadPostDetails(slug) {
 
     const post = await res.json();
     const imageSrc = getImageSrc(post);
-    const avatarUrl = post.avatarUrl || "/images/avatar.png";
     const username = post.username || "Unknown";
 
+    let avatarUrl = "/images/avatar.png"; // default in case fetch fails
+
+    try {
+      const avatarRes = await fetch(`/users/${post.username}`);
+      if (avatarRes.ok) {
+        const userData = await avatarRes.json();
+        if (userData.avatarUrl) {
+          avatarUrl = userData.avatarUrl;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch author avatar", err);
+    }
+
     postContent.innerHTML = `
-      <article class="post-full">
-        <div class="post-meta">
-          <div class="author-info">
-            <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
-            <span class="post-username">@${username}</span>
-            <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
-          </div>
-          ${currentUsername === post.username ? `
-            <div class="post-menu-wrapper">
-              <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
-              <ul class="menu hidden">
-                <li onclick="enableDetailEdit(this)">Edit</li>
-              </ul>
-            </div>
-          ` : ''}
+  <article class="post-full">
+    <div class="post-meta">
+      <div class="author-info">
+        <img class="post-user-avatar" src="${avatarUrl}" onerror="this.src='/images/avatar.png'" alt="${username}'s avatar" />
+        <span class="post-username">@${username}</span>
+        <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
+      </div>
+      ${currentUsername === post.username ? `
+        <div class="post-menu-wrapper">
+          <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+          <ul class="menu hidden">
+            <li onclick="enableDetailEdit(this)">Edit</li>
+          </ul>
         </div>
-        <h1 id="detail-title" contenteditable="false">${post.title}</h1>
-        <div class="post-hero">
-          <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
-        </div>
-        <div id="detail-body" class="post-body" contenteditable="false">${post.body}</div>
+      ` : ''}
+    </div>
+    <h1 id="detail-title" contenteditable="false">${post.title}</h1>
+    <div class="post-hero">
+      <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
+    </div>
+    <div id="detail-body" class="post-body" contenteditable="false">${post.body}</div>
 
-        <div class="post-actions">
-          <button id="like-btn" class="action-btn"><span class="heart">❤️</span> <span id="like-count">${post.likes || 0}</span></button>
-          <button id="save-btn" class="action-btn">${post.savedBy?.includes(currentUsername) ? '💾 Saved' : '💾 Save'}</button>
-        </div>
+    <div class="post-actions">
+      <button id="like-btn" class="action-btn"><span class="heart">❤️</span> <span id="like-count">${post.likes || 0}</span></button>
+      <button id="save-btn" class="action-btn">${post.savedBy?.includes(currentUsername) ? '💾 Saved' : '💾 Save'}</button>
+    </div>
 
-        <div class="post-tags">
-          ${(post.tags || []).map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
-        </div>
+    <div class="post-tags">
+      ${(post.tags || []).map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
+    </div>
 
-        <button id="save-detail-btn" class="hidden">Save</button>
-      </article>
-    `;
+    <button id="save-detail-btn" class="hidden">Save</button>
+  </article>
+`;
 
     // Tag filter
     document.querySelectorAll('.tag').forEach(tagEl => {
@@ -142,13 +156,21 @@ async function loadPostDetails(slug) {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` }
         });
+
+        if (!res.ok) throw new Error("Failed to toggle like");
+
         const updated = await res.json();
         document.getElementById("like-count").innerText = updated.likes;
+
+        // Toggle heart color based on whether the user liked the post
+        likeBtn.querySelector(".heart").style.color = updated.likedBy.includes(currentUsername) ? "deeppink" : "inherit";
+
         animateElement(likeBtn);
-      } catch {
+      } catch (error) {
         Swal.fire({ icon: "error", title: "Error", text: "Couldn't like post." });
       }
     });
+
 
     // Save button
     const saveBtn = document.getElementById("save-btn");
@@ -259,6 +281,23 @@ commentButton?.addEventListener("click", async () => {
     Swal.fire({ icon: "error", title: "Error", text: "Couldn't post comment." });
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const commentAvatarEl = document.querySelector(".comment-input-group .comment-avatar");
+
+  if (token && currentUsername && commentAvatarEl) {
+    fetch(`/users/${currentUsername}`)
+      .then(res => res.json())
+      .then(user => {
+        const avatarUrl = user.avatarUrl || "/images/avatar.png";
+        commentAvatarEl.src = avatarUrl;
+      })
+      .catch(() => {
+        commentAvatarEl.src = "/images/avatar.png";
+      });
+  }
+});
+
 
 const slug = getSlugFromURL();
 if (slug) loadPostDetails(slug);

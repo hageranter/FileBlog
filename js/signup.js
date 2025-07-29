@@ -8,7 +8,7 @@ form.addEventListener('submit', async (e) => {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
   const confirmPassword = document.getElementById('confirm-password').value.trim();
-  const role = document.getElementById('role').value;
+  const role = 'user';
 
   if (password !== confirmPassword) {
     message.textContent = 'Passwords do not match.';
