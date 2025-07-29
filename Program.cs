@@ -66,6 +66,8 @@ app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapPostEndpoints(blogService);
 app.MapAdminEndpoints();
+app.MapPostDetails(blogService);
+
 
 
 // HTML Pages

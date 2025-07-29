@@ -5,6 +5,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using FileBlogApi.Features.Users;
+using System.Text.Json;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -126,9 +127,12 @@ public class BlogService
             Body = html,
             AssetFiles = assetFiles,
             Username = meta.Username ?? "",
+            AvatarUrl = $"/userfiles/{meta.Username}/avatar.jpg",// or use latest file logic
+
             Status = meta.Status ?? "published",
             ScheduledDate = meta.ScheduledDate,
             Likes = meta.Likes,
+            LikedBy = meta.LikedBy ?? new(),
             SavedBy = meta.SavedBy ?? new()
         };
     }
@@ -157,6 +161,7 @@ public class BlogService
             ScheduledDate = request.ScheduledDate,
             Likes = request.Likes,
             SavedBy = request.SavedBy
+
         };
 
         var serializer = new SerializerBuilder()
@@ -285,7 +290,9 @@ public class BlogService
                 Status = "published",
                 ScheduledDate = post.ScheduledDate,
                 Likes = post.Likes,
-                SavedBy = post.SavedBy
+                SavedBy = post.SavedBy,
+                LikedBy = post.LikedBy
+
             };
 
             var serializer = new SerializerBuilder()
@@ -334,24 +341,120 @@ public class BlogService
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
 
-public void SavePostMeta(string slug, Meta updatedMeta)
-{
-    var folder = Path.Combine(_root, "content", "posts");
-    var dir = Directory.GetDirectories(folder)
-        .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+    public void SavePostMeta(string slug, Meta updatedMeta)
+    {
+        var folder = Path.Combine(_root, "content", "posts");
+        var dir = Directory.GetDirectories(folder)
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
 
-    if (dir == null) return;
+        if (dir == null) return;
 
-    var metaPath = Path.Combine(dir, "meta.yaml");
+        var metaPath = Path.Combine(dir, "meta.yaml");
 
-    var serializer = new SerializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .Build();
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
 
-    File.WriteAllText(metaPath, serializer.Serialize(updatedMeta));
-}
+        File.WriteAllText(metaPath, serializer.Serialize(updatedMeta));
+    }
+
+    public bool ToggleLikePost(string slug, string username)
+    {
+        var post = GetPostBySlug(slug);
+        if (post == null) return false;
+
+        post.LikedBy ??= new List<string>();
+
+        if (post.LikedBy.Contains(username))
+        {
+            // User wants to dislike
+            post.LikedBy.Remove(username);
+        }
+        else
+        {
+            // User wants to like
+            post.LikedBy.Add(username);
+        }
+
+        // ✅ Always derive count from the list
+        post.Likes = post.LikedBy.Count;
+
+        UpdateMeta(slug, meta =>
+        {
+            meta.LikedBy = new List<string>(post.LikedBy);
+            meta.Likes = post.Likes;
+            meta.ModifiedDate = DateTime.UtcNow;
+        });
+
+        return true;
+    }
+
+    public bool ToggleSavePost(string slug, string username)
+    {
+        var post = GetPostBySlug(slug);
+        if (post == null) return false;
+
+        var wasSaved = post.SavedBy.Contains(username);
+
+        UpdateMeta(slug, meta =>
+        {
+            if (wasSaved)
+                meta.SavedBy.Remove(username);
+            else if (!meta.SavedBy.Contains(username))
+                meta.SavedBy.Add(username);
+        });
+
+        return !wasSaved;
+    }
 
 
+
+    public List<Comment> GetComments(string slug)
+    {
+        var post = GetPostBySlug(slug);
+        if (post == null) return new List<Comment>();
+
+        var commentsPath = Path.Combine(_root, "content", "posts", post.FolderName, "comments.json");
+        if (!File.Exists(commentsPath)) return new List<Comment>();
+
+        var json = File.ReadAllText(commentsPath);
+        return JsonSerializer.Deserialize<List<Comment>>(json) ?? new List<Comment>();
+    }
+
+    public void AddComment(string slug, Comment comment)
+    {
+        var post = GetPostBySlug(slug);
+        if (post == null) return;
+
+        // ✅ Set avatar path if available
+        var avatarFolder = Path.Combine("wwwroot", "userfiles", comment.Username);
+        if (Directory.Exists(avatarFolder))
+        {
+            var latestAvatar = Directory.GetFiles(avatarFolder, "avatar_*.*")
+                .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg") || f.EndsWith(".webp"))
+                .OrderByDescending(f => f)
+                .FirstOrDefault();
+
+            if (latestAvatar != null)
+            {
+                comment.AvatarUrl = $"/userfiles/{comment.Username}/{Path.GetFileName(latestAvatar)}";
+            }
+        }
+
+        // ✅ Comments file path
+        var commentsPath = Path.Combine(_root, "content", "posts", post.FolderName, "comments.json");
+
+        // ✅ Load existing or initialize
+        var comments = File.Exists(commentsPath)
+            ? JsonSerializer.Deserialize<List<Comment>>(File.ReadAllText(commentsPath)) ?? new List<Comment>()
+            : new List<Comment>();
+
+        comments.Add(comment);
+
+        // ✅ Save updated list
+        var json = JsonSerializer.Serialize(comments, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(commentsPath, json);
+    }
     public class Meta
     {
         public string? Title { get; set; }
@@ -366,5 +469,7 @@ public void SavePostMeta(string slug, Meta updatedMeta)
         public DateTime? ScheduledDate { get; set; }
         public int Likes { get; set; } = 0;
         public List<string> SavedBy { get; set; } = new();
+        public List<string> LikedBy { get; set; } = new();
+
     }
 }

@@ -17,7 +17,6 @@ public class CreatePostRequest
 
     public DateTime? ScheduledDate { get; set; }
     public List<string> SavedBy { get; set; } = new();
-   
     public int Likes { get; set; } = 0;
 }
 

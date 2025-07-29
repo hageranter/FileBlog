@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Post Detail</title>
   <link rel="stylesheet" href="/css/post.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  body {
-    font-family: 'Inter', sans-serif;
-  }
-</style>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 
 </head>
 
@@ -31,9 +32,9 @@
   <div id="post-details">
     <div id="post-content"></div>
     <div class="post-actions">
-  <!-- <button id="like-btn" class="action-btn"><span class="heart">❤️</span> <span id="like-count">${post.likes || 0}</span></button>
+      <!-- <button id="like-btn" class="action-btn"><span class="heart">❤️</span> <span id="like-count">${post.likes}</span></button>
   <button id="save-btn" class="action-btn">${post.savedBy?.includes(currentUsername) ? '💾 Saved' : '💾 Save'}</button> -->
-</div>
+    </div>
 
 
     <!-- New Comment Section -->
@@ -60,4 +61,5 @@
 
   <script src="/js/postDetail.js"></script>
 </body>
+
 </html>
