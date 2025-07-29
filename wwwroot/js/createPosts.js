@@ -10,12 +10,17 @@ form.addEventListener('submit', async function (e) {
   e.preventDefault();
 
   const token = localStorage.getItem('token');
-  if (!token) return alert('You must be logged in.');
+  if (!token) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Unauthorized',
+      text: 'You must be logged in to create a blog.'
+    });
+  }
 
   const payload = JSON.parse(atob(token.split('.')[1]));
   const username = payload.username;
 
-  // Set the hidden input value based on button pressed
   statusInput.value = pendingStatus;
   console.log("Submitting with status:", pendingStatus);
 
@@ -38,9 +43,21 @@ form.addEventListener('submit', async function (e) {
 
     if (!res.ok) throw new Error(await res.text());
 
-    showSuccessModal('✅ Post created successfully!');
+    Swal.fire({
+      icon: 'success',
+      title: 'Post Created',
+      text: '✅ Your blog has been created successfully!',
+      confirmButtonText: 'Go to Explore More Blogs'
+    }).then(() => {
+      window.location.href = '/posts.html?mine=true';
+    });
+
   } catch (err) {
-    showErrorModal('❌ Error: ' + err.message);
+    Swal.fire({
+      icon: 'error',
+      title: 'Failed to Create Blog',
+      text: err.message
+    });
   }
 });
 
@@ -65,29 +82,28 @@ confirmScheduleBtn.addEventListener("click", () => {
     pendingStatus = "scheduled";
     form.requestSubmit();
   } else {
-    alert("Please select a date/time first.");
+    Swal.fire({
+      icon: 'info',
+      title: 'Schedule Missing',
+      text: 'Please select a date and time before confirming.'
+    });
   }
 });
 
 document.getElementById("btn-discard").addEventListener("click", () => {
-  if (confirm("Discard this post?")) {
-    form.reset();
-    scheduleInput.style.display = "none";
-    confirmScheduleBtn.style.display = "none";
-  }
+  Swal.fire({
+    icon: 'warning',
+    title: 'Discard Blog?',
+    text: 'Are you sure you want to discard everything?',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, discard it',
+    cancelButtonText: 'Cancel'
+  }).then(result => {
+    if (result.isConfirmed) {
+      form.reset();
+      scheduleInput.style.display = "none";
+      confirmScheduleBtn.style.display = "none";
+      Swal.fire('Cleared!', 'Blog form has been reset.', 'success');
+    }
+  });
 });
-
-// Optional: Custom success / error modals
-function showSuccessModal(message) {
-  const modal = document.createElement('div');
-  modal.style = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); color:white; display:flex; align-items:center; justify-content:center; font-size:2em; z-index:1000;';
-  modal.innerHTML = `${message}<br><button onclick="window.location.href='/posts.html?mine=true'">OK</button>`;
-  document.body.appendChild(modal);
-}
-
-function showErrorModal(message) {
-  const modal = document.createElement('div');
-  modal.style = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); color:white; display:flex; align-items:center; justify-content:center; font-size:2em; z-index:1000;';
-  modal.innerHTML = `${message}<br><button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(modal);
-}

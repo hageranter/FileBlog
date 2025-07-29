@@ -2,7 +2,7 @@ const postContent = document.getElementById('post-content');
 const commentList = document.getElementById("comment-list");
 const commentInput = document.getElementById("comment-input");
 const commentButton = document.getElementById("post-comment-btn");
-const backDetailButton = document.getElementById('back-detail-button');
+// const backDetailButton = document.getElementById('back-detail-button');
 const profileEl = document.getElementById("profile-icon");
 
 let currentSlug = null;
@@ -70,6 +70,7 @@ async function loadComments(slug) {
         </div>
       </li>
     `).join('');
+    
   } catch (err) {
     console.error("Error loading comments:", err);
   }
@@ -112,6 +113,8 @@ async function loadPostDetails(slug) {
           <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
           <ul class="menu hidden">
             <li onclick="enableDetailEdit(this)">Edit</li>
+            <li onclick="confirmDeletePost()">Delete</li>
+
           </ul>
         </div>
       ` : ''}
@@ -251,9 +254,6 @@ function enableDetailEdit(menuItem) {
   menuItem.closest('.menu').classList.add('hidden');
 }
 
-backDetailButton?.addEventListener("click", () => {
-  window.location.href = "/posts.html";
-});
 
 commentButton?.addEventListener("click", async () => {
   const text = commentInput.value.trim();
@@ -298,6 +298,91 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+function enableDetailEdit(menuItem) {
+  const titleEl = document.getElementById('detail-title');
+  const bodyEl = document.getElementById('detail-body');
+  const saveBtn = document.getElementById('save-detail-btn');
+
+
+  titleEl.setAttribute('contenteditable', 'true');
+  bodyEl.setAttribute('contenteditable', 'true');
+  titleEl.focus();
+
+  saveBtn.classList.remove('hidden');
+  menuItem.closest('.menu').classList.add('hidden');
+
+  saveBtn.onclick = async () => {
+    titleEl.setAttribute('contenteditable', 'false');
+    bodyEl.setAttribute('contenteditable', 'false');
+    saveBtn.classList.add('hidden');
+
+    const newTitle = titleEl.innerText.trim();
+    const newBody = bodyEl.innerHTML.trim();
+
+    if (!currentSlug) {
+      alert("Missing post slug");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/posts/${currentSlug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          body: newBody
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to save");
+
+      alert("Post updated successfully!");
+    } catch (err) {
+      console.error("Error saving post:", err);
+      alert("Failed to save post");
+    }
+  };
+}
+
+function confirmDeletePost() {
+  if (!currentSlug) {
+    alert("Missing post identifier.");
+    return;
+  }
+
+  const confirmed = confirm("Are you sure you want to delete this post?");
+  if (!confirmed) return;
+
+  const token = localStorage.getItem("token");
+
+  fetch(`/posts/${currentSlug}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to delete post");
+
+      Swal.fire({
+        icon: "success",
+        title: "Post deleted",
+        text: "The post was successfully deleted.",
+      }).then(() => {
+        window.location.href = "/posts.html"; // Redirect to posts page
+      });
+    })
+    .catch(err => {
+      console.error("Error deleting post:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete the post.",
+      });
+    });
+}
 
 const slug = getSlugFromURL();
 if (slug) loadPostDetails(slug);

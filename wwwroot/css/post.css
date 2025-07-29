@@ -173,7 +173,7 @@ h2 {
 }
 
 #create-post-btn {
-  background-color: #007bff;
+  background-color: #0056b3;
   color: white;
   padding: 14px 24px;
   border: none;
@@ -186,7 +186,7 @@ h2 {
 }
 
 #create-post-btn:hover {
-  background-color: #0056b3;
+  background-color: #497fab;
   box-shadow: 0 6px 16px rgba(0, 86, 179, 0.5);
 }
 
@@ -672,4 +672,13 @@ h2 {
   letter-spacing: 0.8px;
   color: rgb(19, 19, 19);
   font-size: 13.4px;
+}
+
+footer {
+  background-color: #111;
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.9rem;
+  margin-top: 3rem;
 }

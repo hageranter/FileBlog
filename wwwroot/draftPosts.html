@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MyBlog – Draft Blogs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/draftPosts.css">
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">MyBlog</div>
+  </header>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="/"><i class="fas fa-home"></i> Home</a>
+    <a href="/posts.html"><i class="fas fa-pen-nib"></i> Blogs</a>
+    <a href="/profile.html"><i class="fas fa-user"></i> Profile</a>
+    <a href="/createPosts.html"><i class="fas fa-pen-nib"></i> Create Blogs</a>
+
+    <a href="/savedPosts.html"><i class="fas fa-bookmark"></i> Saved Blogs</a>
+
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <div class="saved-wrapper">
+      <h2>Draft Blogs</h2>
+      <div class="saved-grid" id="savedBlogs">
+        <p class="empty-message">You have not draft any blogs yet.</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- Footer -->
+  <script src="/js/draftPosts.js"></script>
+
+</body>
+
+</html>

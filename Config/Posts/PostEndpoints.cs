@@ -145,16 +145,16 @@ public static class PostEndpoints
 
 
         app.MapGet("/posts/saved", (HttpContext ctx) =>
-        {
-            var username = ctx.User?.FindFirst("username")?.Value;
-            if (string.IsNullOrWhiteSpace(username))
-                return Results.Unauthorized();
+ {
+     var username = ctx.User?.FindFirst("username")?.Value;
+     if (string.IsNullOrWhiteSpace(username))
+         return Results.Unauthorized();
 
-            var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
-                .Where(p => p.SavedBy.Contains(username));
+     var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+         .Where(p => p.SavedBy.Contains(username));
 
-            return Results.Json(posts);
-        });
+     return Results.Json(posts);
+ }).RequireAuthorization();
 
 
     }
