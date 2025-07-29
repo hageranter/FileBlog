@@ -50,7 +50,7 @@ function createPostCard(post) {
       <span class="category">${category}</span>
     </div>
     <div class="post-content">
-      <small>Published on ${new Date(post.publishedDate).toLocaleDateString()} • ${post.saves || 0} saves</small>
+      <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
       <h2><a href="/posts/${post.slug}" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
       <p>${post.description || ''}</p>
       <button class="category-btn" data-category="${category}">Discover Category</button>
