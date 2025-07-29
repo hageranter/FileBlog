@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -140,6 +141,68 @@ public static class PostEndpoints
         {
             var success = blogService.DeletePostBySlug(slug);
             return success ? Results.Ok("Post deleted") : Results.NotFound("Post not found");
+        });
+
+
+        // In-memory for quick demo
+        Dictionary<string, List<Comment>> Comments = new();
+        Dictionary<string, int> PostLikes = new();
+        Dictionary<string, HashSet<string>> SavedBy = new();
+
+        app.MapPost("/posts/{slug}/comments", ([FromRoute] string slug, [FromBody] CommentRequest request, HttpContext ctx) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Comment))
+                return Results.BadRequest("Comment is required");
+
+            var username = ctx.User?.Identity?.Name ?? "anonymous";
+
+            var comment = new Comment
+            {
+                Username = username,
+                CommentText = request.Comment,
+                Date = DateTime.UtcNow,
+                AvatarUrl = "/images/avatar.png"
+            };
+
+            if (!Comments.ContainsKey(slug))
+                Comments[slug] = new List<Comment>();
+
+            Comments[slug].Add(comment);
+
+            return Results.Ok(comment);
+        });
+
+        app.MapGet("/posts/{slug}/comments", ([FromRoute] string slug) =>
+        {
+            return Results.Ok(Comments.ContainsKey(slug) ? Comments[slug] : new List<Comment>());
+        });
+
+        app.MapPost("/posts/{slug}/like", (string slug, BlogService blogService) =>
+        {
+            var post = blogService.GetPostBySlug(slug);
+            if (post is null)
+                return Results.NotFound("Post not found");
+
+            post.Likes++;
+            // Optionally persist to file here if needed
+            return Results.Ok(new { likes = post.Likes });
+        });
+
+
+        app.MapPost("/posts/{slug}/save", (string slug, HttpContext ctx, BlogService blogService) =>
+        {
+            var username = ctx.User?.Identity?.Name ?? "anonymous";
+            var post = blogService.GetPostBySlug(slug);
+            if (post is null)
+                return Results.NotFound();
+
+            if (post.SavedBy.Contains(username))
+                post.SavedBy.Remove(username);
+            else
+                post.SavedBy.Add(username);
+
+            // Respond correctly
+            return Results.Ok(new { savedBy = post.SavedBy });
         });
 
 

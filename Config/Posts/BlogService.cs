@@ -4,7 +4,6 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Formats.Png;
 using FileBlogApi.Features.Users;
 
 namespace FileBlogApi.Features.Posts;
@@ -39,13 +38,9 @@ public class BlogService
             var html = Markdown.ToHtml(markdown);
 
             var assetsPath = Path.Combine(dir, "assets");
-            var assetFiles = new List<string>();
-            if (Directory.Exists(assetsPath))
-            {
-                assetFiles = Directory.GetFiles(assetsPath)
-                    .Select(f => Path.GetFileName(f))
-                    .ToList();
-            }
+            var assetFiles = Directory.Exists(assetsPath)
+                ? Directory.GetFiles(assetsPath).Select(Path.GetFileName).ToList()
+                : new List<string>();
 
             yield return new Post
             {
@@ -55,15 +50,16 @@ public class BlogService
                 Description = meta.Description ?? "",
                 PublishedDate = meta.PublishedDate ?? DateTime.MinValue,
                 ModifiedDate = meta.ModifiedDate ?? DateTime.MinValue,
-                Tags = meta.Tags ?? new List<string>(),
-                Categories = meta.Categories ?? new List<string>(),
+                Tags = meta.Tags ?? new(),
+                Categories = meta.Categories ?? new(),
                 Body = html,
                 AssetFiles = assetFiles,
                 Username = meta.Username ?? "",
                 Status = meta.Status ?? "published",
                 ScheduledDate = meta.ScheduledDate,
                 Id = Path.GetFileName(dir),
-
+                Likes = meta.Likes,
+                SavedBy = meta.SavedBy ?? new()
             };
         }
     }
@@ -72,52 +68,30 @@ public class BlogService
     {
         foreach (var post in GetAllPosts())
         {
-            if (post.Status == "scheduled" && post.ScheduledDate.HasValue && post.ScheduledDate <= DateTime.UtcNow)
+            if (post.Status == "scheduled" && post.ScheduledDate <= DateTime.UtcNow)
             {
                 post.Status = "published";
-                UpdatePostStatus(post);
+                UpdateMeta(post.FolderName, meta => meta.Status = "published");
             }
             yield return post;
         }
     }
 
-    public IEnumerable<Post> GetPostsByTagAndUpdateStatusIfNeeded(string tag)
-    {
-        return GetAllPostsAndUpdateStatusIfNeeded()
+    public IEnumerable<Post> GetPostsByTagAndUpdateStatusIfNeeded(string tag) =>
+        GetAllPostsAndUpdateStatusIfNeeded()
             .Where(p => p.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
-    }
 
-    public IEnumerable<Post> GetPostsByCategoryAndUpdateStatusIfNeeded(string category)
-    {
-        return GetAllPostsAndUpdateStatusIfNeeded()
+    public IEnumerable<Post> GetPostsByCategoryAndUpdateStatusIfNeeded(string category) =>
+        GetAllPostsAndUpdateStatusIfNeeded()
             .Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
-    }
-
-    private void UpdatePostStatus(Post post)
-    {
-        var folder = Path.Combine(_root, "content", "posts", post.FolderName);
-        var metaPath = Path.Combine(folder, "meta.yaml");
-
-        if (File.Exists(metaPath))
-        {
-            var yaml = File.ReadAllText(metaPath);
-            var meta = ParseYamlFrontMatter(yaml);
-            meta.Status = post.Status;
-
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            var updatedYaml = serializer.Serialize(meta);
-            File.WriteAllText(metaPath, updatedYaml);
-        }
-    }
 
     public Post? GetPostBySlug(string slug)
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+    .FirstOrDefault(d =>
+        Path.GetFileName(d).EndsWith(slug, StringComparison.OrdinalIgnoreCase) ||
+        Path.GetFileName(d).Equals(slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null)
             return null;
@@ -135,13 +109,9 @@ public class BlogService
         var html = Markdown.ToHtml(markdown);
 
         var assetsPath = Path.Combine(dir, "assets");
-        var assetFiles = new List<string>();
-        if (Directory.Exists(assetsPath))
-        {
-            assetFiles = Directory.GetFiles(assetsPath)
-                .Select(f => Path.GetFileName(f))
-                .ToList();
-        }
+        var assetFiles = Directory.Exists(assetsPath)
+            ? Directory.GetFiles(assetsPath).Select(Path.GetFileName).ToList()
+            : new List<string>();
 
         return new Post
         {
@@ -151,22 +121,17 @@ public class BlogService
             Description = meta.Description ?? "",
             PublishedDate = meta.PublishedDate ?? DateTime.MinValue,
             ModifiedDate = meta.ModifiedDate ?? DateTime.MinValue,
-            Tags = meta.Tags ?? new List<string>(),
-            Categories = meta.Categories ?? new List<string>(),
+            Tags = meta.Tags ?? new(),
+            Categories = meta.Categories ?? new(),
             Body = html,
             AssetFiles = assetFiles,
             Username = meta.Username ?? "",
             Status = meta.Status ?? "published",
             ScheduledDate = meta.ScheduledDate,
-
+            Likes = meta.Likes,
+            SavedBy = meta.SavedBy ?? new()
         };
     }
-
-    public IEnumerable<Post> GetPostsByTag(string tag) =>
-        GetAllPosts().Where(p => p.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
-
-    public IEnumerable<Post> GetPostsByCategory(string category) =>
-        GetAllPosts().Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
 
     public string SavePost(CreatePostRequest request)
     {
@@ -189,7 +154,9 @@ public class BlogService
             CustomSlug = slug,
             Username = request.Username,
             Status = request.Status,
-            ScheduledDate = request.ScheduledDate
+            ScheduledDate = request.ScheduledDate,
+            Likes = request.Likes,
+            SavedBy = request.SavedBy
         };
 
         var serializer = new SerializerBuilder()
@@ -203,104 +170,44 @@ public class BlogService
         return folderName;
     }
 
-   public bool UploadFile(string slug, IFormFile file)
-{
-    var folder = Path.Combine(_root, "content", "posts");
-    var dir = Directory.GetDirectories(folder)
-        .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
-
-    if (dir == null || file == null)
-        return false;
-
-    var assetsPath = Path.Combine(dir, "assets");
-    var thumbsPath = Path.Combine(assetsPath, "thumbs");
-    var largePath = Path.Combine(assetsPath, "large");
-
-    Directory.CreateDirectory(assetsPath);
-    Directory.CreateDirectory(thumbsPath);
-    Directory.CreateDirectory(largePath);
-
-    var originalFileName = Path.GetFileName(file.FileName);
-    var fileExtension = Path.GetExtension(originalFileName);
-    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
-
-    var originalFilePath = Path.Combine(assetsPath, originalFileName);
-    var thumbFileName = $"{fileNameWithoutExt}_thumb{fileExtension}";
-    var largeFileName = $"{fileNameWithoutExt}_large{fileExtension}";
-
-    using (var stream = new FileStream(originalFilePath, FileMode.Create))
+    public bool UploadFile(string slug, IFormFile file)
     {
-        file.CopyTo(stream);
-    }
+        var folder = Path.Combine(_root, "content", "posts");
+        var dir = Directory.GetDirectories(folder)
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
 
-    using var inputStream = file.OpenReadStream();
-    using var image = Image.Load(inputStream);
+        if (dir == null || file == null)
+            return false;
 
-    image.Clone(x => x.Resize(new ResizeOptions
-    {
-        Mode = ResizeMode.Max,
-        Size = new Size(300, 0)
-    })).Save(Path.Combine(thumbsPath, thumbFileName));
+        var assetsPath = Path.Combine(dir, "assets");
+        var thumbsPath = Path.Combine(assetsPath, "thumbs");
+        var largePath = Path.Combine(assetsPath, "large");
 
-    image.Clone(x => x.Resize(new ResizeOptions
-    {
-        Mode = ResizeMode.Max,
-        Size = new Size(1200, 0)
-    })).Save(Path.Combine(largePath, largeFileName));
+        Directory.CreateDirectory(assetsPath);
+        Directory.CreateDirectory(thumbsPath);
+        Directory.CreateDirectory(largePath);
 
-    return true;
-}
-    private string ToKebabCase(string text) =>
-        Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+        var originalFileName = Path.GetFileName(file.FileName);
+        var fileExtension = Path.GetExtension(originalFileName);
+        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
 
-    private Meta ParseYamlFrontMatter(string yaml)
-    {
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
+        var originalFilePath = Path.Combine(assetsPath, originalFileName);
+        var thumbFileName = $"{fileNameWithoutExt}_thumb{fileExtension}";
+        var largeFileName = $"{fileNameWithoutExt}_large{fileExtension}";
 
-        try
-        {
-            return deserializer.Deserialize<Meta>(yaml) ?? new Meta();
-        }
-        catch
-        {
-            return new Meta();
-        }
-    }
+        using (var stream = new FileStream(originalFilePath, FileMode.Create))
+            file.CopyTo(stream);
 
-    public void UpdateScheduledToPublishedIfDue()
-    {
-        var posts = GetAllPosts()
-            .Where(p => p.Status == "scheduled" && p.ScheduledDate.HasValue && p.ScheduledDate <= DateTime.UtcNow)
-            .ToList();
+        using var inputStream = file.OpenReadStream();
+        using var image = Image.Load(inputStream);
 
-        foreach (var post in posts)
-        {
-            var metaPath = Path.Combine(_root, "content", "posts", post.FolderName, "meta.yaml");
+        image.Clone(x => x.Resize(new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(300, 0) }))
+            .Save(Path.Combine(thumbsPath, thumbFileName));
 
-            var meta = new Meta
-            {
-                Title = post.Title,
-                Description = post.Description,
-                Tags = post.Tags,
-                Categories = post.Categories,
-                PublishedDate = post.PublishedDate,
-                ModifiedDate = DateTime.UtcNow,
-                CustomSlug = post.Slug,
-                Username = post.Username,
-                Status = "published", // Update status to published
-                ScheduledDate = post.ScheduledDate,
+        image.Clone(x => x.Resize(new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(1200, 0) }))
+            .Save(Path.Combine(largePath, largeFileName));
 
-            };
-
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            var yaml = serializer.Serialize(meta);
-            File.WriteAllText(metaPath, yaml);
-        }
+        return true;
     }
 
     public bool UpdatePostContent(string slug, string newTitle, string newBody)
@@ -318,10 +225,8 @@ public class BlogService
         if (!File.Exists(metaPath) || !File.Exists(contentPath))
             return false;
 
-        // Update content.md
         File.WriteAllText(contentPath, newBody);
 
-        // Update meta.yaml (just title + modified date)
         var yaml = File.ReadAllText(metaPath);
         var meta = ParseYamlFrontMatter(yaml);
         meta.Title = newTitle;
@@ -357,9 +262,97 @@ public class BlogService
         }
     }
 
+    public void UpdateScheduledToPublishedIfDue()
+    {
+        var posts = GetAllPosts()
+            .Where(p => p.Status == "scheduled" && p.ScheduledDate <= DateTime.UtcNow)
+            .ToList();
+
+        foreach (var post in posts)
+        {
+            var metaPath = Path.Combine(_root, "content", "posts", post.FolderName, "meta.yaml");
+
+            var meta = new Meta
+            {
+                Title = post.Title,
+                Description = post.Description,
+                Tags = post.Tags,
+                Categories = post.Categories,
+                PublishedDate = post.PublishedDate,
+                ModifiedDate = DateTime.UtcNow,
+                CustomSlug = post.Slug,
+                Username = post.Username,
+                Status = "published",
+                ScheduledDate = post.ScheduledDate,
+                Likes = post.Likes,
+                SavedBy = post.SavedBy
+            };
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var yaml = serializer.Serialize(meta);
+            File.WriteAllText(metaPath, yaml);
+        }
+    }
+
+    public void UpdateMeta(string slug, Action<Meta> updateAction)
+    {
+        var folder = Path.Combine(_root, "content", "posts");
+        var dir = Directory.GetDirectories(folder)
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+        if (dir == null) return;
+
+        var metaPath = Path.Combine(dir, "meta.yaml");
+        if (!File.Exists(metaPath)) return;
+
+        var yaml = File.ReadAllText(metaPath);
+        var meta = ParseYamlFrontMatter(yaml);
+
+        updateAction(meta);
+
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+
+        File.WriteAllText(metaPath, serializer.Serialize(meta));
+    }
+
+    private Meta ParseYamlFrontMatter(string yaml)
+    {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+
+        try { return deserializer.Deserialize<Meta>(yaml) ?? new Meta(); }
+        catch { return new Meta(); }
+    }
+
+    private string ToKebabCase(string text) =>
+        Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
 
-    private class Meta
+public void SavePostMeta(string slug, Meta updatedMeta)
+{
+    var folder = Path.Combine(_root, "content", "posts");
+    var dir = Directory.GetDirectories(folder)
+        .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+    if (dir == null) return;
+
+    var metaPath = Path.Combine(dir, "meta.yaml");
+
+    var serializer = new SerializerBuilder()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .Build();
+
+    File.WriteAllText(metaPath, serializer.Serialize(updatedMeta));
+}
+
+
+    public class Meta
     {
         public string? Title { get; set; }
         public string? Description { get; set; }
@@ -371,5 +364,7 @@ public class BlogService
         public string? Username { get; set; }
         public string? Status { get; set; }
         public DateTime? ScheduledDate { get; set; }
+        public int Likes { get; set; } = 0;
+        public List<string> SavedBy { get; set; } = new();
     }
 }

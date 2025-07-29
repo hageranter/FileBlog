@@ -1,4 +1,7 @@
 const postContent = document.getElementById('post-content');
+const commentList = document.getElementById("comment-list");
+const commentInput = document.getElementById("comment-input");
+const commentButton = document.getElementById("post-comment-btn");
 const backDetailButton = document.getElementById('back-detail-button');
 const profileEl = document.getElementById("profile-icon");
 
@@ -6,7 +9,6 @@ let currentSlug = null;
 let currentUsername = "";
 let currentRole = "";
 
-// Token & user info
 const token = localStorage.getItem("token");
 if (token) {
   try {
@@ -42,6 +44,36 @@ function getImageSrc(post) {
   return 'https://via.placeholder.com/600x300?text=No+Image';
 }
 
+function animateElement(el) {
+  el.classList.add('animate');
+  setTimeout(() => el.classList.remove('animate'), 400);
+}
+
+async function loadComments(slug) {
+  try {
+    const res = await fetch(`/posts/${slug}/comments`);
+    const comments = await res.json();
+
+    if (!comments.length) {
+      commentList.innerHTML = `<li>No comments yet. Be the first to comment!</li>`;
+      return;
+    }
+
+    commentList.innerHTML = comments.map(c => `
+      <li class="comment-item">
+        <img src="${c.avatarUrl || '/images/avatar.png'}" class="comment-avatar" />
+        <div class="comment-content">
+          <span class="comment-username">${c.username}</span>
+          <p class="comment-text">${c.commentText}</p>
+          <div class="comment-meta">${new Date(c.date).toLocaleString()}</div>
+        </div>
+      </li>
+    `).join('');
+  } catch (err) {
+    console.error("Error loading comments:", err);
+  }
+}
+
 async function loadPostDetails(slug) {
   try {
     currentSlug = slug;
@@ -54,14 +86,13 @@ async function loadPostDetails(slug) {
     const username = post.username || "Unknown";
 
     postContent.innerHTML = `
-      <div class="post-main-content">
+      <article class="post-full">
         <div class="post-meta">
           <div class="author-info">
             <img class="post-user-avatar" src="${avatarUrl}" alt="${username}'s avatar" />
             <span class="post-username">@${username}</span>
             <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
           </div>
-
           ${currentUsername === post.username ? `
             <div class="post-menu-wrapper">
               <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
@@ -71,22 +102,26 @@ async function loadPostDetails(slug) {
             </div>
           ` : ''}
         </div>
-
         <h1 id="detail-title" contenteditable="false">${post.title}</h1>
         <div class="post-hero">
           <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
         </div>
         <div id="detail-body" class="post-body" contenteditable="false">${post.body}</div>
 
+        <div class="post-actions">
+          <button id="like-btn" class="action-btn"><span class="heart">❤️</span> <span id="like-count">${post.likes || 0}</span></button>
+          <button id="save-btn" class="action-btn">${post.savedBy?.includes(currentUsername) ? '💾 Saved' : '💾 Save'}</button>
+        </div>
+
         <div class="post-tags">
           ${(post.tags || []).map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
         </div>
 
         <button id="save-detail-btn" class="hidden">Save</button>
-      </div>
+      </article>
     `;
 
-    // Tag click event to go back to filtered view
+    // Tag filter
     document.querySelectorAll('.tag').forEach(tagEl => {
       tagEl.addEventListener('click', e => {
         const tag = e.target.dataset.tag;
@@ -94,43 +129,77 @@ async function loadPostDetails(slug) {
       });
     });
 
-    // Save logic for editing
-    const saveBtn = document.getElementById("save-detail-btn");
-    saveBtn.onclick = async () => {
+    // Like button
+    const likeBtn = document.getElementById("like-btn");
+    likeBtn.addEventListener("click", async () => {
+      if (!token) {
+        Swal.fire({ icon: "warning", title: "Login required", text: "You must be logged in to like posts." });
+        return;
+      }
+
+      try {
+        const res = await fetch(`/posts/${slug}/like`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const updated = await res.json();
+        document.getElementById("like-count").innerText = updated.likes;
+        animateElement(likeBtn);
+      } catch {
+        Swal.fire({ icon: "error", title: "Error", text: "Couldn't like post." });
+      }
+    });
+
+    // Save button
+    const saveBtn = document.getElementById("save-btn");
+    saveBtn.addEventListener("click", async () => {
+      if (!token) {
+        Swal.fire({ icon: "warning", title: "Login required", text: "You must be logged in to save posts." });
+        return;
+      }
+
+      try {
+        const res = await fetch(`/posts/${slug}/save`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const updated = await res.json();
+        saveBtn.innerText = updated.savedBy.includes(currentUsername) ? '💾 Saved' : '💾 Save';
+        animateElement(saveBtn);
+      } catch {
+        Swal.fire({ icon: "error", title: "Error", text: "Couldn't save post." });
+      }
+    });
+
+    // Save edits
+    document.getElementById('save-detail-btn').onclick = async () => {
       const titleEl = document.getElementById('detail-title');
       const bodyEl = document.getElementById('detail-body');
-
-      titleEl.setAttribute('contenteditable', 'false');
-      bodyEl.setAttribute('contenteditable', 'false');
-      saveBtn.classList.add('hidden');
-
       const newTitle = titleEl.innerText.trim();
       const newBody = bodyEl.innerHTML.trim();
 
       try {
-        const res = await fetch(`/posts/${slug}`, {
+        const res = await fetch(`/posts/${currentSlug}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
           body: JSON.stringify({ title: newTitle, body: newBody })
         });
 
         if (!res.ok) throw new Error("Failed to save");
 
-        Swal.fire({
-          icon: "success",
-          title: "Post updated",
-          text: "Your changes have been saved.",
-        });
+        Swal.fire({ icon: "success", title: "Post updated", text: "Your changes have been saved." });
+        titleEl.setAttribute('contenteditable', 'false');
+        bodyEl.setAttribute('contenteditable', 'false');
+        document.getElementById('save-detail-btn').classList.add('hidden');
       } catch (err) {
-        console.error("Save failed:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Error saving post",
-          text: "Please try again later.",
-        });
+        Swal.fire({ icon: "error", title: "Error", text: "Could not save changes." });
       }
     };
 
+    await loadComments(slug);
   } catch (err) {
     console.error("Error loading post details:", err);
     postContent.innerHTML = `<p>Failed to load post</p>`;
@@ -162,6 +231,33 @@ function enableDetailEdit(menuItem) {
 
 backDetailButton?.addEventListener("click", () => {
   window.location.href = "/posts.html";
+});
+
+commentButton?.addEventListener("click", async () => {
+  const text = commentInput.value.trim();
+  if (!text) return;
+
+  if (!token) {
+    Swal.fire({ icon: "warning", title: "Login required", text: "You must be logged in to comment." });
+    return;
+  }
+
+  try {
+    const res = await fetch(`/posts/${currentSlug}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ comment: text }),
+    });
+
+    if (!res.ok) throw new Error();
+    commentInput.value = "";
+    await loadComments(currentSlug);
+  } catch {
+    Swal.fire({ icon: "error", title: "Error", text: "Couldn't post comment." });
+  }
 });
 
 const slug = getSlugFromURL();

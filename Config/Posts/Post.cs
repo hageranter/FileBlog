@@ -18,4 +18,21 @@ public class Post
     public string Id { get; set; } = string.Empty;
     public DateTime? ScheduledDate { get; set; }
 
+    public List<string> SavedBy { get; set; } = new();
+   
+    public int Likes { get; set; } = 0;
+
 }
+
+// public class Comment
+// {
+//     public string Username { get; set; } = "";
+//     public string CommentText { get; set; } = "";
+//     public DateTime Date { get; set; }
+//     public string AvatarUrl { get; set; } = "/images/avatar.png";
+// }
+
+// public class CommentRequest
+// {
+//     public string Comment { get; set; } = "";
+// }
