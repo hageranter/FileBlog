@@ -176,7 +176,7 @@ button:hover {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }
