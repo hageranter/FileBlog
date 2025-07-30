@@ -1,114 +1,153 @@
- body {
-   font-family: 'Inter', sans-serif;
-   margin: 0;
-   padding: 2rem;
-   background-color: #f9f9f9;
-   color: #333;
- }
+/* USER CARD STYLING */
+#user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
 
- h1 {
-   font-size: 2rem;
-   font-weight: 700;
-   margin-bottom: 1.5rem;
-   color: #222;
-   text-align: center;
- }
+.user-card {
+  width: 250px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
 
- .user-card {
-   background: white;
-   border-radius: 10px;
-   padding: 1rem 1.5rem;
-   margin-bottom: 1rem;
-   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   transition: transform 0.2s;
- }
+.user-card:hover {
+  transform: translateY(-4px);
+}
 
- .user-card:hover {
-   transform: translateY(-2px);
- }
-
- .user-info {
-   font-weight: 500;
- }
-
- .user-info a {
-   color: #5a32ea;
-   text-decoration: none;
-   font-weight: 600;
- }
-
- .user-info span {
-   font-weight: 400;
-   margin-left: 0.5rem;
-   color: #666;
- }
-
- .btn {
-   padding: 0.4rem 1rem;
-   border: none;
-   border-radius: 6px;
-   font-size: 0.9rem;
-   font-weight: 600;
-   cursor: pointer;
-   transition: all 0.2s ease-in-out;
-   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
- }
-
- .btn-admin {
-   background-color: #0056b3;
-   color: white;
- }
-
- .btn-admin:hover {
-   background-color: #497fab;
-   transform: translateY(-1px);
- }
-
- .btn-author {
-   background-color: #e0e0e0;
-   color: #333;
- }
-
- .btn-author:hover {
-   background-color: #cfcfcf;
-   transform: translateY(-1px);
- }
-
- .user-card {
-   background: white;
-   border-radius: 10px;
-   padding: 1rem 1.5rem;
-   margin-bottom: 1rem;
-   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
- }
-
- .user-info a {
-   color: #497fab;
-   font-weight: 600;
-   text-decoration: none;
- }
-
- .user-info span {
-   margin-left: 0.5rem;
-   color: #777;
- }
-
- .btn-group {
-   display: flex;
-   gap: 0.5rem;
- }
- 
- footer {
-  background-color: #111;
-  color: #fff;
+.user-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 1.2rem;
+}
+
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+  border: 3px solid #3e3e3e;
+}
+
+.user-details strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.user-details p {
+  margin: 0.3rem 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #444;
+}
+
+.user-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+/* SHARED BUTTON BASE */
+
+.action-btn,
+.delete-action-btn {
+  flex: 1;
+  background: #f3f3f3;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
   font-size: 0.9rem;
-  margin-top: 3rem;
+  cursor: pointer;
+  padding: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Role Button Hover */
+.action-btn:hover {
+  background-color: #688dd6;
+  color: #fff;
+}
+
+/* Delete Button Hover */
+.delete-action-btn:hover {
+  background-color: #e53935;
+  color: #fff;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100vh;
+  background-color: #1e2a3a;
+  padding-top: 2rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.sidebar .logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #6BC3D6;
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar a:hover {
+  background-color: #6B8DD6;
+}
+
+.sidebar a.active {
+  background-color: #7E6BD6;
+  color: white;
+}
+
+.sidebar a i {
+  margin-right: 10px;
+}
+
+/* MAIN CONTENT AREA */
+.main-content {
+  margin-left: 200px; /* match sidebar width */
+  padding: 2rem;
+  background-color: #f7f9fc;
+  min-height: 100vh;
 }

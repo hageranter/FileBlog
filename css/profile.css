@@ -54,14 +54,14 @@ body {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #005f99;
+  border: 3px solid #3e3e3e;
 }
 
 .profile-pic-wrapper label {
   position: absolute;
   bottom: 0;
   right: 0;
-  background-color: #007bff;
+  background-color: #3e3e3e;
   color: white;
   border-radius: 50%;
   padding: 5px;
@@ -135,7 +135,11 @@ input[type="file"] {
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #3e3e3e;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #688dd6;
   color: white;
 }
 

@@ -18,7 +18,7 @@ a {
 
 /* Admin Navbar */
 .admin-navbar {
-    background: #6b8dd6;
+    background: #3e3e3e;
     color: #fff;
     padding: 1rem 2rem;
     display: flex;
@@ -94,7 +94,7 @@ a {
 }
 
 .btn-primary {
-    background: #3b82f6;
+    background: #688dd6;
     color: #fff;
 }
 
@@ -662,7 +662,7 @@ body {
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #688dd6;
   color: white;
 }
 
