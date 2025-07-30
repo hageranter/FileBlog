@@ -4,10 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Blog</title>
+  <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="/css/post.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- <link rel="stylesheet" href="/css/darktoggle.css"> -->
 
 </head>
 
@@ -16,16 +18,21 @@
     <div class="logo">MyBlog</div>
     <nav class="nav-links">
       <a href="/">Home</a>
-      <a href="/about.html">About</a>
+      <!-- <a href="/about.html">About</a> -->
       <a href="/contactUs.html">Contact</a>
     </nav>
     <a href="/profile.html">
       <div class="profile-icon" id="profile-icon"></div>
     </a>
+
+     <div id="dark-mode-toggle" class="container">
+      <input type="checkbox" id="checkbox" />
+      <label for="checkbox" class="label"></label>
+    </div>
   </header>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-  <h1 style="font-size: 28px; font-weight: bold;">MyBlog</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 16px;">
+  <h1 style="font-size: 28px; font-weight: bold;"></h1>
 
   <div id="search-container">
     <input
@@ -42,21 +49,21 @@
   <div id="post-details" style="display: none;">
     <div id="post-content"></div>
     <div id="post-assets"></div>
-    <button id="back-detail-button">Back to Blog List</button>
+    <button id="back-detail-button">Back to Blog Post List</button>
   </div>
 
   <div id="controls">
-    <button id="back-category-button" style="display:none; margin: 10px 0;">Back to All Blogs</button>
+    <button id="back-category-button" style="display:none; margin: 10px 0;">Back to All Blog Posts</button>
   </div>
 
   <div class="create-post-wrapper">
-    <button id="create-post-btn" onclick="createPosts()">Create Blog</button>
+    <button id="create-post-btn" onclick="createPosts()">Create Post</button>
   </div>
-
-  <script src="/js/posts.js"></script> 
    <footer>
     <p>&copy; 2025 MyBlog. All rights reserved.</p>
   </footer>
+
+    <script src="/js/posts.js"></script> 
 
 </body>
 

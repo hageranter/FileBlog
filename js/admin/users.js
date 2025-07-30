@@ -12,8 +12,22 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadUsers() {
     try {
       const res = await fetch("/admin/users", {
+
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (res.status === 401) {
+        Swal.fire({
+          icon: "warning",
+          title: "Session Expired",
+          text: "Your session has expired. Redirecting to login page...",
+        }).then(() => {
+          localStorage.removeItem("token");
+          window.location.href = "/login.html";
+        });
+        return;
+      }
+
       if (!res.ok) throw new Error("Failed to load users");
 
       const users = await res.json();
@@ -37,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         card.innerHTML = `
           <div class="user-card-top">
-            <img src="${user.avatarUrl || '/assets/images/default-avatar.png'}" class="avatar-img" alt="${user.username}" />
+            <img src="${user.avatarUrl || '/images/profile-icon.jpg'}" class="avatar-img" alt="${user.username}" />
             <div class="user-details">
               <strong>${user.username}</strong>
               <p>${user.email}</p>
@@ -139,6 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
+  
+
 
   // Load users on page ready
   loadUsers();

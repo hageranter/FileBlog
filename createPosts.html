@@ -4,13 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <title>Create New Blog</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
   
   <!-- CSS -->
+   <script src="/js/themeToggle.js"></script>
+
   <link rel="stylesheet" href="/css/createPosts.css" />
+    <link rel="stylesheet" href="/css/darktoggle.css">
+
 </head>
 <header>
     <div class="logo">MyBlog</div>
@@ -23,6 +29,10 @@
       <a href="/profile.html">
         <img id="profile-icon" alt="Profile">
       </a>
+    </div>
+     <div id="dark-mode-toggle" class="container">
+      <input type="checkbox" id="checkbox" />
+      <label for="checkbox" class="label"></label>
     </div>
   </header>
   
@@ -68,8 +78,7 @@
     </form>
   </div>
 
-  <script src="/js/createPosts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/createPosts.js"></script>
 
 </body>
 
