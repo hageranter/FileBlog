@@ -221,7 +221,7 @@ footer {
 }
 /* === Form Page – Dark Mode === */
 
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
   color: #e0e0e0;
 }
@@ -372,7 +372,7 @@ footer {
   background: radial-gradient(circle at 30% 30%, #444, #0a0909);
 }
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -431,7 +431,7 @@ footer {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }

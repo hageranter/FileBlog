@@ -68,7 +68,7 @@ a:hover {
   text-decoration: underline;
 }
 /* === Login/Register Form Page Dark Mode === */
-.dark-mode body {
+body.dark-mode  {
   background-color: #1e1e1e;
   color: #e0e0e0;
 }
@@ -119,7 +119,7 @@ a:hover {
 }
 
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -178,12 +178,12 @@ a:hover {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }
 
-.dark-mode header {
+header.dark-mode  {
   background-color: #111;
   color: #fff;
 }

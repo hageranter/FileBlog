@@ -146,7 +146,7 @@
 
 /* === Saved Posts / Sidebar Layout – Dark Mode === */
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #1c1c1c;
   color: #e0e0e0;
 }
@@ -268,7 +268,7 @@
   background: radial-gradient(circle at 30% 30%, #444, #0a0909);
 }
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -327,7 +327,7 @@
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }

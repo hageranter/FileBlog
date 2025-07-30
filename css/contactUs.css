@@ -278,7 +278,7 @@ footer {
 }
 /* === Contact Page – Extended Dark Mode === */
 
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }
@@ -408,7 +408,7 @@ footer {
 }
 
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -467,7 +467,7 @@ footer {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }

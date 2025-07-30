@@ -1,22 +1,14 @@
-  if (localStorage.getItem("darkMode") === "true") {
-    document.documentElement.classList.add("dark-mode");
-  }
-
-
-
-
-
-
-
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   const checkbox = document.getElementById("checkbox");
   const prefersDark = localStorage.getItem("darkMode") === "true";
 
+  // Apply dark mode immediately if saved
   if (prefersDark) {
     document.body.classList.add("dark-mode");
     if (checkbox) checkbox.checked = true;
   }
 
+  // Toggle handler
   if (checkbox) {
     checkbox.addEventListener("change", () => {
       const isDark = checkbox.checked;
@@ -25,5 +17,3 @@
     });
   }
 });
-
-

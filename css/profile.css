@@ -317,7 +317,7 @@ footer {
 }
 
 /* === DARK MODE === */
-.dark-mode body {
+body.dark-mode  {
   background-color: #1b1b1b;
   color: #e0e0e0;
 }
@@ -333,9 +333,8 @@ footer {
 .dark-mode .sidebar,
 .dark-mode .profile-info,
 .dark-mode .post-card {
-  background-color: #2a2a2a;
+  background-color: #1f1f1f;
   color: #e0e0e0;
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.03);
 }
 .dark-mode .edit-input {
   background-color: #333;
@@ -367,7 +366,7 @@ footer {
 .dark-mode .profile-info label {
   color: #b0b0b0;
 }
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -426,12 +425,12 @@ footer {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }
 
-.dark-mode header {
+header.dark-mode  {
   background-color: #111;
   color: #fff;
 }

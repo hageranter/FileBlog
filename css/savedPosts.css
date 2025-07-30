@@ -143,7 +143,7 @@ footer {
 }
 
 /* === Saved Page Dark Mode === */
-.dark-mode body {
+body.dark-mode  {
   background-color: #1b1b1b;
   color: #e0e0e0;
 }
@@ -270,7 +270,7 @@ footer {
   border-left: 4px solid #1abc9c;
 }
 
-.dark-mode body {
+body.dark-mode  {
   background-color: #121212;
   color: #f0f0f0;
 }
@@ -329,12 +329,12 @@ footer {
 /* darktoggle.css – dark mode styles for admin page + contact page */
 
 /* === Layout === */
-.dark-mode body {
+body.dark-mode  {
   background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
   color: #e0e0e0;
 }
 
-.dark-mode header {
+header.dark-mode  {
   background-color: #111;
   color: #fff;
 }
