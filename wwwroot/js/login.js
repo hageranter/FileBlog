@@ -23,12 +23,9 @@ form.addEventListener('submit', async (e) => {
     const data = await res.json();
     localStorage.setItem('token', data.token);
 
-    const redirectUrl = `${window.location.origin}/posts.html`;
-    console.log("Login successful →", redirectUrl);
-
     document.getElementById('redirect-modal').style.display = 'block';
-    window.pendingRedirectUrl = redirectUrl;
-    setTimeout(() => window.location.href = '/posts.html', 1000);
+    window.pendingRedirectUrl = window.location.origin;
+    setTimeout(() => window.history.back(), 1000);
 
   } catch (err) {
     console.error('Login error:', err);

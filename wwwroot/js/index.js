@@ -37,6 +37,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("recent-posts-grid");
 
+  
+
   try {
     const res = await fetch("/posts");
     const posts = await res.json();

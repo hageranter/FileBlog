@@ -5,31 +5,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MyBlog - Home</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
+    <script src="/js/themeToggle.js"></script>
+
   <link rel="stylesheet" href="/css/index.css">
   <base href="/FileBlog/">
 
 </head>
 
+
+
 <body>
 
   <header>
     <div class="logo">MyBlog</div>
-    <nav>
+    <nav class="nav-center">
       <a href="/">Home</a>
       <a href="/posts.html">Blogs</a>
       <a href="/contactUs.html">Contact</a>
     </nav>
-    <div id="auth-buttons" class="nav-btns">
-      <button onclick="location.href='/login.html'">Login</button>
-      <button onclick="location.href='/signup.html'">Sign Up</button>
-    </div>
+
+    <div class="admin-navbar-div">
+      <div id="dark-mode-toggle" class="container">
+        <input type="checkbox" id="checkbox" />
+        <label for="checkbox" class="label"></label>
+      </div>
+      <div id="auth-buttons" class="nav-btns">
+        <button onclick="location.href='/login.html'">Login</button>
+        <button onclick="location.href='/signup.html'">Sign Up</button>
+      </div>
+    
+
+
     <div id="user-profile" style="display: none;">
       <a href="/profile.html">
         <img id="profile-icon" alt="Profile">
       </a>
     </div>
+</div>
   </header>
 
 
@@ -65,7 +80,7 @@
   <footer>
     <p>&copy; 2025 MyBlog. All rights reserved.</p>
   </footer>
-
   <script src="/js/index.js"></script>
 </body>
+
 </html>

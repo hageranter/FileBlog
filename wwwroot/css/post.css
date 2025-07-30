@@ -51,15 +51,20 @@ h2 {
   padding: 0;
 }
 
+.nav-links a {
+  text-decoration: none;
+  color: #3e3e3e;
+  font-weight: 500;
+  transition: color 0.2s;
+}
 
-
-a {
+body a {
   font-weight: bold;
   color: #3e3e3e; /* your desired link color */
   text-decoration: underline; /* optional: removes underline */
 }
 
-a:hover {
+ body a:hover {
     font-weight: bold;
 
   color: #688dd6; /* color on hover */
@@ -698,3 +703,441 @@ footer {
   font-size: 0.9rem;
   margin-top: 3rem;
 }
+
+
+/* === Blog Posts Page – Dark Mode === */
+
+.dark-mode body {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode .post-username,
+.dark-mode .comment-username {
+  color: #79b8ff;
+}
+
+.dark-mode .navbar {
+  background-color: #121212;
+  border-bottom: 1px solid #2e2e2e;
+  box-shadow: none;
+}
+
+.dark-mode .navbar .logo {
+  color: #ffffff;
+}
+
+.dark-mode .nav-links a,
+.dark-mode body a {
+  color: #ddd;
+}
+
+.dark-mode .nav-links a:hover,
+.dark-mode .nav-links a.active,
+.dark-mode body a:hover {
+  color: #4da6ff;
+}
+
+.dark-mode .profile-icon img {
+  border-color: #4da6ff;
+}
+
+/* Post cards and grids */
+.dark-mode .post {
+  background: #2a2a2a;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .post .post-content,
+.dark-mode .post-main-content {
+  background: #262626;
+  color: #e0e0e0;
+}
+
+.dark-mode .post small,
+.dark-mode .post-date,
+.dark-mode .author-info,
+.dark-mode .post-body,
+.dark-mode .comment-subtext {
+  color: #aaa;
+}
+
+.dark-mode .category-btn,
+.dark-mode #create-post-btn,
+.dark-mode #post-comment-btn {
+  background-color: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .category-btn:hover,
+.dark-mode #create-post-btn:hover,
+.dark-mode #post-comment-btn:hover {
+  background-color: #333;
+}
+
+/* Tag styling */
+.dark-mode .tag {
+  background-color: #333;
+  color: #4da6ff;
+}
+
+/* Buttons */
+.dark-mode #back-detail-button,
+.dark-mode #back-category-button,
+.dark-mode .delete-btn,
+.dark-mode #save-detail-btn {
+  background-color: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .delete-btn:hover {
+  background-color: #aa2b2b;
+}
+
+.dark-mode #back-detail-button:hover,
+.dark-mode #back-category-button:hover,
+.dark-mode #save-detail-btn:hover {
+  background-color: #333;
+}
+
+/* Comments */
+.dark-mode #comment-input,
+.dark-mode .comment-content,
+.dark-mode .comment-item,
+.dark-mode #comment-list li {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+.dark-mode .comment-meta {
+  color: #bbb;
+}
+
+.dark-mode .comment-meta button {
+  color: #4da6ff;
+}
+
+/* Search Bar */
+.dark-mode #search-container {
+  background: linear-gradient(to right, #333, #1a1a1a);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode #input {
+  background-color: #222;
+  color: #fff;
+  border: none;
+}
+
+/* Menu Dropdown */
+.dark-mode .menu {
+  background-color: #2e2e2e;
+  border-color: #444;
+}
+
+.dark-mode .menu li {
+  color: #ccc;
+}
+
+.dark-mode .menu li:hover {
+  background-color: #3a3a3a;
+}
+
+/* Footer */
+.dark-mode footer {
+  background-color: #111;
+  color: #ccc;
+}
+
+
+/* Dark Mode Toggle (behind profile icon) */
+.container {
+  position: absolute;
+  top: 50%;
+  right: 55px;
+  transform: translateY(-50%) scale(0.35);
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.label {
+  height: 60px;
+  width: 130px;
+  border-radius: 24px;
+  background: linear-gradient(to right, #ccc, #999);
+  box-shadow: inset 0 0 5px #000, 0 0 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.label:hover {
+  transform: scale(1.05);
+}
+
+.label::before {
+  content: "";
+  position: absolute;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  left: 8px;
+  transition: left 0.3s ease, background 0.3s ease;
+}
+
+#checkbox {
+  display: none;
+}
+
+#checkbox:checked ~ .label {
+  background: linear-gradient(to right, #333, #d4c7c7);
+}
+
+#checkbox:checked ~ .label::before {
+  left: 60px;
+  background: radial-gradient(circle at 30% 30%, #444, #0a0909);
+}
+
+  .dark-mode #post-details{
+    max-width: 700px;
+    margin: 1rem auto;
+    background: #444;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+ }
+
+ .dark-mode body {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+.dark-mode header {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode .hero {
+  background: linear-gradient(to right, #2c2c2c, #1e1e1e);
+  color: #f0f0f0;
+}
+
+.dark-mode .cta {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode .features {
+  background-color: #121212;
+}
+
+.dark-mode .feature {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+
+.dark-mode .blog-card {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+}
+
+.dark-mode .blog-card a {
+  color: #4da6ff;
+}
+
+.dark-mode .blog-category-tag {
+  background-color: #444;
+  color: #fff;
+}
+
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+
+/* darktoggle.css – dark mode styles for admin page + contact page */
+
+/* === Layout === */
+.dark-mode body {
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  color: #e0e0e0;
+}
+
+.dark-mode header {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode nav a:hover {
+  color: #4da6ff;
+}
+
+/* === Contact Form Container === */
+.dark-mode .container {
+  background: #1f1f1f;
+  box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .left-side .details i {
+  color: #4da6ff;
+}
+
+.dark-mode .left-side .details .text-one,
+.dark-mode .left-side .details .text-two {
+  color: #bbb;
+}
+
+.dark-mode .right-side .topic-text {
+  color: #4da6ff;
+}
+
+.dark-mode .input-box input,
+.dark-mode .input-box textarea {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+.dark-mode .button input[type="button"] {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .button input[type="button"]:hover {
+  background: #222;
+}
+
+.dark-mode .container .content .left-side::before {
+  background: #444;
+}
+
+/* === Footer === */
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+/* === Admin Page Styles === */
+.dark-mode .admin-navbar {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.dark-mode .admin-navbar .logo a {
+  color: #fff;
+}
+
+.dark-mode .admin-badge {
+  background: #4da6ff;
+  color: #000;
+}
+
+.dark-mode .admin-page-header,
+.dark-mode .admin-filters,
+.dark-mode .admin-page-actions .btn,
+.dark-mode .admin-stat-card,
+.dark-mode .filter-menu,
+.dark-mode .admin-table,
+.dark-mode .admin-pagination,
+.dark-mode .modal-content,
+.dark-mode .create-user-popup {
+  background: #2a2a2a;
+  color: #eee;
+  border-color: #444;
+}
+
+.dark-mode .admin-page-description,
+.dark-mode .admin-select,
+.dark-mode .admin-search-input,
+.dark-mode .stat-label,
+.dark-mode .role-badge,
+.dark-mode .user-details p {
+  color: #ccc;
+}
+
+.dark-mode .admin-search-input,
+.dark-mode .admin-select,
+.dark-mode .admin-input {
+  background: #333;
+  border: 1px solid #555;
+  color: #eee;
+}
+
+.dark-mode .admin-stat-card .stat-icon,
+.dark-mode .stat-content h3 {
+  color: #4da6ff;
+}
+
+.dark-mode .btn-primary {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .btn-secondary {
+  background: #555;
+  color: #eee;
+}
+
+.dark-mode .btn-danger {
+  background: #d64545;
+  color: #fff;
+}
+
+.dark-mode .btn-back {
+  background: #3a3a3a;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.dark-mode .btn-back:hover {
+  background-color: #444;
+}
+
+.dark-mode .user-card {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #eee;
+}
+
+.dark-mode .user-card .role {
+  color: #bbb;
+}
+
+.dark-mode .error-message {
+  background: #8b1e1e;
+  color: #fff;
+}
+
+.dark-mode .success-message {
+  background: #1e8b5f;
+  color: #fff;
+}
+
+.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .code-block {
+  background: #222;
+  color: #f0f0f0;
+  border-color: #444;
+}
+

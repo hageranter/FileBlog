@@ -4,7 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Blog</title>
+  
+  <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="./css/post.css" />
+    <link rel="stylesheet" href="/css/darktoggle.css">
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
 
@@ -22,6 +26,10 @@
     <a href="/profile.html">
       <div class="profile-icon" id="profile-icon"> </div>
     </a>
+     <div id="dark-mode-toggle" class="container">
+      <input type="checkbox" id="checkbox" />
+      <label for="checkbox" class="label"></label>
+    </div>
   </header>
 
   <h1>My Blog Posts</h1>
@@ -38,7 +46,6 @@
   <div class="create-post-wrapper">
     <button id="create-post-btn" onclick="createPosts()">Create Post</button>
   </div>
-
   <script src="/js/userPosts.js"></script>
 
 </body>
