@@ -51,9 +51,25 @@ h2 {
   padding: 0;
 }
 
+
+
+a {
+  font-weight: bold;
+  color: #3e3e3e; /* your desired link color */
+  text-decoration: underline; /* optional: removes underline */
+}
+
+a:hover {
+    font-weight: bold;
+
+  color: #688dd6; /* color on hover */
+  text-decoration: none; /* optional: adds underline on hover */
+}
+
+
 .navbar .nav-links li a {
   text-decoration: none;
-  color: #005f99;
+  color: #3e3e3e;
   font-weight: 500;
   padding: 6px 10px;
   border-radius: 4px;
@@ -133,19 +149,19 @@ h2 {
 }
 
 .category-btn {
-  background: #005f99;
+  background: #688dd6;
   color: #fff;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 0.85rem;
   cursor: pointer;
   align-self: flex-start;
-  margin-top: auto;
+  margin-top: 15px;
 }
 
 .category-btn:hover {
-  background: #003d66;
+  background: #4e4e4e;
 }
 
 /* Post details */
@@ -173,7 +189,7 @@ h2 {
 }
 
 #create-post-btn {
-  background-color: #0056b3;
+  background-color: #688dd6;
   color: white;
   padding: 14px 24px;
   border: none;
@@ -214,7 +230,7 @@ h2 {
   background-color: #0056b3;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 #back-category-button:hover {
@@ -495,7 +511,7 @@ h2 {
 #post-comment-btn {
   align-self: flex-end;
   padding: 0.5rem 1.2rem;
-  background-color: #0077b6;
+  background-color: #688dd6;
   color: white;
   border: none;
   border-radius: 6px;
@@ -503,7 +519,7 @@ h2 {
 }
 
 #post-comment-btn:hover {
-  background-color: #005f8a;
+  background-color: #3e3e3e;
 }
 
 #comment-list {
@@ -577,7 +593,7 @@ h2 {
     }
 
     #post-comment-btn {
-      background-color: #007bff;
+      background-color: #688dd6;
       color: white;
       padding: 0.5rem 1rem;
       border: none;
@@ -586,7 +602,7 @@ h2 {
     }
 
     #post-comment-btn:hover {
-      background-color: #0056b3;
+      background-color: #3e3e3e;
     }
 
     #comment-list {
@@ -675,7 +691,7 @@ h2 {
 }
 
 footer {
-  background-color: #111;
+  background-color: #4e4e4e;
   color: #fff;
   text-align: center;
   padding: 1.2rem;

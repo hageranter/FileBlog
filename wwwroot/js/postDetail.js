@@ -9,12 +9,15 @@ let currentSlug = null;
 let currentUsername = "";
 let currentRole = "";
 
+
 const token = localStorage.getItem("token");
 if (token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     currentRole = payload?.role || "";
     currentUsername = payload?.username || "";
+var isAdmin = currentRole.toLowerCase() === "admin";
+
   } catch (err) {
     console.error("Invalid token format");
   }
@@ -32,6 +35,7 @@ if (token && profileEl && currentUsername) {
       profileEl.innerHTML = `<img src="/images/avatar.png" alt="Profile">`;
     });
 }
+
 
 function getSlugFromURL() {
   const params = new URLSearchParams(window.location.search);
@@ -70,7 +74,7 @@ async function loadComments(slug) {
         </div>
       </li>
     `).join('');
-    
+
   } catch (err) {
     console.error("Error loading comments:", err);
   }
@@ -85,6 +89,7 @@ async function loadPostDetails(slug) {
     const post = await res.json();
     const imageSrc = getImageSrc(post);
     const username = post.username || "Unknown";
+
 
     let avatarUrl = "/images/avatar.png"; // default in case fetch fails
 
@@ -108,16 +113,26 @@ async function loadPostDetails(slug) {
         <span class="post-username">@${username}</span>
         <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
       </div>
+      
       ${currentUsername === post.username ? `
-        <div class="post-menu-wrapper">
-          <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
-          <ul class="menu hidden">
-            <li onclick="enableDetailEdit(this)">Edit</li>
-            <li onclick="confirmDeletePost()">Delete</li>
+  <div class="post-menu-wrapper">
+    <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+    <ul class="menu hidden">
+      <li onclick="enableDetailEdit(this)">Edit</li>
+      <li onclick="confirmDeletePost()">Delete</li>
+    </ul>
+  </div>
+` : (isAdmin && currentUsername !== post.username ? `
+  <div class="post-menu-wrapper">
+    <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
+    <ul class="menu hidden">
+      <li onclick="confirmDeletePost()">Delete</li>
+    </ul>
+  </div>
+` : '')}
 
-          </ul>
-        </div>
-      ` : ''}
+
+    
     </div>
     <h1 id="detail-title" contenteditable="false">${post.title}</h1>
     <div class="post-hero">
