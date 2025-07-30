@@ -341,6 +341,7 @@ body.dark-mode  {
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin: 150px;
 }
 
 .label:hover {
@@ -368,7 +369,7 @@ body.dark-mode  {
 }
 
 #checkbox:checked ~ .label::before {
-  left: 60px;
+  left: 20px;
   background: radial-gradient(circle at 30% 30%, #444, #0a0909);
 }
 
@@ -599,3 +600,54 @@ body.dark-mode  {
   border-color: #444;
 }
 
+/* Toggle Container */
+#dark-mode-toggle.container {
+  position: absolute;
+  top: 20px;
+  right: 32px;
+  transform: scale(1);
+  z-index: 1000;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide checkbox */
+#checkbox {
+  display: none;
+}
+
+/* Switch track */
+.label {
+  width: 48px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* Switch thumb */
+.label::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode ON */
+#checkbox:checked + .label {
+  background: #4a4a4a;
+}
+
+#checkbox:checked + .label::before {
+  left: 27px;
+  background: #eee;
+}
