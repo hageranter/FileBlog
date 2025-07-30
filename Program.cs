@@ -8,7 +8,8 @@ using System.Text;
 using System.Text.Json;
 using FileBlogApi.Features.Auth;
 using FileBlogApi.Features.Admin;
-using Microsoft.AspNetCore.Rewrite;
+using FileBlogApi.Features.Contact;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,9 @@ app.MapUserEndpoints();
 app.MapPostEndpoints(blogService);
 app.MapAdminEndpoints();
 app.MapPostDetails(blogService);
+app.MapContactEndpoints();
+
+
 
 
 

@@ -60,7 +60,7 @@ h2 {
 
 body a {
   font-weight: bold;
-  color: #3e3e3e; /* your desired link color */
+  color: #000000; /* your desired link color */
   text-decoration: underline; /* optional: removes underline */
 }
 
