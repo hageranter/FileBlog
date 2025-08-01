@@ -8,6 +8,8 @@ const profileEl = document.getElementById("profile-icon");
 let currentSlug = null;
 let currentUsername = "";
 let currentRole = "";
+let postAuthor = "";
+
 
 
 const token = localStorage.getItem("token");
@@ -16,7 +18,9 @@ if (token) {
     const payload = JSON.parse(atob(token.split('.')[1]));
     currentRole = payload?.role || "";
     currentUsername = payload?.username || "";
-var isAdmin = currentRole.toLowerCase() === "admin";
+    var isAdmin = currentRole.toLowerCase() === "admin";
+    var isEditor = currentRole.toLowerCase() === "editor"; // <-- Add this
+
 
   } catch (err) {
     console.error("Invalid token format");
@@ -56,29 +60,67 @@ function animateElement(el) {
 
 async function loadComments(slug) {
   try {
-    const res = await fetch(`/posts/${slug}/comments`);
-    const comments = await res.json();
+    const res = await fetch(`/posts/${slug}/comments`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const rawComments = await res.json();
+    console.log("Raw comments:", rawComments);
+
+    const comments = rawComments.map(c => {
+      const type = c.Type || c.type || "public";
+      return {
+        username: c.Username || c.username,
+        commentText: c.CommentText || c.commentText,
+        date: c.Date || c.date,
+        avatarUrl: c.AvatarUrl || c.avatarUrl,
+        type,
+        visibleToAuthorOnly: c.VisibleToAuthorOnly ?? type === "review",
+      };
+    });
+
 
     if (!comments.length) {
       commentList.innerHTML = `<li>No comments yet. Be the first to comment!</li>`;
       return;
     }
 
-    commentList.innerHTML = comments.map(c => `
-      <li class="comment-item">
-        <img src="${c.avatarUrl || '/images/avatar.png'}" class="comment-avatar" />
-        <div class="comment-content">
-          <span class="comment-username">${c.username}</span>
-          <p class="comment-text">${c.commentText}</p>
-          <div class="comment-meta">${new Date(c.date).toLocaleString()}</div>
-        </div>
-      </li>
-    `).join('');
+    commentList.innerHTML = comments
+      .filter(c => {
+        console.log("Filtered comments:", comments)
+
+        if (c.type === "review" && c.visibleToAuthorOnly && currentUsername !== postAuthor) {
+          return false;
+        }
+        return true;
+      })
+      .map(c => `
+        <li class="comment-item">
+          <img src="${c.avatarUrl || '/images/avatar.png'}" class="comment-avatar" />
+          <div class="comment-content">
+            <span class="comment-username">
+              ${c.username}
+              ${c.type === "review" ? `<span class="editor-label">Editor <img src="/images/verified-icon.jpg" alt="Verified" /></span>` : ""}
+            </span>
+            <p class="comment-text">
+              ${c.type === "review" ? `<strong>[Editor Feedback]</strong><br>` : ""}
+              ${c.commentText}
+            </p>
+            <div class="comment-meta">${c.date ? new Date(c.date).toLocaleString() : ""}</div>
+          </div>
+        </li>
+      `)
+      .join("");
+
+
+
 
   } catch (err) {
     console.error("Error loading comments:", err);
   }
 }
+
 
 async function loadPostDetails(slug) {
   try {
@@ -87,8 +129,11 @@ async function loadPostDetails(slug) {
     if (!res.ok) throw new Error("Post not found");
 
     const post = await res.json();
+    postAuthor = post.username;
+
     const imageSrc = getImageSrc(post);
     const username = post.username || "Unknown";
+
 
 
     let avatarUrl = "/images/avatar.png"; // default in case fetch fails
@@ -311,7 +356,46 @@ document.addEventListener("DOMContentLoaded", () => {
         commentAvatarEl.src = "/images/avatar.png";
       });
   }
+
+  setupEditorSendButton(); // ✅ Only one call
 });
+
+function setupEditorSendButton() {
+  if (!isEditor) return;
+  const actionsDiv = document.getElementById("comment-actions");
+  if (!actionsDiv || document.getElementById("send-to-author-btn")) return;
+
+  const sendToAuthorBtn = document.createElement("button");
+  sendToAuthorBtn.textContent = "Send to Author";
+  sendToAuthorBtn.id = "send-to-author-btn";
+  sendToAuthorBtn.style.marginLeft = "10px";
+  actionsDiv.appendChild(sendToAuthorBtn);
+
+  sendToAuthorBtn.addEventListener("click", async () => {
+    const text = commentInput.value.trim();
+    if (!text) return;
+    if (!token) return alert("Login required.");
+
+    try {
+      await fetch(`/posts/${currentSlug}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ comment: text, type: "review" })
+      });
+
+      commentInput.value = "";
+      await loadComments(currentSlug);
+      Swal.fire({ icon: "success", title: "Sent to Author", text: "Review submitted." });
+    } catch (err) {
+      console.error("Error sending to author:", err);
+      Swal.fire({ icon: "error", title: "Failed", text: "Couldn't send review." });
+    }
+  });
+}
+
 
 function enableDetailEdit(menuItem) {
   const titleEl = document.getElementById('detail-title');

@@ -601,7 +601,6 @@ body.dark-mode  {
 .dark-mode .admin-stat-card,
 .dark-mode .admin-filters,
 .dark-mode .user-card,
-.dark-mode .admin-page-actions,
 .dark-mode .admin-content {
   background-color: #2a2a2a !important;
   color: #e0e0e0;
@@ -830,7 +829,6 @@ body.dark-mode  {
 
 .dark-mode .admin-page-header,
 .dark-mode .admin-filters,
-.dark-mode .admin-page-actions .btn,
 .dark-mode .admin-stat-card,
 .dark-mode .filter-menu,
 .dark-mode .admin-table,

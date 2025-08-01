@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="/css/contactUs.css">
     <link rel="stylesheet" href="/css/darktoggle.css">
 
-
     <!-- Fontawesome CDN Link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +27,7 @@
             <img id="profile-icon" alt="Profile">
         </a>
     </div>
-    <div id="dark-mode-toggle" class="container">
+    <div id="dark-mode-toggle" class="">
         <input type="checkbox" id="checkbox" />
         <label for="checkbox" class="label"></label>
     </div>
@@ -78,39 +77,9 @@
                 </form>
             </div>
         </div>
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    async function submitForm() {
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-        const message = document.getElementById("message").value;
-
-        const response = await fetch("/contact", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, message })
-        });
-
-        if (response.ok) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Message Sent',
-                text: 'We’ve received your message. Please check your email!',
-                confirmButtonColor: '#3085d6'
-            });
-            document.getElementById("contact-form").reset();
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Something went wrong while sending your message.',
-                confirmButtonColor: '#d33'
-            });
-        }
-    }
-</script>
-
-
+        <script src="/js/contactUs.js"></script>
 </body>
 
 </html>

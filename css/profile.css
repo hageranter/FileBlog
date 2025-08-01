@@ -107,6 +107,10 @@ body {
 .sidebar a i {
   margin-right: 10px;
 }
+ .sidebar
+  a#logout-icon:hover {
+  background-color: #f70000 !important;
+}
 
 /* === MAIN CONTENT === */
 .main-content {

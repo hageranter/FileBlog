@@ -3,11 +3,14 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Blog Detail</title>
-  
-<script src="/js/themeToggle.js"></script>
+  <title>Blog Post's Detail</title>
+
+  <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="/css/post.css" />
-   <link rel="stylesheet" href="/css/darktoggle.css"> 
+  <link rel="stylesheet" href="/css/darktoggle.css">
+    <link rel="stylesheet" href="/css/index.css" />
+
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -16,7 +19,6 @@
       font-family: 'Inter', sans-serif;
     }
   </style>
-  
 
 </head>
 
@@ -25,16 +27,23 @@
     <div class="logo">MyBlog</div>
     <nav class="nav-links">
       <a href="/">Home</a>
-      <a href="/about.html">About</a>
       <a href="/contactUs.html">Contact</a>
     </nav>
-    <a href="/profile.html">
-      <div class="profile-icon" id="profile-icon"></div>
-    </a>
+    <div class="admin-navbar-div">
+      <div id="dark-mode-toggle" class="">
+        <input type="checkbox" id="checkbox" />
+        <label for="checkbox" class="label"></label>
+      </div>
+      <div id="auth-buttons" class="nav-btns">
+        <button onclick="location.href='/login.html'">Login</button>
+        <button onclick="location.href='/signup.html'">Sign Up</button>
+      </div>
 
-     <div id="dark-mode-toggle" class="container">
-      <input type="checkbox" id="checkbox" />
-      <label for="checkbox" class="label"></label>
+      <div id="user-profile" style="display: none;">
+        <a href="/profile.html">
+          <img id="profile-icon" alt="Profile">
+        </a>
+      </div>
     </div>
   </header>
 
@@ -43,9 +52,8 @@
     <div class="post-actions">
     </div>
 
-
     <!-- New Comment Section -->
-    <div class="comments-section">
+    <div class="comments-section" >
       <h3>The Conversation</h3>
       <p class="comment-subtext">Start a discussion, not a fire. Post with kindness.</p>
 
@@ -54,17 +62,18 @@
         <textarea id="comment-input" placeholder="Add a comment..."></textarea>
       </div>
 
-      <div class="comment-actions">
+      <div class="comment-actions" id="comment-actions">
         <button id="post-comment-btn">Post Comment</button>
       </div>
 
       <ul id="comment-list">
-        <!-- Rendered comments will go here -->
       </ul>
     </div>
   </div>
 
   <script src="/js/postDetail.js"></script>
+    <script src="/js/index.js"></script>
+
 
 </body>
 

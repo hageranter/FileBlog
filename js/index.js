@@ -11,15 +11,15 @@
     fetch(`/users/${username}`)
       .then(res => res.ok ? res.json() : null)
       .then(user => {
-        const avatarUrl = user?.avatarUrl || '/images/avatar.png';
+        const avatarUrl = user?.avatarUrl || '/images/profile-icon.jpg';
         document.getElementById('profile-icon').src = avatarUrl;
       })
       .catch(() => {
-        document.getElementById('profile-icon').src = '/images/avatar.png';
+        document.getElementById('profile-icon').src = '/images/profile-icon.jpg';
       });
   } catch {
     console.error('Invalid token format');
-    document.getElementById('profile-icon').src = '/images/avatar.png';
+    document.getElementById('profile-icon').src = '/images/profile-icon.jpg';
   }
 
   const ctaBtn = document.querySelector('.cta');

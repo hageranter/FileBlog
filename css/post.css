@@ -46,7 +46,7 @@ h2 {
 .navbar .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
+  gap: 10px;
   margin: 0;
   padding: 0;
 }
@@ -171,7 +171,7 @@ body a {
 
 /* Post details */
 #post-details {
-  max-width: 700px;
+  max-width: 800px;
   margin: 1rem auto;
   background: #fff;
   padding: 1rem;
@@ -600,7 +600,7 @@ body a {
     #post-comment-btn {
       background-color: #688dd6;
       color: white;
-      padding: 0.5rem 1rem;
+      padding: 0.67rem 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -668,8 +668,8 @@ body a {
 }
 /* From Uiverse.io by vinodjangid07 */ 
 #search-container {
-  width: 210px;
-  height: 25PX;
+  width: 220px;
+  height: 40PX;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -854,7 +854,7 @@ footer {
 
 
 /* Dark Mode Toggle (behind profile icon) */
-.container {
+/* .container {
   position: absolute;
   top: 50%;
   right: 55px;
@@ -874,8 +874,8 @@ footer {
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
+} */
+/* 
 .label:hover {
   transform: scale(1.05);
 }
@@ -890,8 +890,8 @@ footer {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   left: 8px;
   transition: left 0.3s ease, background 0.3s ease;
-}
-
+} */
+/* 
 #checkbox {
   display: none;
 }
@@ -903,7 +903,7 @@ footer {
 #checkbox:checked ~ .label::before {
   left: 60px;
   background: radial-gradient(circle at 30% 30%, #444, #0a0909);
-}
+} */
 
   .dark-mode #post-details{
     max-width: 700px;
@@ -1141,3 +1141,38 @@ header.dark-mode  {
   border-color: #444;
 }
 
+
+.editor-label {
+  font-size: 12px;
+  color: #007bff;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.editor-label img {
+  height: 14px;
+  margin-left: 4px;
+}
+
+.comment-text strong {
+  color: #007bff;
+}
+
+#send-to-author-btn {
+  background-color: #ffefc1;
+  border: 2px solid #f1c40f;
+  color: #b57f00;
+  padding: 8px 14px;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#send-to-author-btn:hover {
+  background-color: #f1c40f;
+  color: white;
+  border-color: #e1b100;
+}

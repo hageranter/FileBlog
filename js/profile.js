@@ -26,7 +26,7 @@ async function loadProfile(payload) {
     if (user.avatarUrl) {
       document.getElementById('avatar').src = user.avatarUrl; // ✅ force refresh
     } else {
-      document.getElementById('avatar').src = '/images/default-avatar.png';
+      document.getElementById('avatar').src = 'images\profile-icon.jpg';
     }
 
   } catch (err) {
