@@ -17,10 +17,12 @@
   <!-- Header -->
   <header class="navbar">
     <div class="logo">MyBlog</div>
-     <div id="dark-mode-toggle" class="container">
+
+    <div id="dark-mode-toggle" class="theme-toggle-wrapper">
       <input type="checkbox" id="checkbox" />
       <label for="checkbox" class="label"></label>
     </div>
+
   </header>
 
   <!-- Sidebar -->
@@ -31,7 +33,7 @@
     <a href="/draftPosts.html"><i class="fas fa-file-alt"></i> Draft Posts</a>
     <a href="/contactUs.html"><i class="fas fa-user"></i> Contact Us</a>
     <a href="/profile.html" ><i class="fas fa-user-circle"></i> Profile</a>
-    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <a href="#" onclick="logout()" id="logout-icon"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
 
   <!-- Main Content -->

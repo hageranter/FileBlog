@@ -4,15 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <title>MyBlog – Draft Blogs</title>
+
   <script src="/js/themeToggle.js"></script>
 
-   <link rel="stylesheet" href="/css/draftPosts.css">
-    <link rel="stylesheet" href="/css/darktoggle.css">
+  <link rel="stylesheet" href="/css/draftPosts.css">
+  <link rel="stylesheet" href="/css/darktoggle.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
- 
-
 
 </head>
 
@@ -22,21 +21,22 @@
   <header class="navbar">
     <div class="logo">MyBlog</div>
 
-     <div id="dark-mode-toggle" class="container">
+    <div id="dark-mode-toggle" class="theme-toggle-wrapper">
       <input type="checkbox" id="checkbox" />
       <label for="checkbox" class="label"></label>
     </div>
+
   </header>
 
   <!-- Sidebar -->
   <div class="sidebar">
     <a href="/"><i class="fas fa-home"></i> Home</a>
-     <a href="/posts.html"><i class="fas fa-pen-nib"></i>  Explore Posts</a>
+    <a href="/posts.html"><i class="fas fa-pen-nib"></i> Explore Posts</a>
     <a href="/savedPosts.html"><i class="fas fa-bookmark"></i> Saved Posts</a>
     <a href="/draftPosts.html" class="active"><i class="fas fa-file-alt"></i> Draft Posts</a>
     <a href="/contactUs.html"><i class="fas fa-user"></i> Contact Us</a>
-    <a href="/profile.html" ><i class="fas fa-user-circle"></i> Profile</a>
-    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <a href="/profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+    <a href="#" onclick="logout()" id="logout-icon"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
 
   <!-- Main Content -->

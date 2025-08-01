@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Management - Admin Dashboard</title>
 
-  <script src="/js/admin/users.js"></script>
-  <script src="/js/admin/createUser.js"></script>
+ 
   <script src="/js/themeToggle.js"></script>
 
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link rel="stylesheet" href="/css/admin.css" />
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.2/dist/sweetalert2.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.2/dist/sweetalert2.all.min.js"></script>
@@ -27,23 +27,22 @@
     </div>
 
 
-   <div class="admin-navbar-div">
-    <div class="admin-user-info">
-      <div id="dark-mode-toggle" class="container">
-        <input type="checkbox" id="checkbox" />
-        <label for="checkbox" class="label"></label>
+    <div class="admin-navbar-div">
+      <div class="admin-user-info">
+        <div id="dark-mode-toggle" class="container">
+          <input type="checkbox" id="checkbox" />
+          <label for="checkbox" class="label"></label>
+        </div>
+
       </div>
-     
-    </div>
-     <a href="/">Home</a>
-    <a class="profile" href="/profile.html">
-      <i class="fas fa-user"></i> Profile
-    </a>
+      <a href="/">Home</a>
+      <a class="profile" href="/profile.html">
+        <i class="fas fa-user"></i> Profile
+      </a>
     </div>
 
-</div>
+    </div>
   </nav>
-
 
   <main class="admin-content">
     <header class="admin-page-header">
@@ -77,8 +76,8 @@
       <div class="admin-stat-card">
         <div class="stat-icon editor"><i class="fas fa-user-edit"></i></div>
         <div class="stat-content">
-          <h3 class="stat-number" id="editor-users">0</h3>
-          <p class="stat-label">Editors</p>
+          <h3 class="stat-number" id="editor-users" >0</h3>
+          <p class="stat-label" >Editors</p>
         </div>
       </div>
       <div class="admin-stat-card">
@@ -101,14 +100,7 @@
     </div>
 
     <section class="user-list" id="user-list"></section>
-
-
     </div>
-
-
-
-
-
 
     <div class="error-message" id="error-message" style="display: none;">
       <i class="fas fa-exclamation-circle"></i>
@@ -119,9 +111,6 @@
       <i class="fas fa-check-circle"></i>
       <span id="success-text"></span>
     </div>
-
-
-
 
     <!-- Create User Popup Overlay -->
     <div id="create-user-overlay" class="overlay hidden">
@@ -158,6 +147,7 @@
 
 
 </body>
-
+ <script src="/js/admin/users.js"></script>
+  <script src="/js/admin/createUser.js"></script>
 
 </html>

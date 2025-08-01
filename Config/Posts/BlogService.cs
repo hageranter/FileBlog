@@ -409,7 +409,7 @@ public class BlogService
 
 
 
-    public List<Comment> GetComments(string slug)
+    public List<Comment> GetComments(string slug, string currentUsername)
     {
         var post = GetPostBySlug(slug);
         if (post == null) return new List<Comment>();
@@ -418,15 +418,28 @@ public class BlogService
         if (!File.Exists(commentsPath)) return new List<Comment>();
 
         var json = File.ReadAllText(commentsPath);
-        return JsonSerializer.Deserialize<List<Comment>>(json) ?? new List<Comment>();
-    }
+        var allComments = JsonSerializer.Deserialize<List<Comment>>(json) ?? new List<Comment>();
 
+        // Show all comments if:
+        // - The comment is public
+        // - OR the current user is the post author
+        // - OR the current user is the comment author (editor)
+        return allComments.Where(c =>
+            !c.VisibleToAuthorOnly ||
+            currentUsername == post.Username ||
+            currentUsername == c.Username
+        ).ToList();
+    }
     public void AddComment(string slug, Comment comment)
     {
         var post = GetPostBySlug(slug);
         if (post == null) return;
 
-        // ✅ Set avatar path if available
+        // ✅ Normalize
+        comment.Type = comment.Type?.ToLower() ?? "public";
+        comment.VisibleToAuthorOnly = comment.Type == "review";
+
+        // ✅ Set avatar if available
         var avatarFolder = Path.Combine("wwwroot", "userfiles", comment.Username);
         if (Directory.Exists(avatarFolder))
         {
@@ -441,17 +454,13 @@ public class BlogService
             }
         }
 
-        // ✅ Comments file path
         var commentsPath = Path.Combine(_root, "content", "posts", post.FolderName, "comments.json");
-
-        // ✅ Load existing or initialize
         var comments = File.Exists(commentsPath)
             ? JsonSerializer.Deserialize<List<Comment>>(File.ReadAllText(commentsPath)) ?? new List<Comment>()
             : new List<Comment>();
 
-        comments.Add(comment);
+        comments.Add(comment);  // ✅ Now properly marked
 
-        // ✅ Save updated list
         var json = JsonSerializer.Serialize(comments, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(commentsPath, json);
     }

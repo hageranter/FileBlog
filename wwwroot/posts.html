@@ -6,10 +6,11 @@
   <title>My Blog</title>
   <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="/css/post.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- <link rel="stylesheet" href="/css/darktoggle.css"> -->
 
 </head>
 
@@ -18,32 +19,34 @@
     <div class="logo">MyBlog</div>
     <nav class="nav-links">
       <a href="/">Home</a>
-      <!-- <a href="/about.html">About</a> -->
       <a href="/contactUs.html">Contact</a>
     </nav>
-    <a href="/profile.html">
-      <div class="profile-icon" id="profile-icon"></div>
-    </a>
+   <div class="admin-navbar-div">
+      <div id="dark-mode-toggle" class="">
+        <input type="checkbox" id="checkbox" />
+        <label for="checkbox" class="label"></label>
+      </div>
+      <div id="auth-buttons" class="nav-btns">
+        <button onclick="location.href='/login.html'">Login</button>
+        <button onclick="location.href='/signup.html'">Sign Up</button>
+      </div>
 
-     <div id="dark-mode-toggle" class="container">
-      <input type="checkbox" id="checkbox" />
-      <label for="checkbox" class="label"></label>
+      <div id="user-profile" style="display: none;">
+        <a href="/profile.html">
+          <img id="profile-icon" alt="Profile">
+        </a>
+      </div>
     </div>
   </header>
 
   <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 16px;">
-  <h1 style="font-size: 28px; font-weight: bold;"></h1>
+    <h1 style="font-size: 28px; font-weight: bold;"></h1>
 
-  <div id="search-container">
-    <input
-      type="text"
-      id="search-input"
-      placeholder="Search posts..."
-      style="padding: 8px; width: 170px; border-radius: 16px; border: 1px solid #ccc; font-size: 16px;" />
+    <div id="search-container">
+      <input type="text" id="search-input" placeholder="Search posts..."
+        style="padding: 8px; width: 170px; border-radius: 16px; border: 1px solid #ccc; font-size: 16px;" />
+    </div>
   </div>
-</div>
-
-
 
   <div id="posts"></div>
   <div id="post-details" style="display: none;">
@@ -59,11 +62,14 @@
   <div class="create-post-wrapper">
     <button id="create-post-btn" onclick="createPosts()">Create Post</button>
   </div>
-   <footer>
+  <footer>
     <p>&copy; 2025 MyBlog. All rights reserved.</p>
   </footer>
 
-    <script src="/js/posts.js"></script> 
+  <script src="/js/posts.js"></script>
+    <script src="/js/index.js"></script>
+
+
 
 </body>
 

@@ -8,31 +8,42 @@ public static class PostDetails
     public static void MapPostDetails(this WebApplication app, BlogService blogService)
     {
         // ✅ COMMENT: Save comment to file
-        app.MapPost("/posts/{slug}/comments", ([FromRoute] string slug, [FromBody] CommentRequest request, HttpContext ctx) =>
-        {
-            if (string.IsNullOrWhiteSpace(request.Comment))
-                return Results.BadRequest("Comment is required");
+      app.MapPost("/posts/{slug}/comments", ([FromRoute] string slug, [FromBody] CommentRequest request, HttpContext ctx) =>
+{
+    if (string.IsNullOrWhiteSpace(request.Comment))
+        return Results.BadRequest("Comment is required");
 
-            var username = ctx.User?.Identity?.Name ?? "anonymous";
+    var username = ctx.User?.Identity?.Name ?? "anonymous";
 
-            var comment = new Comment
-            {
-                Username = username,
-                CommentText = request.Comment,
-                Date = DateTime.UtcNow,
-                AvatarUrl = "/images/avatar.png"
-            };
+    var comment = new Comment
+    {
+        Username = username,
+        CommentText = request.Comment,
+        Date = DateTime.UtcNow,
+        AvatarUrl = "/images/avatar.png",
+        Type = request.Type ?? "public",
+        VisibleToAuthorOnly = request.Type?.ToLower() == "review"
+    };
 
-            blogService.AddComment(slug, comment);
-            return Results.Ok(comment);
-        });
+    blogService.AddComment(slug, comment); // ✅ Only once
+
+    return Results.Ok(comment);
+});
 
         // ✅ COMMENT: Read from file
-        app.MapGet("/posts/{slug}/comments", ([FromRoute] string slug) =>
-        {
-            var comments = blogService.GetComments(slug);
-            return Results.Ok(comments);
-        });
+        app.MapGet("/posts/{slug}/comments",  [Authorize] ([FromRoute] string slug, HttpContext ctx) =>
+ {
+     var currentUser = ctx.User?.Identity?.Name;
+     var post = blogService.GetPostBySlug(slug);
+
+     if (post is null)
+         return Results.NotFound("Post not found");
+
+     var comments = blogService.GetComments(slug, currentUser ?? "");
+
+     return Results.Ok(comments);
+ });
+
 
         // ✅ LIKE: Toggle like (one per user)
         app.MapPost("/posts/{slug}/like", (string slug, HttpContext ctx) =>

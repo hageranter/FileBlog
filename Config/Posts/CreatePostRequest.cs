@@ -27,9 +27,15 @@ public class Comment
     public string CommentText { get; set; } = "";
     public DateTime Date { get; set; }
     public string AvatarUrl { get; set; } = "/images/avatar.png";
+
+    public string Type { get; set; } = "public"; // "public" or "review"
+    public bool VisibleToAuthorOnly { get; set; } = false;
+
 }
 
 public class CommentRequest
 {
     public string Comment { get; set; } = "";
+        public string Type { get; set; } = "public"; // default
+
 }
