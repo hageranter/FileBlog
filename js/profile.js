@@ -23,12 +23,7 @@ async function loadProfile(payload) {
     document.getElementById('role').textContent = payload.role ?? '—';
     document.getElementById('avatar').alt = payload.AvatarUrl + "'s avatar";
 
-    if (user.avatarUrl) {
-      document.getElementById('avatar').src = user.avatarUrl; // ✅ force refresh
-    } else {
-      document.getElementById('avatar').src = 'images\profile-icon.jpg';
-    }
-
+    document.getElementById('avatar').src = user.avatarUrl || 'images/profile-icon.jpg';
   } catch (err) {
     console.error('Failed to load profile:', err);
   }
@@ -56,7 +51,6 @@ const postAssets = document.getElementById('post-assets');
 
 async function loadPosts() {
   try {
-    const token = localStorage.getItem("token");
     if (!token) {
       postsContainer.innerHTML = "<p>User not authenticated.</p>";
       return;
@@ -106,14 +100,10 @@ function displayPosts(posts) {
       </div>
     `;
 
-
     postsContainer.appendChild(postCard);
     postCard.onclick = () => window.location.href = `/postDetail.html?slug=${encodeURIComponent(post.slug)}`;
-
   });
 }
-
-
 
 function toggleMenu(button) {
   const menu = button.nextElementSibling;
@@ -124,7 +114,6 @@ function enableDetailEdit(menuItem) {
   const titleEl = document.getElementById('detail-title');
   const bodyEl = document.getElementById('detail-body');
   const saveBtn = document.getElementById('save-detail-btn');
-
 
   titleEl.setAttribute('contenteditable', 'true');
   bodyEl.setAttribute('contenteditable', 'true');
@@ -142,8 +131,7 @@ function enableDetailEdit(menuItem) {
     const newBody = bodyEl.innerHTML.trim();
 
     if (!currentSlug) {
-      alert("Missing post slug");
-      return;
+      return Swal.fire('Missing Slug', 'No post selected to edit.', 'error');
     }
 
     try {
@@ -160,43 +148,81 @@ function enableDetailEdit(menuItem) {
 
       if (!res.ok) throw new Error("Failed to save");
 
-      alert("Post updated successfully!");
+      Swal.fire('Saved!', 'Post updated successfully.', 'success');
     } catch (err) {
       console.error("Error saving post:", err);
-      alert("Failed to save post");
+      Swal.fire('Error', 'Failed to save post.', 'error');
     }
   };
 }
 
 function confirmDeletePost() {
-  if (!currentSlug) return alert("Missing slug");
+  if (!currentSlug) {
+    return Swal.fire('Error', 'Missing slug.', 'error');
+  }
 
-  const confirmed = confirm("Are you sure you want to delete this post?");
-  if (!confirmed) return;
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "This post will be permanently deleted.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then(result => {
+    if (!result.isConfirmed) return;
 
-  fetch(`/posts/${currentSlug}`, {
-    method: "DELETE"
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to delete");
-      alert("Post deleted successfully.");
-      backToPosts();
-      loadPosts(); // refresh list
+    fetch(`/posts/${currentSlug}`, {
+      method: "DELETE"
     })
-    .catch(err => {
-      console.error("Error deleting post:", err);
-      alert("Could not delete post.");
-    });
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to delete");
+        Swal.fire('Deleted!', 'Post deleted successfully.', 'success');
+        backToPosts();
+        loadPosts();
+      })
+      .catch(err => {
+        console.error("Error deleting post:", err);
+        Swal.fire('Error', 'Could not delete post.', 'error');
+      });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('token');
+
+  // 🚫 No token at all
   if (!token) {
-    console.warn('No JWT found. Not logged in.');
-    return;
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Session Expired',
+      text: 'Please log in to continue.',
+      confirmButtonText: 'Go to Login',
+      confirmButtonColor: '#3085d6'
+    }).then(() => {
+      window.location.href = '/login.html';
+    });
   }
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
+
+    // ⏳ Token expired
+    if (payload.exp && payload.exp < now) {
+      localStorage.removeItem('token');
+      return Swal.fire({
+        icon: 'warning',
+        title: 'Session Expired',
+        text: 'Please log in again.',
+        confirmButtonText: 'Go to Login',
+        confirmButtonColor: '#3085d6'
+      }).then(() => {
+        window.location.href = '/login.html';
+      });
+    }
+
+    // ✅ Authenticated, continue
     loadProfile(payload);
     loadPosts();
 
@@ -217,7 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!file) return;
 
       const username = getUsernameFromToken();
-      if (!username) return alert("Session expired");
+      if (!username) {
+        return Swal.fire('Session Expired', 'Please log in again.', 'error');
+      }
 
       const formData = new FormData();
       formData.append('file', file);
@@ -229,17 +257,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
 
+        const data = await res.json();
         if (!data.avatarUrl) throw new Error("Missing avatarUrl");
-        document.getElementById('avatar').src = data.avatarUrl + `?t=${Date.now()}`; // bust cache
+
+        document.getElementById('avatar').src = data.avatarUrl + `?t=${Date.now()}`;
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'Upload Successful',
+          text: 'Your profile image was updated.',
+          confirmButtonColor: '#3085d6'
+        });
 
       } catch (err) {
-        alert("Upload failed: " + err.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Failed',
+          text: err.message || 'Something went wrong.',
+          confirmButtonColor: '#d33'
+        });
       }
     });
 
   } catch (err) {
     console.error("Invalid token", err);
+    localStorage.removeItem('token');
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Session',
+      text: 'Please log in again.',
+      confirmButtonText: 'Go to Login',
+      confirmButtonColor: '#d33'
+    }).then(() => {
+      window.location.href = '/login.html';
+    });
   }
 });
+
+

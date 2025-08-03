@@ -16,21 +16,30 @@
 
 <header>
     <div class="logo">MyBlog</div>
-    <nav>
+    <nav class="nav-links">
         <a href="/">Home</a>
         <a href="/posts.html">Posts</a>
         <!-- <a href="/contactUs.html">Contact</a> -->
     </nav>
-
-    <div id="user-profile" style="display: none;">
-        <a href="/profile.html">
-            <img id="profile-icon" alt="Profile">
-        </a>
-    </div>
-    <div id="dark-mode-toggle" class="">
+ <div class="admin-navbar-div">
+      <div id="dark-mode-toggle" class="">
         <input type="checkbox" id="checkbox" />
         <label for="checkbox" class="label"></label>
+      </div>
+      <div id="auth-buttons" class="nav-btns">
+        <button onclick="location.href='/login.html'">Login</button>
+        <button onclick="location.href='/signup.html'">Sign Up</button>
+      </div>
+
+      <div id="user-profile" style="display: none;">
+        <a href="/profile.html">
+          <img id="profile-icon" alt="Profile">
+        </a>
+      </div>
     </div>
+    </div>
+    
+    
 </header>
 
 <body>
@@ -74,6 +83,7 @@
                     <div class="button">
                         <input type="button" value="Send Now" onclick="submitForm()">
                     </div>
+                    
                 </form>
             </div>
         </div>

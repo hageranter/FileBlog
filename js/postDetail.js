@@ -2,7 +2,6 @@ const postContent = document.getElementById('post-content');
 const commentList = document.getElementById("comment-list");
 const commentInput = document.getElementById("comment-input");
 const commentButton = document.getElementById("post-comment-btn");
-// const backDetailButton = document.getElementById('back-detail-button');
 const profileEl = document.getElementById("profile-icon");
 
 let currentSlug = null;
@@ -31,12 +30,12 @@ if (token && profileEl && currentUsername) {
   fetch(`/users/${currentUsername}`)
     .then(res => res.json())
     .then(user => {
-      const avatarUrl = user.avatarUrl || "/images/avatar.png";
-      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/avatar.png'" />`;
+      const avatarUrl = user.avatarUrl || "/images/profile-icon.jpg";
+      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/profile-icon.jpg'" />`;
 
     })
     .catch(() => {
-      profileEl.innerHTML = `<img src="/images/avatar.png" alt="Profile">`;
+      profileEl.innerHTML = `<img src="/images/profile-icon.jpg" alt="Profile">`;
     });
 }
 
@@ -97,23 +96,22 @@ async function loadComments(slug) {
       })
       .map(c => `
         <li class="comment-item">
-          <img src="${c.avatarUrl || '/images/avatar.png'}" class="comment-avatar" />
+          <img src="${c.avatarUrl || '/images/profile-icon.jpg'}" class="comment-avatar" />
           <div class="comment-content">
             <span class="comment-username">
               ${c.username}
               ${c.type === "review" ? `<span class="editor-label">Editor <img src="/images/verified-icon.jpg" alt="Verified" /></span>` : ""}
             </span>
-            <p class="comment-text">
-              ${c.type === "review" ? `<strong>[Editor Feedback]</strong><br>` : ""}
-              ${c.commentText}
-            </p>
+            <div class="comment-text">
+               ${c.type === "review" ? `<strong>[Editor Feedback]</strong><br>` : ""}
+               ${marked.parse(c.commentText)}
+              </div>
+
             <div class="comment-meta">${c.date ? new Date(c.date).toLocaleString() : ""}</div>
           </div>
         </li>
       `)
       .join("");
-
-
 
 
   } catch (err) {
@@ -136,7 +134,7 @@ async function loadPostDetails(slug) {
 
 
 
-    let avatarUrl = "/images/avatar.png"; // default in case fetch fails
+    let avatarUrl = "/images/profile-icon.jpg"; // default in case fetch fails
 
     try {
       const avatarRes = await fetch(`/users/${post.username}`);
@@ -154,13 +152,13 @@ async function loadPostDetails(slug) {
   <article class="post-full">
     <div class="post-meta">
       <div class="author-info">
-        <img class="post-user-avatar" src="${avatarUrl}" onerror="this.src='/images/avatar.png'" alt="${username}'s avatar" />
-        <span class="post-username">@${username}</span>
+        <img class="post-user-avatar" src="${avatarUrl}" onerror="this.src='/images/profile-icon.jpg'" alt="${username}'s avatar" />
+        <span class="post-username">${username}</span>
         <span class="post-date">${new Date(post.publishedDate).toLocaleDateString()}</span>
       </div>
       
       ${currentUsername === post.username ? `
-  <div class="post-menu-wrapper">
+     <div class="post-menu-wrapper">
     <button class="menu-icon" onclick="toggleMenu(this)">⋮</button>
     <ul class="menu hidden">
       <li onclick="enableDetailEdit(this)">Edit</li>
@@ -177,7 +175,6 @@ async function loadPostDetails(slug) {
 ` : '')}
 
 
-    
     </div>
     <h1 id="detail-title" contenteditable="false">${post.title}</h1>
     <div class="post-hero">
@@ -349,11 +346,11 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`/users/${currentUsername}`)
       .then(res => res.json())
       .then(user => {
-        const avatarUrl = user.avatarUrl || "/images/avatar.png";
+        const avatarUrl = user.avatarUrl || "/images/profile-icon.jpg";
         commentAvatarEl.src = avatarUrl;
       })
       .catch(() => {
-        commentAvatarEl.src = "/images/avatar.png";
+        commentAvatarEl.src = "/images/profile-icon.jpg";
       });
   }
 
