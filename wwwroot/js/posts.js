@@ -22,11 +22,11 @@ if (token && profileEl && currentUsername) {
   fetch(`/users/${currentUsername}`)
     .then(res => res.json())
     .then(user => {
-      const avatarUrl = user.avatarUrl || "/images/avatar.png";
-      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/avatar.png'" />`;
+      const avatarUrl = user.avatarUrl || "/images/profile-icon.jpg";
+      profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/profile-icon.jpg'" />`;
     })
     .catch(() => {
-      profileEl.innerHTML = `<img src="/images/avatar.png" alt="Profile">`;
+      profileEl.innerHTML = `<img src="/images/profile-icon.jpg" alt="Profile">`;
     });
 }
 
