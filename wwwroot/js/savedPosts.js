@@ -1,67 +1,74 @@
-    const savedPostsContainer = document.getElementById('savedBlogs');
+// Auth-based UI adjustments and session validation
+(function () {
+  const token = localStorage.getItem('token');
 
-    function getImageSrc(post) {
-      return (post.assetFiles?.length > 0)
-        ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
-        : '/images/default-thumbnail.jpg';
-    }
-
-    function logout() {
-      localStorage.removeItem('token');
+  // 🚫 If no token at all
+  if (!token) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Session Expired',
+      text: 'Please log in to continue.',
+      confirmButtonText: 'Go to Login',
+      confirmButtonColor: '#3085d6'
+    }).then(() => {
       window.location.href = '/login.html';
+    });
+  }
+
+  // ✅ Parse token and check expiration
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
+
+    if (payload.exp && payload.exp < now) {
+      localStorage.removeItem('token');
+      return Swal.fire({
+        icon: 'warning',
+        title: 'Session Expired',
+        text: 'Please log in again.',
+        confirmButtonText: 'Go to Login',
+        confirmButtonColor: '#3085d6'
+      }).then(() => {
+        window.location.href = '/login.html';
+      });
     }
 
-    async function loadSavedPosts() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        savedPostsContainer.innerHTML = '<p>Please log in to view your saved posts.</p>';
-        return;
-      }
+    // Show user UI if logged in
+    const authBtns = document.getElementById('auth-buttons');
+    const userProfile = document.getElementById('user-profile');
+    if (authBtns) authBtns.style.display = 'none';
+    if (userProfile) userProfile.style.display = 'inline-block';
 
-      try {
-        const res = await fetch('/posts/saved', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+    fetch(`/users/${payload.username}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(user => {
+        const avatarUrl = user?.avatarUrl || '/images/profile-icon.jpg';
+        const profileImg = document.getElementById('profile-icon');
+        if (profileImg) profileImg.src = avatarUrl;
+      })
+      .catch(() => {
+        const profileImg = document.getElementById('profile-icon');
+        if (profileImg) profileImg.src = '/images/profile-icon.jpg';
+      });
 
-        if (!res.ok) throw new Error('Failed to load saved posts.');
-
-        const posts = await res.json();
-
-        if (!posts.length) {
-          savedPostsContainer.innerHTML = '<p class="empty-message">No saved posts yet.</p>';
-          return;
-        }
-
-        savedPostsContainer.innerHTML = '';
-
-        posts.forEach(post => {
-          const card = document.createElement('div');
-          card.className = 'post-card';
-
-          const imgSrc = getImageSrc(post);
-
-          card.innerHTML = `
-            <div class="post-image">
-              <img src="${imgSrc}" alt="${post.title}" />
-            </div>
-            <div class="post-body">
-              <h3>${post.title}</h3>
-              <p>${post.description || 'No description available.'}</p>
-              <small>${new Date(post.publishedDate).toLocaleDateString()}</small>
-            </div>
-          `;
-
-          card.onclick = () => window.location.href = `/postDetail.html?slug=${encodeURIComponent(post.slug)}`;
-
-          savedPostsContainer.appendChild(card);
-        });
-
-      } catch (err) {
-        console.error(err);
-        savedPostsContainer.innerHTML = '<p class="empty-message">Error loading saved posts.</p>';
-      }
+    const ctaBtn = document.querySelector('.cta');
+    if (ctaBtn) {
+      ctaBtn.addEventListener('click', () => {
+        window.location.href = token ? '/createPosts.html' : '/login.html';
+      });
     }
 
-    document.addEventListener('DOMContentLoaded', loadSavedPosts);
+  } catch (err) {
+    console.error('Token parse error:', err);
+    localStorage.removeItem('token');
+    return Swal.fire({
+      icon: 'error',
+      title: 'Invalid Session',
+      text: 'Please log in again.',
+      confirmButtonText: 'Go to Login',
+      confirmButtonColor: '#d33'
+    }).then(() => {
+      window.location.href = '/login.html';
+    });
+  }
+})();

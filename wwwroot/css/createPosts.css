@@ -124,6 +124,7 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
+  margin-top: 10px;;
 }
 
 button:hover {
@@ -592,7 +593,7 @@ body.dark-mode  {
 }
 
 /* Switch track */
-.label {
+/* .label {
   width: 48px;
   height: 24px;
   right:50px;
@@ -603,7 +604,7 @@ body.dark-mode  {
   display: inline-block;
   cursor: pointer;
   transition: background 0.3s ease;
-}
+} */
 
 /* Switch thumb */
 .label::before {
@@ -619,7 +620,7 @@ body.dark-mode  {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Dark mode ON */
+Dark mode ON
 #checkbox:checked + .label {
   background: #4a4a4a;
 }
@@ -627,4 +628,7 @@ body.dark-mode  {
 #checkbox:checked + .label::before {
   left: 27px;
   background: #eee;
+}
+.label.label {
+ margin-top: 0px !important;
 }

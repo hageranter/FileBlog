@@ -13,26 +13,34 @@
   <!-- CSS -->
   <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="/css/createPosts.css" />
+  <link rel="stylesheet" href="/css/index.css" />
 </head>
 
-<header>
-  <div class="logo">MyBlog</div>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/posts.html">Blogs</a>
-    <a href="/contactUs.html">Contact</a>
-  </nav>
-  <div id="user-profile" style="display: none;">
-    <a href="/profile.html">
-      <img id="profile-icon" alt="Profile">
-    </a>
-  </div>
+ <header>
+    <div class="logo">MyBlog</div>
+    <nav class="nav-center">
+      <a href="/">Home</a>
+      <a href="/posts.html">Posts</a>
+      <a href="/contactUs.html">Contact</a>
+    </nav>
 
-  <div id="" class="">
-    <input type="checkbox" id="checkbox" />
-    <label for="checkbox" class="label"></label>
-  </div>
-</header>
+    <div class="admin-navbar-div">
+      <div id="dark-mode-toggle" class="">
+        <input type="checkbox" id="checkbox" />
+        <label for="checkbox" class="label"></label>
+      </div>
+      <div id="auth-buttons" class="nav-btns">
+        <button onclick="location.href='/login.html'">Login</button>
+        <button onclick="location.href='/signup.html'">Sign Up</button>
+      </div>
+
+      <div id="user-profile" style="display: none;">
+        <a href="/profile.html">
+          <img id="profile-icon" alt="Profile">
+        </a>
+      </div>
+    </div>
+  </header>
 
 <body>
   <div class="form-wrapper">
