@@ -227,7 +227,7 @@ async function loadPostDetails(slug) {
 
         animateElement(likeBtn);
       } catch (error) {
-        Swal.fire({ icon: "error", title: "Error", text: "Couldn't like post." });
+        Swal.fire({ icon: "warning", title: "Login required", text: "You must be logged in to like posts." });
       }
     });
 

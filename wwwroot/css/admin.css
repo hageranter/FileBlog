@@ -442,7 +442,7 @@ body.dark-mode  {
 }
 .dark-mode .action-btn,
 .dark-mode .delete-action-btn {
-  background: #444;
+  background: #afabab;
 }
 .dark-mode .action-btn:hover {
   background: #4da6ff;
