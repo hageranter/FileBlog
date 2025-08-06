@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems> <!-- 🔥 Add this line -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,10 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="content\**\*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
