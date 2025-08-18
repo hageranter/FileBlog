@@ -40,19 +40,17 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton(new BlogService(builder.Environment.ContentRootPath));
 
-
-var corsPolicy = "_allowWeb";
-builder.Services.AddCors(o => o.AddPolicy(corsPolicy, p =>
-    p.WithOrigins(
-        "http://localhost:5173",                 // أثناء التطوير
-        "https://<YOUR-NETLIFY>.netlify.app"     // غيّرها لاحقًا لو عندك موقع Netlify
-    )
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-));
-
+var origins = new[] {
+  "https://file-blog-alpha.vercel.app",
+  "https://file-blog-*.vercel.app"
+};
+builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
+  p.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 var app = builder.Build();
-app.UseCors(corsPolicy);
+app.UseCors();
+
+
+
 
 var blogService = new BlogService(builder.Environment.ContentRootPath);
 
