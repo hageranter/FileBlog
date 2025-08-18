@@ -1,8 +1,0 @@
-[build]
-  command = "dotnet publish FileBlogClient/FileBlogClient.csproj -c Release"
-  publish = "FileBlogClient/bin/Release/net8.0/publish/wwwroot"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
