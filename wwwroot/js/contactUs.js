@@ -11,7 +11,7 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#3085d6'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 
@@ -28,7 +28,7 @@
         confirmButtonText: 'Go to Login',
         confirmButtonColor: '#3085d6'
       }).then(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
       });
     }
 
@@ -53,7 +53,7 @@
     const ctaBtn = document.querySelector('.cta');
     if (ctaBtn) {
       ctaBtn.addEventListener('click', () => {
-        window.location.href = token ? '/createPosts.html' : '/login.html';
+        window.location.href = token ? '/createPosts' : '/login';
       });
     }
 
@@ -67,7 +67,7 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#d33'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 })();

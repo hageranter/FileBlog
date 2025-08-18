@@ -41,13 +41,13 @@ function updateAuthLinks() {
   if (authLinks) {
     authLinks.innerHTML = token
       ? '<a href="#" onclick="logout()">Logout</a>'
-      : '<a href="/login.html">Login</a> | <a href="/signup.html">Sign Up</a>';
+      : '<a href="/login">Login</a> | <a href="/signup">Sign Up</a>'; // ✅ clean URLs
   }
 }
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "/login.html";
+  window.location.href = "/login"; // ✅ clean URL
 }
 
 updateAuthLinks();

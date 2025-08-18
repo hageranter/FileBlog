@@ -31,11 +31,11 @@ async function loadProfile(payload) {
 
 function logout() {
   localStorage.removeItem('token');
-  window.location.href = '/login.html';
+  window.location.href = '/login';
 }
 
 function createPosts() {
-  window.location.href = '/createPosts.html';
+  window.location.href = '/create-posts';
 }
 
 function getImageSrc(post) {
@@ -83,10 +83,10 @@ function displayPosts(posts) {
   posts.forEach(post => {
     const postCard = document.createElement('a');
     postCard.className = 'post-card';
-    postCard.href = '#';
+    postCard.href = `/post/${encodeURIComponent(post.slug)}`;
     postCard.onclick = e => {
       e.preventDefault();
-      loadPostDetails(post.slug);
+      window.location.href = `/post/${encodeURIComponent(post.slug)}`;
     };
 
     const imageUrl = getImageSrc(post);
@@ -101,7 +101,6 @@ function displayPosts(posts) {
     `;
 
     postsContainer.appendChild(postCard);
-    postCard.onclick = () => window.location.href = `/postDetail.html?slug=${encodeURIComponent(post.slug)}`;
   });
 }
 
@@ -191,7 +190,6 @@ function confirmDeletePost() {
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
 
-  // 🚫 No token at all
   if (!token) {
     return Swal.fire({
       icon: 'warning',
@@ -200,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#3085d6'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 
@@ -208,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const now = Math.floor(Date.now() / 1000);
 
-    // ⏳ Token expired
     if (payload.exp && payload.exp < now) {
       localStorage.removeItem('token');
       return Swal.fire({
@@ -218,11 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmButtonText: 'Go to Login',
         confirmButtonColor: '#3085d6'
       }).then(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
       });
     }
 
-    // ✅ Authenticated, continue
     loadProfile(payload);
     loadPosts();
 
@@ -230,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.createElement('button');
       btn.textContent = 'Control Users';
       btn.className = 'btn btn-primary';
-      btn.onclick = () => window.location.href = '/admin.html';
+      btn.onclick = () => window.location.href = '/admin';
 
       const btnGroup = document.querySelector('.btn-group');
       const logoutBtn = btnGroup.querySelector('.btn-danger');
@@ -290,9 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#d33'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 });
-
-

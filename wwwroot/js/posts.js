@@ -13,7 +13,7 @@ if (token) {
     const payload = JSON.parse(atob(token.split('.')[1]));
     currentRole = payload?.role || "";
     currentUsername = payload?.username || "";
-  } catch (err) {
+  } catch {
     console.error("Invalid token format");
   }
 }
@@ -51,7 +51,7 @@ function createPostCard(post) {
     </div>
     <div class="post-content">
       <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
-      <h2><a href="/posts/${post.slug}" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
+      <h2><a href="/post/${post.slug}" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
       <p>${post.description || ''}</p>
       <button class="category-btn" data-category="${category}">Discover Category</button>
     </div>
@@ -59,7 +59,7 @@ function createPostCard(post) {
 
   postDiv.querySelector('.post-link')?.addEventListener('click', e => {
     e.preventDefault();
-    window.location.href = `/postDetail.html?slug=${encodeURIComponent(post.slug)}`;
+    window.location.href = `/post/${encodeURIComponent(post.slug)}`;
   });
 
   postDiv.querySelector('.category-btn')?.addEventListener('click', async e => {
@@ -99,11 +99,7 @@ async function loadPosts() {
     displayPosts(allPosts);
   } catch (error) {
     console.error("Error loading posts:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Failed to load posts",
-      text: "Please try again later.",
-    });
+    Swal.fire({ icon: "error", title: "Failed to load posts", text: "Please try again later." });
     postsContainer.innerHTML = `<h2>Error loading posts</h2>`;
   }
 }
@@ -122,11 +118,7 @@ async function loadPostsByCategory(category) {
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
   } catch (err) {
     console.error("Error loading posts by category:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Category not found",
-      text: `No posts found for category: ${category}`,
-    });
+    Swal.fire({ icon: "error", title: "Category not found", text: `No posts found for category: ${category}` });
     postsContainer.innerHTML = `<h2>No posts found for category: ${category}</h2>`;
     backCategoryButton.style.display = 'inline-block';
   }
@@ -149,11 +141,7 @@ async function loadPostsByTag(tag) {
     backCategoryButton.style.display = 'inline-block';
   } catch (err) {
     console.error("Error loading posts by tag:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Tag not found",
-      text: `No posts found for tag: ${tag}`,
-    });
+    Swal.fire({ icon: "error", title: "Tag not found", text: `No posts found for tag: ${tag}` });
     postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
   }
 }
@@ -164,7 +152,7 @@ if (token && currentUsername) {
 }
 
 function createPosts() {
-  window.location.href = '/createPosts.html';
+  window.location.href = '/create-posts';
 }
 
 const searchInput = document.getElementById('search-input');
@@ -178,7 +166,6 @@ searchInput?.addEventListener('input', e => {
   displayPosts(filteredPosts);
 });
 
-// Router on load
 const urlParams = new URLSearchParams(window.location.search);
 const tagParam = urlParams.get("tag");
 

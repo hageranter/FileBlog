@@ -1,0 +1,919 @@
+/* === RESET & BASE === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* === ADMIN NAVBAR === */
+.admin-navbar {
+  background: #3e3e3e;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.admin-navbar .logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+}
+.admin-badge {
+  background: #facc15;
+  color: #000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+.admin-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.admin-logout-btn {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+/* === DARK MODE TOGGLE === */
+.theme-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-toggle-wrapper input[type="checkbox"] {
+  display: none;
+}
+.theme-toggle-wrapper .label {
+  height: 32px;
+  width: 64px;
+  border-radius: 24px;
+  background: linear-gradient(to right, #ccc, #999);
+  box-shadow: inset 0 0 5px #000;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-toggle-wrapper .label::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+  left: 6px;
+  transition: left 0.3s ease, background 0.3s ease;
+}
+#checkbox:checked ~ .label {
+  background: linear-gradient(to right, #333, #d4c7c7);
+}
+#checkbox:checked ~ .label::before {
+  left: 38px;
+  background: radial-gradient(circle at 30% 30%, #444, #0a0909);
+}
+
+/* === MAIN CONTENT === */
+.main-content,
+.admin-content {
+  margin-left: 200px;
+  padding: 2rem;
+  background: #f7f9fc;
+  min-height: 100vh;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100vh;
+  background-color: #1e2a3a;
+  padding-top: 2rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.sidebar .logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #6BC3D6;
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+}
+.sidebar a:hover {
+  background-color: #6B8DD6;
+}
+.sidebar a.active {
+  background-color: #7E6BD6;
+  color: white;
+}
+
+/* === HEADER === */
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-page-title h1 {
+  font-size: 1.5rem;
+}
+.admin-page-description {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* === STATS === */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem 2rem;
+}
+.admin-stat-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.stat-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+/* === FILTERS & SEARCH === */
+.admin-filters {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #fff;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.admin-search {
+  position: relative;
+}
+.admin-search-input {
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+.filter-menu {
+  position: absolute;
+  right: 0;
+  top: 2.5rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  width: 200px;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.filter-menu.show {
+  display: block;
+}
+
+/* === BUTTONS === */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-primary {
+  background: #688dd6;
+  color: #fff;
+}
+.btn-secondary {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+.btn-back {
+  background-color: #6B8DD6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.btn-back:hover {
+  background-color: #5A7AC6;
+}
+
+/* === USER CARD GRID === */
+#user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+.user-card {
+  width: 250px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+.user-card:hover {
+  transform: translateY(-4px);
+}
+.user-card-top {
+  text-align: center;
+}
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+  border: 3px solid #3e3e3e;
+}
+.user-details strong {
+  font-size: 1rem;
+}
+.user-details p {
+  font-size: 0.85rem;
+  color: #666;
+}
+.role-badge {
+  font-size: 0.75rem;
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #444;
+}
+.user-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.action-btn,
+.delete-action-btn {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #f3f3f3;
+  transition: 0.2s ease;
+}
+.action-btn:hover {
+  background: #688dd6;
+  color: white;
+}
+.delete-action-btn:hover {
+  background: #e53935;
+  color: white;
+}
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-overlay.show {
+  display: flex;
+}
+.modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1);
+  transition: opacity 0.3s ease;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h3 {
+  font-size: 18px;
+}
+.close-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+}
+.modal-body {
+  margin-top: 20px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* === MESSAGES === */
+.error-message,
+.success-message {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1003;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.error-message {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* === FOOTER === */
+footer {
+  background-color: #111;
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.9rem;
+  margin-top: 3rem;
+}
+
+/* === DARK MODE THEME === */
+body.dark-mode  {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+.dark-mode .admin-navbar {
+  background: #111;
+}
+.dark-mode .admin-navbar .logo a,
+.dark-mode .admin-user-menu a {
+  color: #4da6ff;
+}
+.dark-mode .main-content,
+.dark-mode .admin-page-header,
+.dark-mode .admin-stats-grid,
+.dark-mode .admin-filters,
+.dark-mode .admin-table,
+.dark-mode .user-card,
+.dark-mode .modal-content {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+.dark-mode .user-card,
+.dark-mode .admin-stat-card {
+  box-shadow: 0 2px 8px rgba(255,255,255,0.03);
+}
+.dark-mode .avatar-img {
+  border-color: #4da6ff;
+}
+.dark-mode .action-btn,
+.dark-mode .delete-action-btn {
+  background: #afabab;
+}
+.dark-mode .action-btn:hover {
+  background: #4da6ff;
+  color: #000;
+}
+.dark-mode .delete-action-btn:hover {
+  background: #dc3545;
+}
+.dark-mode .btn-secondary {
+  background: #555;
+  color: white;
+}
+.dark-mode .filter-menu {
+  background: #2a2a2a;
+  border-color: #444;
+}
+.dark-mode .admin-select,
+.dark-mode .admin-input {
+  background: #333;
+  color: #eee;
+  border-color: #555;
+}
+.dark-mode .role-badge {
+  background-color: #444;
+  color: #ccc;
+}
+
+
+/* Dark Mode Toggle (behind profile icon) */
+.container {
+  position: absolute;
+  top: 50%;
+  right: 55px;
+  transform: translateY(-50%) scale(0.35);
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.label {
+  height: 25px;
+  width: 45px;
+  border-radius: 24px;
+  background: linear-gradient(to right, #ccc, #999);
+  box-shadow: inset 0 0 5px #000, 0 0 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.label:hover {
+  transform: scale(1.05);
+}
+
+.label::before {
+  content: "";
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  left: 5px;
+  transition: left 0.3s ease, background 0.3s ease;
+}
+
+#checkbox {
+  display: none;
+}
+
+#checkbox:checked ~ .label {
+  background: linear-gradient(to right, #333, #d4c7c7);
+}
+
+#checkbox:checked ~ .label::before {
+  left: 25px;
+  background: radial-gradient(circle at 30% 30%, #444, #0a0909);
+}
+
+/* Align nav items and toggle in one row */
+.admin-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.admin-user-menu a {
+  color: #fff;
+  font-weight: 500;
+}
+
+.theme-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.8); /* smaller */
+  margin-left: 0.5rem;
+}
+
+/* Remove bad global override if present */
+.container#dark-mode-toggle {
+  all: unset;
+}
+
+/* Reduce padding/margin in main layout */
+.admin-content {
+  padding: 1.5rem 2rem;
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+/* Improve user card layout */
+.user-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  justify-content: center;
+}
+
+
+.dark-mode .admin-navbar-div {
+  background: #1a1a1a;
+}
+.dark-mode .admin-navbar-div .logo a,
+.dark-mode .admin-user-menu a {
+  color: #4da6ff;
+}
+
+.admin-navbar-div {
+  background: #3e3e3e;
+  color: #fff;
+  padding:  5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+    gap: 1.2rem; 
+}
+
+.admin-navbar .logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Ensure header and cards get dark backgrounds */
+.dark-mode .admin-page-header,
+.dark-mode .admin-stat-card,
+.dark-mode .admin-filters,
+.dark-mode .user-card,
+.dark-mode .admin-content {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0;
+}
+
+/* Buttons */
+.dark-mode .btn-primary {
+  background: #4da6ff;
+  color: #000;
+}
+.dark-mode .btn:hover {
+  background: #1e90ff;
+}
+
+/* Stats icons */
+.dark-mode .stat-icon {
+  color: #4da6ff;
+}
+
+/* Fix shadow colors */
+.dark-mode .admin-stat-card,
+.dark-mode .user-card {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+/* Search input in dark mode */
+.dark-mode .admin-search-input {
+  background: #444;
+  color: #fff;
+  border-color: #666;
+}
+
+.admin-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-toggle-wrapper {
+  margin-right: 1rem;
+}
+
+
+.hidden {
+  display: none !important;
+}
+/* === DARK MODE: Modal Fix === */
+.dark-mode .modal-content,
+.dark-mode .create-user-popup {
+  background-color: #2a2a2a;
+  color: #eee;
+}
+
+.dark-mode .modal-content h2,
+.dark-mode .create-user-popup h2 {
+  color: #9fbfff;
+}
+
+.dark-mode .admin-input,
+.dark-mode .admin-select {
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.dark-mode .admin-input::placeholder {
+  color: #aaa;
+}
+
+.dark-mode .btn-primary {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .btn-back {
+  background: #666;
+  color: #fff;
+}
+
+.dark-mode .btn-back:hover {
+  background: #888;
+}
+
+.modal-content,
+.admin-input,
+.admin-select {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+body.dark-mode  {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+.dark-mode header {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode .hero {
+  background: linear-gradient(to right, #2c2c2c, #1e1e1e);
+  color: #f0f0f0;
+}
+
+.dark-mode .cta {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode .features {
+  background-color: #121212;
+}
+
+.dark-mode .feature {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+
+.dark-mode .blog-card {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+}
+
+.dark-mode .blog-card a {
+  color: #4da6ff;
+}
+
+.dark-mode .blog-category-tag {
+  background-color: #444;
+  color: #fff;
+}
+
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+
+/* darktoggle.css – dark mode styles for admin page + contact page */
+
+/* === Layout === */
+body.dark-mode  {
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  color: #e0e0e0;
+}
+
+.dark-mode header {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode nav a:hover {
+  color: #4da6ff;
+}
+
+/* === Contact Form Container === */
+.dark-mode .container {
+  background: #1f1f1f;
+  box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .left-side .details i {
+  color: #4da6ff;
+}
+
+.dark-mode .left-side .details .text-one,
+.dark-mode .left-side .details .text-two {
+  color: #bbb;
+}
+
+.dark-mode .right-side .topic-text {
+  color: #4da6ff;
+}
+
+.dark-mode .input-box input,
+.dark-mode .input-box textarea {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+.dark-mode .button input[type="button"] {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .button input[type="button"]:hover {
+  background: #222;
+}
+
+.dark-mode .container .content .left-side::before {
+  background: #444;
+}
+
+/* === Footer === */
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+/* === Admin Page Styles === */
+.dark-mode .admin-navbar {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.dark-mode .admin-navbar .logo a {
+  color: #fff;
+}
+
+.dark-mode .admin-badge {
+  background: #4da6ff;
+  color: #000;
+}
+
+.dark-mode .admin-page-header,
+.dark-mode .admin-filters,
+.dark-mode .admin-stat-card,
+.dark-mode .filter-menu,
+.dark-mode .admin-table,
+.dark-mode .admin-pagination,
+.dark-mode .modal-content,
+.dark-mode .create-user-popup {
+  background: #2a2a2a;
+  color: #eee;
+  border-color: #444;
+}
+
+.dark-mode .admin-page-description,
+.dark-mode .admin-select,
+.dark-mode .admin-search-input,
+.dark-mode .stat-label,
+.dark-mode .role-badge,
+.dark-mode .user-details p {
+  color: #ccc;
+}
+
+.dark-mode .admin-search-input,
+.dark-mode .admin-select,
+.dark-mode .admin-input {
+  background: #333;
+  border: 1px solid #555;
+  color: #eee;
+}
+
+.dark-mode .admin-stat-card .stat-icon,
+.dark-mode .stat-content h3 {
+  color: #4da6ff;
+}
+
+.dark-mode .btn-primary {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .btn-secondary {
+  background: #555;
+  color: #eee;
+}
+
+.dark-mode .btn-danger {
+  background: #d64545;
+  color: #fff;
+}
+
+.dark-mode .btn-back {
+  background: #3a3a3a;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.dark-mode .btn-back:hover {
+  background-color: #444;
+}
+
+.dark-mode .user-card {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #eee;
+}
+
+.dark-mode .user-card .role {
+  color: #bbb;
+}
+
+.dark-mode .error-message {
+  background: #8b1e1e;
+  color: #fff;
+}
+
+.dark-mode .success-message {
+  background: #1e8b5f;
+  color: #fff;
+}
+
+.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .code-block {
+  background: #222;
+  color: #f0f0f0;
+  border-color: #444;
+}
+

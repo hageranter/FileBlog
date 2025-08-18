@@ -1,15 +1,12 @@
 using FileBlogApi.Features.Posts;
 using FileBlogApi.Features.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.Text.Json;
 using FileBlogApi.Features.Auth;
 using FileBlogApi.Features.Admin;
 using FileBlogApi.Features.Contact;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +16,6 @@ builder.Services.AddAuthorization();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("Jwt:Secret is missing from config");
-
 var key = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>
@@ -41,15 +37,43 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
-builder.Services.AddSingleton<BlogService>(new BlogService(builder.Environment.ContentRootPath));
+
+builder.Services.AddSingleton(new BlogService(builder.Environment.ContentRootPath));
+
+
+var corsPolicy = "_allowWeb";
+builder.Services.AddCors(o => o.AddPolicy(corsPolicy, p =>
+    p.WithOrigins(
+        "http://localhost:5173",                 // أثناء التطوير
+        "https://<YOUR-NETLIFY>.netlify.app"     // غيّرها لاحقًا لو عندك موقع Netlify
+    )
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+));
 
 var app = builder.Build();
+app.UseCors(corsPolicy);
+
 var blogService = new BlogService(builder.Environment.ContentRootPath);
 
 // Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
+
+// Redirect *.html -> clean URL
+app.Use(async (ctx, next) =>
+{
+    var path = ctx.Request.Path.Value ?? "";
+    if (path.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+    {
+        var target = path[..^5];
+        ctx.Response.Redirect(target + ctx.Request.QueryString, permanent: true);
+        return;
+    }
+    await next();
+});
+
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -62,23 +86,44 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/userfiles"
 });
 
-// API Routing
+// API / feature endpoints
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
-app.MapPostEndpoints(blogService);
+app.MapPostEndpoints(blogService);   // <-- contains the ONLY /posts GET
 app.MapAdminEndpoints();
 app.MapPostDetails(blogService);
 app.MapContactEndpoints();
 
+// Clean URLs for specific pages
+app.MapGet("/login", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
+app.MapGet("/signup", ctx => ctx.Response.SendFileAsync("wwwroot/signup.html"));
+// Single post page
+app.MapGet("/post/{slug}", ctx =>
+    ctx.Response.SendFileAsync(Path.Combine(app.Environment.ContentRootPath, "wwwroot", "postDetail.html")));
 
+// Safe fallback (no crash if 404.html missing)
+app.MapFallback(async ctx =>
+{
+    var path = (ctx.Request.Path.Value ?? "").Trim('/');
+    if (string.IsNullOrEmpty(path)) path = "index";
 
+    var requested = Path.Combine(app.Environment.ContentRootPath, "wwwroot", $"{path}.html");
+    if (File.Exists(requested))
+    {
+        await ctx.Response.SendFileAsync(requested);
+        return;
+    }
 
+    var notFound = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "404.html");
+    if (File.Exists(notFound))
+    {
+        await ctx.Response.SendFileAsync(notFound);
+        return;
+    }
 
-// HTML Pages
-app.MapGet("/login.html", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
-app.MapGet("/signup.html", ctx => ctx.Response.SendFileAsync("wwwroot/signup.html"));
-
-
+    ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+    await ctx.Response.WriteAsync("404 Not Found");
+});
 
 app.Run();
 

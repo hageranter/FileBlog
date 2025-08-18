@@ -10,7 +10,6 @@ form.addEventListener('submit', async (e) => {
   const confirmPassword = document.getElementById('confirm-password').value.trim();
   const role = 'user';
 
-  // Password strength criteria
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
 
   if (password !== confirmPassword) {
@@ -42,7 +41,7 @@ form.addEventListener('submit', async (e) => {
 
     message.style.color = 'green';
     message.textContent = 'Account created successfully! Redirecting...';
-    setTimeout(() => window.location.href = '/login.html', 2000);
+    setTimeout(() => window.location.href = '/login', 2000);
 
   } catch (err) {
     message.style.color = 'red';

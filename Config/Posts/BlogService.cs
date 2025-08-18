@@ -89,10 +89,10 @@ public class BlogService
     public Post? GetPostBySlug(string slug)
     {
         var folder = Path.Combine(_root, "content", "posts");
+
         var dir = Directory.GetDirectories(folder)
-    .FirstOrDefault(d =>
-        Path.GetFileName(d).EndsWith(slug, StringComparison.OrdinalIgnoreCase) ||
-        Path.GetFileName(d).Equals(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d =>
+                string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null)
             return null;
@@ -127,8 +127,7 @@ public class BlogService
             Body = html,
             AssetFiles = assetFiles,
             Username = meta.Username ?? "",
-            AvatarUrl = $"/userfiles/{meta.Username}/avatar.jpg",// or use latest file logic
-
+            AvatarUrl = $"/userfiles/{meta.Username}/avatar.jpg",
             Status = meta.Status ?? "published",
             ScheduledDate = meta.ScheduledDate,
             Likes = meta.Likes,
@@ -139,11 +138,20 @@ public class BlogService
 
     public string SavePost(CreatePostRequest request)
     {
-        string slug = string.IsNullOrWhiteSpace(request.CustomSlug)
+        string originalSlug = string.IsNullOrWhiteSpace(request.CustomSlug)
             ? ToKebabCase(request.Title)
             : ToKebabCase(request.CustomSlug);
 
+        string slug = originalSlug;
+        int counter = 1;
         string folderName = $"{request.PublishedDate:yyyy-MM-dd}-{slug}";
+
+        while (Directory.Exists(Path.Combine(_root, "content", "posts", folderName)))
+        {
+            slug = $"{originalSlug}-{counter++}";
+            folderName = $"{request.PublishedDate:yyyy-MM-dd}-{slug}";
+        }
+
         string postPath = Path.Combine(_root, "content", "posts", folderName);
         Directory.CreateDirectory(postPath);
 
@@ -161,7 +169,6 @@ public class BlogService
             ScheduledDate = request.ScheduledDate,
             Likes = request.Likes,
             SavedBy = request.SavedBy
-
         };
 
         var serializer = new SerializerBuilder()
@@ -179,7 +186,7 @@ public class BlogService
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null || file == null)
             return false;
@@ -219,7 +226,7 @@ public class BlogService
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null)
             return false;
@@ -251,7 +258,7 @@ public class BlogService
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null || !Directory.Exists(dir))
             return false;
@@ -292,7 +299,6 @@ public class BlogService
                 Likes = post.Likes,
                 SavedBy = post.SavedBy,
                 LikedBy = post.LikedBy
-
             };
 
             var serializer = new SerializerBuilder()
@@ -308,7 +314,7 @@ public class BlogService
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null) return;
 
@@ -340,12 +346,11 @@ public class BlogService
     private string ToKebabCase(string text) =>
         Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
-
     public void SavePostMeta(string slug, Meta updatedMeta)
     {
         var folder = Path.Combine(_root, "content", "posts");
         var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
 
         if (dir == null) return;
 
@@ -367,16 +372,13 @@ public class BlogService
 
         if (post.LikedBy.Contains(username))
         {
-            // User wants to dislike
             post.LikedBy.Remove(username);
         }
         else
         {
-            // User wants to like
             post.LikedBy.Add(username);
         }
 
-        // ✅ Always derive count from the list
         post.Likes = post.LikedBy.Count;
 
         UpdateMeta(slug, meta =>
@@ -407,8 +409,6 @@ public class BlogService
         return !wasSaved;
     }
 
-
-
     public List<Comment> GetComments(string slug, string currentUsername)
     {
         var post = GetPostBySlug(slug);
@@ -420,26 +420,21 @@ public class BlogService
         var json = File.ReadAllText(commentsPath);
         var allComments = JsonSerializer.Deserialize<List<Comment>>(json) ?? new List<Comment>();
 
-        // Show all comments if:
-        // - The comment is public
-        // - OR the current user is the post author
-        // - OR the current user is the comment author (editor)
         return allComments.Where(c =>
             !c.VisibleToAuthorOnly ||
             currentUsername == post.Username ||
             currentUsername == c.Username
         ).ToList();
     }
+
     public void AddComment(string slug, Comment comment)
     {
         var post = GetPostBySlug(slug);
         if (post == null) return;
 
-        // ✅ Normalize
         comment.Type = comment.Type?.ToLower() ?? "public";
         comment.VisibleToAuthorOnly = comment.Type == "review";
 
-        // ✅ Set avatar if available
         var avatarFolder = Path.Combine("wwwroot", "userfiles", comment.Username);
         if (Directory.Exists(avatarFolder))
         {
@@ -459,11 +454,12 @@ public class BlogService
             ? JsonSerializer.Deserialize<List<Comment>>(File.ReadAllText(commentsPath)) ?? new List<Comment>()
             : new List<Comment>();
 
-        comments.Add(comment);  // ✅ Now properly marked
+        comments.Add(comment);
 
         var json = JsonSerializer.Serialize(comments, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(commentsPath, json);
     }
+
     public class Meta
     {
         public string? Title { get; set; }
@@ -479,6 +475,5 @@ public class BlogService
         public int Likes { get; set; } = 0;
         public List<string> SavedBy { get; set; } = new();
         public List<string> LikedBy { get; set; } = new();
-
     }
 }

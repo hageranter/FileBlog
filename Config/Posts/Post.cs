@@ -14,7 +14,7 @@ public class Post
     public List<string> AssetFiles { get; set; } = [];
     public string Username { get; set; } = string.Empty; // The username of the author who created the post
     public string Status { get; set; } = string.Empty;
-    public string AvatarUrl { get; set; } = "/images/avatar.png"; // default
+    public string AvatarUrl { get; set; } = "/images/profile-icon.jpg"; // default
     public string Id { get; set; } = string.Empty;
     public DateTime? ScheduledDate { get; set; }
 

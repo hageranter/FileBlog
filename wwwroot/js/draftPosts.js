@@ -1,12 +1,12 @@
-  const draftsContainer = document.getElementById('savedBlogs'); // You can keep the same ID
+const draftsContainer = document.getElementById('savedBlogs'); // You can keep the same ID
 
-  function getImageSrc(post) {
-    return (post.assetFiles?.length > 0)
-      ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
-      : '/images/default-thumbnail.jpg';
-  }
+function getImageSrc(post) {
+  return (post.assetFiles?.length > 0)
+    ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
+    : '/images/default-thumbnail.jpg';
+}
 
- async function loadDraftPosts() {
+async function loadDraftPosts() {
   const token = localStorage.getItem('token');
 
   // 🚫 No token
@@ -18,7 +18,7 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#3085d6'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 
@@ -35,7 +35,7 @@
         confirmButtonText: 'Go to Login',
         confirmButtonColor: '#3085d6'
       }).then(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
       });
     }
   } catch (e) {
@@ -47,7 +47,7 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#d33'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 
@@ -87,7 +87,7 @@
         </div>
       `;
 
-      card.onclick = () => window.location.href = `/postDetail.html?slug=${encodeURIComponent(post.slug)}`;
+      card.onclick = () => window.location.href = `/postDetail?slug=${encodeURIComponent(post.slug)}`;
 
       draftsContainer.appendChild(card);
     });
@@ -98,4 +98,4 @@
   }
 }
 
-  document.addEventListener('DOMContentLoaded', loadDraftPosts);
+document.addEventListener('DOMContentLoaded', loadDraftPosts);

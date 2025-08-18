@@ -2,7 +2,6 @@
 (function () {
   const token = localStorage.getItem('token');
 
-  // 🚫 If no token at all
   if (!token) {
     return Swal.fire({
       icon: 'warning',
@@ -11,11 +10,10 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#3085d6'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 
-  // ✅ Parse token and check expiration
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const now = Math.floor(Date.now() / 1000);
@@ -29,11 +27,10 @@
         confirmButtonText: 'Go to Login',
         confirmButtonColor: '#3085d6'
       }).then(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
       });
     }
 
-    // Show user UI if logged in
     const authBtns = document.getElementById('auth-buttons');
     const userProfile = document.getElementById('user-profile');
     if (authBtns) authBtns.style.display = 'none';
@@ -54,7 +51,7 @@
     const ctaBtn = document.querySelector('.cta');
     if (ctaBtn) {
       ctaBtn.addEventListener('click', () => {
-        window.location.href = token ? '/createPosts.html' : '/login.html';
+        window.location.href = token ? '/create-posts' : '/login';
       });
     }
 
@@ -68,7 +65,7 @@
       confirmButtonText: 'Go to Login',
       confirmButtonColor: '#d33'
     }).then(() => {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 })();

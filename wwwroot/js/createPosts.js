@@ -49,7 +49,7 @@ form.addEventListener('submit', async function (e) {
       text: '✅ Your blog has been created successfully!',
       confirmButtonText: 'Go to Explore More Blogs'
     }).then(() => {
-      window.location.href = '/posts.html?mine=true';
+      window.location.href = '/posts?mine=true';
     });
 
   } catch (err) {
@@ -114,7 +114,6 @@ async function submitForm() {
   const email = document.getElementById("email").value.trim();
   const message = document.getElementById("message").value.trim();
 
-  // Basic validation
   if (!name || !email || !message) {
     Swal.fire({
       icon: 'warning',
@@ -159,7 +158,6 @@ async function submitForm() {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  // Toggle UI elements
   const authBtns = document.getElementById('auth-buttons');
   const userProfile = document.getElementById('user-profile');
 
@@ -186,11 +184,10 @@ async function submitForm() {
     if (profileImg) profileImg.src = '/images/profile-icon.jpg';
   }
 
-  // CTA button logic
   const ctaBtn = document.querySelector('.cta');
   if (ctaBtn) {
     ctaBtn.addEventListener('click', () => {
-      window.location.href = token ? '/createPosts.html' : '/login.html';
+      window.location.href = token ? '/createPosts' : '/login';
     });
   }
 })();

@@ -1,0 +1,604 @@
+/* === GLOBAL RESET === */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  background-color: #f4f6f8;
+  color: #000;
+}
+
+/* === NAVBAR === */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #ffffff;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  z-index: 1000;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #688dd6;
+}
+.nav-links a {
+  margin-left: 1rem;
+  text-decoration: none;
+  color: #005f99;
+  font-weight: 500;
+}
+
+/* === DARK MODE TOGGLE === */
+.theme-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding-left: 1rem;
+}
+.theme-toggle-wrapper input[type="checkbox"] {
+  display: none;
+}
+.theme-toggle-wrapper .label {
+  height: 32px;
+  width: 64px;
+  border-radius: 24px;
+  background: linear-gradient(to right, #ccc, #999);
+  box-shadow: inset 0 0 5px #000, 0 0 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-toggle-wrapper .label::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+  left: 6px;
+  transition: left 0.3s ease, background 0.3s ease;
+}
+#checkbox:checked ~ .label {
+  background: linear-gradient(to right, #333, #d4c7c7);
+}
+#checkbox:checked ~ .label::before {
+  left: 38px;
+  background: radial-gradient(circle at 30% 30%, #444, #0a0909);
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  width: 180px;
+  background-color: #3e3e3e;
+  border-radius: 10px;
+  padding: 20px 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  height: calc(96vh - 100px);
+
+}
+.sidebar a {
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background 0.2s ease, border-left 0.2s ease;
+}
+.sidebar a:hover,
+.sidebar a.active  {
+  background-color: #688dd6;
+  border-left: 4px solid #1abc9c;
+}
+.sidebar a i {
+  margin-right: 10px;
+}
+ .sidebar
+  a#logout-icon:hover {
+  background-color: #f70000 !important;
+}
+
+/* === MAIN CONTENT === */
+.main-content {
+  margin-left: 220px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  .sidebar {
+    display: none;
+  }
+}
+
+/* === PROFILE CONTAINER === */
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: 3rem auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+/* === PROFILE PIC === */
+.profile-pic-wrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 1rem;
+}
+
+.profile-pic-wrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3e3e3e;
+}
+.profile-pic-wrapper label {
+  position: absolute;
+  bottom: -6px;
+  right: 0;
+  background-color: #3e3e3e;
+  color: white;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+input[type="file"] {
+  display: none;
+}
+
+/* === PROFILE INFO === */
+.profile-info {
+  text-align: left;
+  margin-top: 1rem;
+}
+.profile-info div {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.profile-info label {
+  font-weight: bold;
+  color: #333;
+}
+.profile-info span {
+  color: #555;
+}
+.edit-icon {
+  color: #ff6600;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+.edit-input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #4CAF50;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  color: #333;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.edit-input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* === BUTTONS === */
+.btn-group {
+  margin-top: 2rem;
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+.btn-primary {
+  background-color: #3e3e3e;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #688dd6;
+}
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* === POSTS SECTION === */
+.posts-wrapper {
+  max-width: 680px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  justify-items: center;
+}
+@media (max-width: 900px) {
+  .posts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .posts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.post-card {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  max-width: 280px;
+}
+.post-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.post-image {
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.post-body {
+  padding: 1rem;
+}
+.post-body h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #8f8b8b;
+}
+
+/* === TAG === */
+.tag {
+  display: inline-block;
+  background-color: #e0f0ff;
+  color: #0077cc;
+  padding: 4px 10px;
+  margin: 4px 6px 0 0;
+  border-radius: 20px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+}
+.tag:hover {
+  background-color: #cce7ff;
+}
+
+/* === FOOTER === */
+footer {
+  background-color: #111;
+  color: #fff;
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.9rem;
+  margin-top: 3rem;
+}
+
+/* === DARK MODE === */
+body.dark-mode  {
+  background-color: #1b1b1b;
+  color: #e0e0e0;
+}
+.dark-mode .navbar {
+  background-color: #121212;
+  border-bottom: 1px solid #333;
+}
+.dark-mode .logo,
+.dark-mode .nav-links a {
+  color: #4da6ff;
+}
+.dark-mode .container,
+.dark-mode .sidebar,
+.dark-mode .profile-info,
+.dark-mode .post-card {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+}
+.dark-mode .edit-input {
+  background-color: #333;
+  color: #eee;
+  border-color: #4da6ff;
+}
+.dark-mode .btn-primary {
+  background-color: #688dd6;
+  color: #000;
+}
+.dark-mode .btn-primary:hover {
+  background-color: #333;
+  color: #fff;
+}
+.dark-mode .tag {
+  background-color: #004466;
+  color: #a5d9ff;
+}
+.dark-mode .tag:hover {
+  background-color: #688dd6;
+}
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+.dark-mode .profile-info span {
+  color: #fff;
+}
+.dark-mode .profile-info label {
+  color: #b0b0b0;
+}
+body.dark-mode  {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+.dark-mode header {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode .hero {
+  background: linear-gradient(to right, #2c2c2c, #1e1e1e);
+  color: #f0f0f0;
+}
+
+.dark-mode .cta {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark-mode .features {
+  background-color: #121212;
+}
+
+.dark-mode .feature {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+
+.dark-mode .blog-card {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+}
+
+.dark-mode .blog-card a {
+  color: #4da6ff;
+}
+
+.dark-mode .blog-category-tag {
+  background-color: #444;
+  color: #fff;
+}
+
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+
+/* darktoggle.css – dark mode styles for admin page + contact page */
+
+/* === Layout === */
+body.dark-mode  {
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  color: #e0e0e0;
+}
+
+header.dark-mode  {
+  background-color: #111;
+  color: #fff;
+}
+
+.dark-mode nav a {
+  color: #ccc;
+}
+
+.dark-mode nav a:hover {
+  color: #4da6ff;
+}
+
+/* === Contact Form Container === */
+.dark-mode .container {
+  background: #1f1f1f;
+  box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .left-side .details i {
+  color: #4da6ff;
+}
+
+.dark-mode .left-side .details .text-one,
+.dark-mode .left-side .details .text-two {
+  color: #bbb;
+}
+
+.dark-mode .right-side .topic-text {
+  color: #4da6ff;
+}
+
+.dark-mode .input-box input,
+.dark-mode .input-box textarea {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+.dark-mode .button input[type="button"] {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .button input[type="button"]:hover {
+  background: #222;
+}
+
+.dark-mode .container .content .left-side::before {
+  background: #444;
+}
+
+/* === Footer === */
+.dark-mode footer {
+  background-color: #0d0d0d;
+  color: #ccc;
+}
+
+/* === Admin Page Styles === */
+.dark-mode .admin-navbar {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.dark-mode .admin-navbar .logo a {
+  color: #fff;
+}
+
+.dark-mode .admin-badge {
+  background: #4da6ff;
+  color: #000;
+}
+
+.dark-mode .admin-page-header,
+.dark-mode .admin-filters,
+.dark-mode .admin-page-actions .btn,
+.dark-mode .admin-stat-card,
+.dark-mode .filter-menu,
+.dark-mode .admin-table,
+.dark-mode .admin-pagination,
+.dark-mode .modal-content,
+.dark-mode .create-user-popup {
+  background: #2a2a2a;
+  color: #eee;
+  border-color: #444;
+}
+
+.dark-mode .admin-page-description,
+.dark-mode .admin-select,
+.dark-mode .admin-search-input,
+.dark-mode .stat-label,
+.dark-mode .role-badge,
+.dark-mode .user-details p {
+  color: #ccc;
+}
+
+.dark-mode .admin-search-input,
+.dark-mode .admin-select,
+.dark-mode .admin-input {
+  background: #333;
+  border: 1px solid #555;
+  color: #eee;
+}
+
+.dark-mode .admin-stat-card .stat-icon,
+.dark-mode .stat-content h3 {
+  color: #4da6ff;
+}
+
+.dark-mode .btn-primary {
+  background: #4da6ff;
+  color: #fff;
+}
+
+.dark-mode .btn-secondary {
+  background: #555;
+  color: #eee;
+}
+
+.dark-mode .btn-danger {
+  background: #d64545;
+  color: #fff;
+}
+
+.dark-mode .btn-back {
+  background: #3a3a3a;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.dark-mode .btn-back:hover {
+  background-color: #444;
+}
+
+.dark-mode .user-card {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #eee;
+}
+
+.dark-mode .user-card .role {
+  color: #bbb;
+}
+
+.dark-mode .error-message {
+  background: #8b1e1e;
+  color: #fff;
+}
+
+.dark-mode .success-message {
+  background: #1e8b5f;
+  color: #fff;
+}
+
+.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark-mode .code-block {
+  background: #222;
+  color: #f0f0f0;
+  border-color: #444;
+}
+

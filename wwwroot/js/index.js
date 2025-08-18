@@ -30,7 +30,8 @@
   const ctaBtn = document.querySelector('.cta');
   if (ctaBtn) {
     ctaBtn.addEventListener('click', () => {
-      window.location.href = token ? '/createPosts.html' : '/login.html';
+      // clean URL without .html
+      window.location.href = token ? '/create-posts' : '/login';
     });
   }
 })();
@@ -54,9 +55,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           ? `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`
           : "https://via.placeholder.com/300x200?text=Blog");
 
-      // Full blog card inside anchor to make the whole card clickable
+      // helper function to generate kebab-case slug if missing
+      const toKebab = s => s
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-') || '';
+
+      const slug = post.slug && post.slug.length ? post.slug : toKebab(post.title);
+
+      // clean URL without .html and without query string
       const postLink = document.createElement("a");
-      postLink.href = `/postDetail.html?slug=${post.slug}`;
+      postLink.href = `/post/${slug}`;
       postLink.className = "blog-card-link";
 
       postLink.innerHTML = `
