@@ -8,6 +8,11 @@ let currentUsername = "";
 let allPosts = [];
 
 const token = localStorage.getItem("token");
+
+function authHeaders() {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 if (token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -19,8 +24,8 @@ if (token) {
 }
 
 if (token && profileEl && currentUsername) {
-  fetch(`/users/${currentUsername}`)
-    .then(res => res.json())
+  fetch(`/users/${encodeURIComponent(currentUsername)}`, { headers: authHeaders() })
+    .then(res => res.ok ? res.json() : Promise.reject())
     .then(user => {
       const avatarUrl = user.avatarUrl || "/images/profile-icon.jpg";
       profileEl.innerHTML = `<img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/profile-icon.jpg'" />`;
@@ -32,8 +37,11 @@ if (token && profileEl && currentUsername) {
 
 function getImageSrc(post) {
   if (post.coverImage) return post.coverImage;
-  if (post.folderName && post.assetFiles?.[0])
-    return `/content/posts/${post.folderName}/assets/${post.assetFiles[0]}`;
+  if (post.folderName && post.assetFiles?.[0]) {
+    const folder = encodeURIComponent(post.folderName);
+    const file = encodeURIComponent(post.assetFiles[0]);
+    return `/content/posts/${folder}/assets/${file}`;
+  }
   return 'https://via.placeholder.com/300x180?text=No+Image';
 }
 
@@ -42,7 +50,8 @@ function createPostCard(post) {
   postDiv.classList.add('post');
 
   const imageSrc = getImageSrc(post);
-  const category = post.categories?.[0] || 'Uncategorized';
+  const category = (post.categories && post.categories[0]) || 'Uncategorized';
+  const safeSlug = encodeURIComponent(post.slug);
 
   postDiv.innerHTML = `
     <div style="position:relative;">
@@ -51,7 +60,7 @@ function createPostCard(post) {
     </div>
     <div class="post-content">
       <small>Published on ${new Date(post.publishedDate).toLocaleDateString()}</small>
-      <h2><a href="/post/${post.slug}" class="post-link" data-slug="${post.slug}">${post.title}</a></h2>
+      <h2><a href="/post/${safeSlug}" class="post-link" data-slug="${safeSlug}">${post.title}</a></h2>
       <p>${post.description || ''}</p>
       <button class="category-btn" data-category="${category}">Discover Category</button>
     </div>
@@ -59,11 +68,11 @@ function createPostCard(post) {
 
   postDiv.querySelector('.post-link')?.addEventListener('click', e => {
     e.preventDefault();
-    window.location.href = `/post/${encodeURIComponent(post.slug)}`;
+    window.location.href = `/post/${safeSlug}`;
   });
 
   postDiv.querySelector('.category-btn')?.addEventListener('click', async e => {
-    const categoryClicked = e.target.getAttribute('data-category');
+    const categoryClicked = e.currentTarget.getAttribute('data-category');
     if (categoryClicked) await loadPostsByCategory(categoryClicked);
   });
 
@@ -71,6 +80,7 @@ function createPostCard(post) {
 }
 
 function displayPosts(posts) {
+  if (!postsContainer) return;
   postsContainer.innerHTML = '';
   if (posts.length === 0) {
     postsContainer.innerHTML = `<p>No posts match your search.</p>`;
@@ -80,19 +90,24 @@ function displayPosts(posts) {
 }
 
 function showPostsView(title = '') {
+  if (!postsContainer) return;
   postsContainer.innerHTML = title ? `<h2>${title}</h2>` : '';
   postsContainer.style.display = 'grid';
-  backCategoryButton.style.display = title ? 'inline-block' : 'none';
+  if (backCategoryButton) backCategoryButton.style.display = title ? 'inline-block' : 'none';
 }
 
 async function loadPosts() {
   try {
-    const res = await fetch('/posts');
+    const res = await fetch('/api/posts');
+    if (!res.ok) throw new Error('Failed to fetch posts');
     const posts = await res.json();
 
-    allPosts = posts.filter(p =>
+    // Show published + due scheduled (server also auto-publishes due ones,
+    // but this keeps UI consistent if cached)
+    const now = new Date();
+    allPosts = (posts || []).filter(p =>
       p.status === "published" ||
-      (p.status === "scheduled" && new Date(p.scheduledDate) <= new Date())
+      (p.status === "scheduled" && p.scheduledDate && new Date(p.scheduledDate) <= now)
     );
 
     showPostsView();
@@ -100,72 +115,76 @@ async function loadPosts() {
   } catch (error) {
     console.error("Error loading posts:", error);
     Swal.fire({ icon: "error", title: "Failed to load posts", text: "Please try again later." });
-    postsContainer.innerHTML = `<h2>Error loading posts</h2>`;
+    if (postsContainer) postsContainer.innerHTML = `<h2>Error loading posts</h2>`;
   }
 }
 
 async function loadPostsByCategory(category) {
   try {
-    const res = await fetch(`/posts/categories/${encodeURIComponent(category)}`);
+    const res = await fetch(`/api/posts/categories/${encodeURIComponent(category)}`);
     if (!res.ok) throw new Error(`No posts found for category: ${category}`);
 
     const posts = await res.json();
     showPostsView(`Posts in category: "${category}"`);
 
     const now = new Date();
-    posts
-      .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
+    (posts || [])
+      .filter(p => p.status === "published" || (p.status === "scheduled" && p.scheduledDate && new Date(p.scheduledDate) <= now))
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
   } catch (err) {
     console.error("Error loading posts by category:", err);
     Swal.fire({ icon: "error", title: "Category not found", text: `No posts found for category: ${category}` });
-    postsContainer.innerHTML = `<h2>No posts found for category: ${category}</h2>`;
-    backCategoryButton.style.display = 'inline-block';
+    if (postsContainer) postsContainer.innerHTML = `<h2>No posts found for category: ${category}</h2>`;
+    if (backCategoryButton) backCategoryButton.style.display = 'inline-block';
   }
 }
 
 async function loadPostsByTag(tag) {
   try {
-    const res = await fetch(`/posts/tags/${encodeURIComponent(tag)}`);
+    const res = await fetch(`/api/posts/tags/${encodeURIComponent(tag)}`);
     if (!res.ok) throw new Error(`No posts found for tag: ${tag}`);
 
     const posts = await res.json();
-    postsContainer.innerHTML = `<h2>Posts tagged with: "${tag}"</h2>`;
-    postsContainer.style.display = 'grid';
+    if (postsContainer) {
+      postsContainer.innerHTML = `<h2>Posts tagged with: "${tag}"</h2>`;
+      postsContainer.style.display = 'grid';
+    }
 
     const now = new Date();
-    posts
-      .filter(p => p.status === "published" || (p.status === "scheduled" && new Date(p.publishedDate) <= now))
+    (posts || [])
+      .filter(p => p.status === "published" || (p.status === "scheduled" && p.scheduledDate && new Date(p.scheduledDate) <= now))
       .forEach(post => postsContainer.appendChild(createPostCard(post)));
 
-    backCategoryButton.style.display = 'inline-block';
+    if (backCategoryButton) backCategoryButton.style.display = 'inline-block';
   } catch (err) {
     console.error("Error loading posts by tag:", err);
     Swal.fire({ icon: "error", title: "Tag not found", text: `No posts found for tag: ${tag}` });
-    postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
+    if (postsContainer) postsContainer.innerHTML = `<h2>No posts found for tag: ${tag}</h2>`;
   }
 }
 
+// Create button visibility (only if logged in)
 if (createPostBtn) createPostBtn.style.display = "none";
-if (token && currentUsername) {
+if (token && currentUsername && createPostBtn) {
   createPostBtn.style.display = "inline-block";
 }
 
 function createPosts() {
-  window.location.href = '/create-posts';
+  window.location.href = '/createPosts';
 }
 
 const searchInput = document.getElementById('search-input');
 searchInput?.addEventListener('input', e => {
-  const keyword = e.target.value.toLowerCase();
+  const keyword = (e.target.value || '').toLowerCase();
   const filteredPosts = allPosts.filter(post =>
-    post.title.toLowerCase().includes(keyword) ||
-    post.description?.toLowerCase().includes(keyword) ||
-    (post.tags || []).some(tag => tag.toLowerCase().includes(keyword))
+    (post.title || '').toLowerCase().includes(keyword) ||
+    (post.description || '').toLowerCase().includes(keyword) ||
+    (post.tags || []).some(tag => (tag || '').toLowerCase().includes(keyword))
   );
   displayPosts(filteredPosts);
 });
 
+// Handle deep links: ?tag=xyz
 const urlParams = new URLSearchParams(window.location.search);
 const tagParam = urlParams.get("tag");
 

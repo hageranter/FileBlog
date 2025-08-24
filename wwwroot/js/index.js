@@ -31,7 +31,7 @@
   if (ctaBtn) {
     ctaBtn.addEventListener('click', () => {
       // clean URL without .html
-      window.location.href = token ? '/create-posts' : '/login';
+      window.location.href = token ? '/createPosts' : '/login';
     });
   }
 })();
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!container) return;
 
   try {
-    const res = await fetch("/posts");
+    const res = await fetch("/api/posts");
     const posts = await res.json();
 
     const sorted = posts

@@ -14,16 +14,25 @@ function getUsernameFromToken() {
 
 async function loadProfile(payload) {
   try {
-    const res = await fetch(`/users/${payload.username}`);
+    // If your /users/{username} requires auth, include the token; harmless if it’s public.
+    const res = await fetch(`/users/${encodeURIComponent(payload.username)}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
     if (!res.ok) throw new Error('Profile not found');
     const user = await res.json();
 
-    document.getElementById('username').textContent = payload.username;
-    document.getElementById('email').textContent = payload.email ?? '—';
-    document.getElementById('role').textContent = payload.role ?? '—';
-    document.getElementById('avatar').alt = payload.AvatarUrl + "'s avatar";
+    const usernameEl = document.getElementById('username');
+    const emailEl = document.getElementById('email');
+    const roleEl = document.getElementById('role');
+    const avatarEl = document.getElementById('avatar');
 
-    document.getElementById('avatar').src = user.avatarUrl || 'images/profile-icon.jpg';
+    if (usernameEl) usernameEl.textContent = payload.username;
+    if (emailEl) emailEl.textContent = payload.email ?? '—';
+    if (roleEl) roleEl.textContent = payload.role ?? '—';
+    if (avatarEl) {
+      avatarEl.alt = `${payload.username}'s avatar`;
+      avatarEl.src = user.avatarUrl || 'images/profile-icon.jpg';
+    }
   } catch (err) {
     console.error('Failed to load profile:', err);
   }
@@ -35,7 +44,7 @@ function logout() {
 }
 
 function createPosts() {
-  window.location.href = '/create-posts';
+  window.location.href = '/createPosts';
 }
 
 function getImageSrc(post) {
@@ -52,34 +61,40 @@ const postAssets = document.getElementById('post-assets');
 async function loadPosts() {
   try {
     if (!token) {
-      postsContainer.innerHTML = "<p>User not authenticated.</p>";
+      if (postsContainer) postsContainer.innerHTML = "<p>User not authenticated.</p>";
       return;
     }
 
     const payload = JSON.parse(atob(token.split('.')[1]));
     const username = payload.username;
 
-    const res = await fetch(`/posts/user/${encodeURIComponent(username)}`);
+    const res = await fetch(`/api/posts/user/${encodeURIComponent(username)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     if (!res.ok) throw new Error("Failed to fetch user posts");
 
     const posts = await res.json();
-    postsContainer.innerHTML = '';
-    postsContainer.style.display = '';
-    postDetailsContainer.style.display = 'none';
 
-    if (posts.length === 0) {
-      postsContainer.innerHTML = "<p>No posts found.</p>";
+    if (postsContainer) {
+      postsContainer.innerHTML = '';
+      postsContainer.style.display = '';
+    }
+    if (postDetailsContainer) postDetailsContainer.style.display = 'none';
+
+    if (!posts || posts.length === 0) {
+      if (postsContainer) postsContainer.innerHTML = "<p>No posts found.</p>";
       return;
     }
 
     displayPosts(posts);
   } catch (error) {
     console.error("Error loading posts:", error);
-    postsContainer.innerHTML = "<p>There are no posts available.</p>";
+    if (postsContainer) postsContainer.innerHTML = "<p>There are no posts available.</p>";
   }
 }
 
 function displayPosts(posts) {
+  if (!postsContainer) return;
   posts.forEach(post => {
     const postCard = document.createElement('a');
     postCard.className = 'post-card';
@@ -105,8 +120,8 @@ function displayPosts(posts) {
 }
 
 function toggleMenu(button) {
-  const menu = button.nextElementSibling;
-  menu.classList.toggle('hidden');
+  const menu = button?.nextElementSibling;
+  if (menu) menu.classList.toggle('hidden');
 }
 
 function enableDetailEdit(menuItem) {
@@ -114,12 +129,14 @@ function enableDetailEdit(menuItem) {
   const bodyEl = document.getElementById('detail-body');
   const saveBtn = document.getElementById('save-detail-btn');
 
+  if (!titleEl || !bodyEl || !saveBtn) return;
+
   titleEl.setAttribute('contenteditable', 'true');
   bodyEl.setAttribute('contenteditable', 'true');
   titleEl.focus();
 
   saveBtn.classList.remove('hidden');
-  menuItem.closest('.menu').classList.add('hidden');
+  menuItem?.closest('.menu')?.classList.add('hidden');
 
   saveBtn.onclick = async () => {
     titleEl.setAttribute('contenteditable', 'false');
@@ -134,10 +151,11 @@ function enableDetailEdit(menuItem) {
     }
 
     try {
-      const res = await fetch(`/posts/${currentSlug}`, {
+      const res = await fetch(`/api/posts/${encodeURIComponent(currentSlug)}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
           title: newTitle,
@@ -145,12 +163,15 @@ function enableDetailEdit(menuItem) {
         })
       });
 
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Failed to save");
+      }
 
       Swal.fire('Saved!', 'Post updated successfully.', 'success');
     } catch (err) {
       console.error("Error saving post:", err);
-      Swal.fire('Error', 'Failed to save post.', 'error');
+      Swal.fire('Error', err.message || 'Failed to save post.', 'error');
     }
   };
 }
@@ -168,23 +189,39 @@ function confirmDeletePost() {
     confirmButtonColor: '#d33',
     cancelButtonColor: '#3085d6',
     confirmButtonText: 'Yes, delete it!'
-  }).then(result => {
+  }).then(async result => {
     if (!result.isConfirmed) return;
 
-    fetch(`/posts/${currentSlug}`, {
-      method: "DELETE"
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to delete");
-        Swal.fire('Deleted!', 'Post deleted successfully.', 'success');
-        backToPosts();
-        loadPosts();
-      })
-      .catch(err => {
-        console.error("Error deleting post:", err);
-        Swal.fire('Error', 'Could not delete post.', 'error');
+    try {
+      const res = await fetch(`/api/posts/${encodeURIComponent(currentSlug)}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Failed to delete");
+      }
+
+      await Swal.fire('Deleted!', 'Post deleted successfully.', 'success');
+      backToPosts();
+      loadPosts();
+    } catch (err) {
+      console.error("Error deleting post:", err);
+      Swal.fire('Error', err.message || 'Could not delete post.', 'error');
+    }
   });
+}
+
+// Simple fallback if you didn’t define it elsewhere
+function backToPosts() {
+  if (postsContainer && postDetailsContainer) {
+    postDetailsContainer.style.display = 'none';
+    postsContainer.style.display = '';
+  } else {
+    // fallback: just navigate to the list page
+    window.location.href = '/profile' in window.location.pathname ? '/profile' : '/';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -223,19 +260,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPosts();
 
     if (payload.role?.toLowerCase() === 'admin') {
-      const btn = document.createElement('button');
-      btn.textContent = 'Control Users';
-      btn.className = 'btn btn-primary';
-      btn.onclick = () => window.location.href = '/admin';
-
       const btnGroup = document.querySelector('.btn-group');
-      const logoutBtn = btnGroup.querySelector('.btn-danger');
-      btnGroup.insertBefore(btn, logoutBtn);
+      if (btnGroup) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Control Users';
+        btn.className = 'btn btn-primary';
+        btn.onclick = () => window.location.href = '/admin';
+        const logoutBtn = btnGroup.querySelector('.btn-danger');
+        btnGroup.insertBefore(btn, logoutBtn || null);
+      }
     }
 
     const avatarInput = document.getElementById('avatar-upload');
     avatarInput?.addEventListener('change', async function () {
-      const file = this.files[0];
+      const file = this.files?.[0];
       if (!file) return;
 
       const username = getUsernameFromToken();
@@ -247,8 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('file', file);
 
       try {
-        const res = await fetch(`/users/${username}/avatar`, {
+        const res = await fetch(`/users/${encodeURIComponent(username)}/avatar`, {
           method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData
         });
 
@@ -257,7 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
         if (!data.avatarUrl) throw new Error("Missing avatarUrl");
 
-        document.getElementById('avatar').src = data.avatarUrl + `?t=${Date.now()}`;
+        const avatarEl = document.getElementById('avatar');
+        if (avatarEl) avatarEl.src = data.avatarUrl + `?t=${Date.now()}`;
 
         await Swal.fire({
           icon: 'success',

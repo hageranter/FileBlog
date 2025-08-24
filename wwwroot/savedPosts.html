@@ -1,57 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>MyBlog – Saved Blogs</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
- <script src="/js/themeToggle.js"></script>
   <link rel="stylesheet" href="/css/savedPosts.css">
   <link rel="stylesheet" href="/css/darktoggle.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script defer src="/js/themeToggle.js"></script>
+  <script src="/js/router.js" defer></script>
 
-
-  
 </head>
-
 <body>
 
   <!-- Header -->
   <header class="navbar">
     <div class="logo">MyBlog</div>
-
     <div id="dark-mode-toggle" class="theme-toggle-wrapper">
       <input type="checkbox" id="checkbox" />
       <label for="checkbox" class="label"></label>
     </div>
-
   </header>
 
   <!-- Sidebar -->
   <div class="sidebar">
     <a href="/"><i class="fas fa-home"></i> Home</a>
-     <a href="/posts.html"><i class="fas fa-pen-nib"></i>  Explore Posts</a>
+    <a href="/posts.html"><i class="fas fa-pen-nib"></i> Explore Posts</a>
     <a href="/savedPosts.html" class="active"><i class="fas fa-bookmark"></i> Saved Posts</a>
     <a href="/draftPosts.html"><i class="fas fa-file-alt"></i> Draft Posts</a>
     <a href="/contactUs.html"><i class="fas fa-user"></i> Contact Us</a>
-    <a href="/profile.html" ><i class="fas fa-user-circle"></i> Profile</a>
+    <a href="/profile.html"><i class="fas fa-user-circle"></i> Profile</a>
     <a href="#" onclick="logout()" id="logout-icon"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
 
   <!-- Main Content -->
   <div class="main-content">
-
     <div class="saved-wrapper">
       <h2>Saved Posts</h2>
       <div class="saved-grid" id="savedBlogs">
         <p class="empty-message">You have not saved any posts yet.</p>
-      </div>
-    </div>
-
+      </div>  <div class="create-post-wrapper">
+    <button id="create-post-btn" onclick="createPosts()">Create Post</button>
   </div>
-   <script src="/js/savedPosts.js"></script>
+    </div>
+  </div>
 
+
+
+  <script defer src="/js/savedPosts.js"></script>
 </body>
-
 </html>

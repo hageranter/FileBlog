@@ -51,16 +51,34 @@ public class BlogService
                 Description = meta.Description ?? "",
                 PublishedDate = meta.PublishedDate ?? DateTime.MinValue,
                 ModifiedDate = meta.ModifiedDate ?? DateTime.MinValue,
-                Tags = meta.Tags ?? new(),
-                Categories = meta.Categories ?? new(),
+                Tags = (meta.Tags ?? new())
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Select(t => t.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                Categories = (meta.Categories ?? new())
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(c => c.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
                 Body = html,
                 AssetFiles = assetFiles,
-                Username = meta.Username ?? "",
-                Status = meta.Status ?? "published",
+                Username = (meta.Username ?? "").Trim(),
+                Status = string.IsNullOrWhiteSpace(meta.Status) ? "published" : meta.Status.Trim(),
                 ScheduledDate = meta.ScheduledDate,
                 Id = Path.GetFileName(dir),
                 Likes = meta.Likes,
-                SavedBy = meta.SavedBy ?? new()
+                // Normalize SavedBy/LikedBy once so queries never miss because of case/whitespace
+                SavedBy = (meta.SavedBy ?? new())
+                    .Where(u => !string.IsNullOrWhiteSpace(u))
+                    .Select(u => u.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                LikedBy = (meta.LikedBy ?? new())
+                    .Where(u => !string.IsNullOrWhiteSpace(u))
+                    .Select(u => u.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList()
             };
         }
     }
@@ -86,14 +104,41 @@ public class BlogService
         GetAllPostsAndUpdateStatusIfNeeded()
             .Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
 
-    public Post? GetPostBySlug(string slug)
+    // ---------- NEW: resolve incoming slug (customSlug OR folderName) ----------
+    private string? ResolveDirBySlug(string slug)
     {
         var folder = Path.Combine(_root, "content", "posts");
+        if (!Directory.Exists(folder)) return null;
 
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d =>
-                string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
+        // 1) direct folder match
+        var direct = Path.Combine(folder, slug);
+        if (Directory.Exists(direct)) return direct;
 
+        // 2) find by meta.CustomSlug
+        foreach (var d in Directory.GetDirectories(folder))
+        {
+            var metaPath = Path.Combine(d, "meta.yaml");
+            if (!File.Exists(metaPath)) continue;
+
+            try
+            {
+                var yaml = File.ReadAllText(metaPath);
+                var meta = ParseYamlFrontMatter(yaml);
+                if (!string.IsNullOrWhiteSpace(meta.CustomSlug) &&
+                    string.Equals(meta.CustomSlug, slug, StringComparison.OrdinalIgnoreCase))
+                {
+                    return d;
+                }
+            }
+            catch { /* ignore malformed meta */ }
+        }
+
+        return null;
+    }
+
+    public Post? GetPostBySlug(string slug)
+    {
+        var dir = ResolveDirBySlug(slug);
         if (dir == null)
             return null;
 
@@ -114,10 +159,13 @@ public class BlogService
             ? Directory.GetFiles(assetsPath).Select(Path.GetFileName).ToList()
             : new List<string>();
 
+        var folderName = Path.GetFileName(dir);
+        var effectiveSlug = meta.CustomSlug ?? folderName;
+
         return new Post
         {
-            Slug = slug,
-            FolderName = Path.GetFileName(dir),
+            Slug = effectiveSlug,
+            FolderName = folderName,
             Title = meta.Title ?? "Untitled",
             Description = meta.Description ?? "",
             PublishedDate = meta.PublishedDate ?? DateTime.MinValue,
@@ -168,7 +216,8 @@ public class BlogService
             Status = request.Status,
             ScheduledDate = request.ScheduledDate,
             Likes = request.Likes,
-            SavedBy = request.SavedBy
+            SavedBy = request.SavedBy,
+            LikedBy = new()
         };
 
         var serializer = new SerializerBuilder()
@@ -184,10 +233,7 @@ public class BlogService
 
     public bool UploadFile(string slug, IFormFile file)
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
-
+        var dir = ResolveDirBySlug(slug);
         if (dir == null || file == null)
             return false;
 
@@ -224,10 +270,7 @@ public class BlogService
 
     public bool UpdatePostContent(string slug, string newTitle, string newBody)
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
-
+        var dir = ResolveDirBySlug(slug);
         if (dir == null)
             return false;
 
@@ -256,10 +299,7 @@ public class BlogService
 
     public bool DeletePostBySlug(string slug)
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
-
+        var dir = ResolveDirBySlug(slug);
         if (dir == null || !Directory.Exists(dir))
             return false;
 
@@ -298,7 +338,7 @@ public class BlogService
                 ScheduledDate = post.ScheduledDate,
                 Likes = post.Likes,
                 SavedBy = post.SavedBy,
-                LikedBy = post.LikedBy
+                LikedBy = post.LikedBy ?? new()
             };
 
             var serializer = new SerializerBuilder()
@@ -312,10 +352,7 @@ public class BlogService
 
     public void UpdateMeta(string slug, Action<Meta> updateAction)
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
-
+        var dir = ResolveDirBySlug(slug);
         if (dir == null) return;
 
         var metaPath = Path.Combine(dir, "meta.yaml");
@@ -344,14 +381,11 @@ public class BlogService
     }
 
     private string ToKebabCase(string text) =>
-        Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+        Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9]+", "-", RegexOptions.None, TimeSpan.FromMilliseconds(250)).Trim('-');
 
     public void SavePostMeta(string slug, Meta updatedMeta)
     {
-        var folder = Path.Combine(_root, "content", "posts");
-        var dir = Directory.GetDirectories(folder)
-            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), slug, StringComparison.OrdinalIgnoreCase));
-
+        var dir = ResolveDirBySlug(slug);
         if (dir == null) return;
 
         var metaPath = Path.Combine(dir, "meta.yaml");
@@ -381,7 +415,8 @@ public class BlogService
 
         post.Likes = post.LikedBy.Count;
 
-        UpdateMeta(slug, meta =>
+        // Write by folder to avoid ambiguous slug
+        UpdateMeta(post.FolderName, meta =>
         {
             meta.LikedBy = new List<string>(post.LikedBy);
             meta.Likes = post.Likes;
@@ -396,14 +431,24 @@ public class BlogService
         var post = GetPostBySlug(slug);
         if (post == null) return false;
 
-        var wasSaved = post.SavedBy.Contains(username);
+        // Case-insensitive membership
+        bool wasSaved = post.SavedBy.Any(u => string.Equals(u, username, StringComparison.OrdinalIgnoreCase));
 
-        UpdateMeta(slug, meta =>
+        UpdateMeta(post.FolderName, meta =>
         {
+            meta.SavedBy ??= new List<string>();
+            int idx = meta.SavedBy.FindIndex(u => string.Equals(u, username, StringComparison.OrdinalIgnoreCase));
+
             if (wasSaved)
-                meta.SavedBy.Remove(username);
-            else if (!meta.SavedBy.Contains(username))
-                meta.SavedBy.Add(username);
+            {
+                if (idx >= 0) meta.SavedBy.RemoveAt(idx);
+            }
+            else
+            {
+                if (idx < 0) meta.SavedBy.Add(username);
+            }
+
+            meta.ModifiedDate = DateTime.UtcNow;
         });
 
         return !wasSaved;
@@ -460,6 +505,95 @@ public class BlogService
         File.WriteAllText(commentsPath, json);
     }
 
+    // -------------------- NEW: Update/Publish APIs --------------------
+
+    /// <summary>
+    /// Partially update post: title, body, status, publishedDate (if provided).
+    /// </summary>
+    public Task<Meta> UpdatePostAsync(string slug, UpdatePostRequest req)
+    {
+        var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
+        var metaPath = Path.Combine(dir, "meta.yaml");
+        var contentPath = Path.Combine(dir, "content.md");
+        if (!File.Exists(metaPath)) throw new InvalidOperationException("Post meta not found");
+
+        var meta = ParseYamlFrontMatter(File.ReadAllText(metaPath));
+
+        if (req.Title != null) meta.Title = req.Title;
+        if (req.Body != null) File.WriteAllText(contentPath, req.Body);
+
+        if (!string.IsNullOrWhiteSpace(req.Status))
+        {
+            meta.Status = req.Status!.Trim().ToLowerInvariant();
+            if (meta.Status == "published" && meta.PublishedDate is null)
+            {
+                meta.PublishedDate = DateTime.UtcNow;
+            }
+        }
+
+        if (req.PublishedDate.HasValue)
+        {
+            // keep your DateTime? type: convert from DateTimeOffset
+            meta.PublishedDate = req.PublishedDate.Value.UtcDateTime;
+        }
+
+        meta.ModifiedDate = DateTime.UtcNow;
+
+        SavePostMetaByPath(metaPath, meta);
+        return Task.FromResult(meta);
+    }
+
+    /// <summary>
+    /// Update only status (and optional publishedDate).
+    /// </summary>
+    public Task<Meta> UpdatePostStatusAsync(string slug, string status, DateTimeOffset? publishedDate)
+    {
+        var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
+        var metaPath = Path.Combine(dir, "meta.yaml");
+        if (!File.Exists(metaPath)) throw new InvalidOperationException("Post meta not found");
+
+        var meta = ParseYamlFrontMatter(File.ReadAllText(metaPath));
+
+        meta.Status = (status ?? "").Trim().ToLowerInvariant();
+        if (meta.Status == "published")
+        {
+            meta.PublishedDate = (publishedDate?.UtcDateTime) ?? meta.PublishedDate ?? DateTime.UtcNow;
+        }
+
+        meta.ModifiedDate = DateTime.UtcNow;
+
+        SavePostMetaByPath(metaPath, meta);
+        return Task.FromResult(meta);
+    }
+
+    /// <summary>
+    /// Convenience publish: set status=published and stamp PublishedDate if missing.
+    /// </summary>
+    public Task<Meta> PublishPostAsync(string slug)
+    {
+        var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
+        var metaPath = Path.Combine(dir, "meta.yaml");
+        if (!File.Exists(metaPath)) throw new InvalidOperationException("Post meta not found");
+
+        var meta = ParseYamlFrontMatter(File.ReadAllText(metaPath));
+
+        meta.Status = "published";
+        if (meta.PublishedDate is null) meta.PublishedDate = DateTime.UtcNow;
+        meta.ModifiedDate = DateTime.UtcNow;
+
+        SavePostMetaByPath(metaPath, meta);
+        return Task.FromResult(meta);
+    }
+
+    private void SavePostMetaByPath(string metaPath, Meta meta)
+    {
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        File.WriteAllText(metaPath, serializer.Serialize(meta));
+    }
+
+    // -------------------- Meta DTO --------------------
     public class Meta
     {
         public string? Title { get; set; }

@@ -53,7 +53,7 @@ async function loadDraftPosts() {
 
   // ✅ Token valid – proceed to fetch
   try {
-    const res = await fetch('/posts/drafts', {
+    const res = await fetch('/api/posts/drafts', {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -63,7 +63,7 @@ async function loadDraftPosts() {
 
     const posts = await res.json();
 
-    if (posts.length === 0) {
+    if (!Array.isArray(posts) || posts.length === 0) {
       draftsContainer.innerHTML = '<p class="empty-message">No draft posts found.</p>';
       return;
     }
@@ -71,14 +71,17 @@ async function loadDraftPosts() {
     draftsContainer.innerHTML = '';
 
     posts.forEach(post => {
-      const card = document.createElement('div');
-      card.className = 'post-card';
-
       const imgSrc = getImageSrc(post);
 
-      card.innerHTML = `
+      // Use an anchor so middle-click / open-in-new-tab works
+      const a = document.createElement('a');
+      a.className = 'post-card';
+      a.href = `/post/${encodeURIComponent(post.slug)}`; // 🔧 FIX: use path route
+      a.setAttribute('aria-label', `Open draft: ${post.title}`);
+
+      a.innerHTML = `
         <div class="post-image">
-          <img src="${imgSrc}" alt="${post.title}" />
+          <img src="${imgSrc}" alt="${post.title}" loading="lazy" />
         </div>
         <div class="post-body">
           <h3>${post.title}</h3>
@@ -87,9 +90,7 @@ async function loadDraftPosts() {
         </div>
       `;
 
-      card.onclick = () => window.location.href = `/postDetail?slug=${encodeURIComponent(post.slug)}`;
-
-      draftsContainer.appendChild(card);
+      draftsContainer.appendChild(a);
     });
 
   } catch (err) {
@@ -98,4 +99,8 @@ async function loadDraftPosts() {
   }
 }
 
+
 document.addEventListener('DOMContentLoaded', loadDraftPosts);
+function createPosts() {
+  window.location.href = '/createPosts';
+}

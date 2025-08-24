@@ -1,3 +1,4 @@
+
 console.log('Create Posts JS loaded');
 let pendingStatus = ""; // Track status selected by buttons
 
@@ -6,10 +7,18 @@ const statusInput = document.getElementById("post-status");
 const scheduleInput = document.getElementById("scheduled-date");
 const confirmScheduleBtn = document.getElementById("btn-confirm-schedule");
 
+function getToken() {
+  return localStorage.getItem('token');
+}
+function authHeaders() {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (!token) {
     return Swal.fire({
       icon: 'warning',
@@ -18,7 +27,12 @@ form.addEventListener('submit', async function (e) {
     });
   }
 
-  const payload = JSON.parse(atob(token.split('.')[1]));
+  let payload;
+  try {
+    payload = JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return Swal.fire({ icon: 'error', title: 'Invalid session', text: 'Please log in again.' });
+  }
   const username = payload.username;
 
   statusInput.value = pendingStatus;
@@ -30,14 +44,18 @@ form.addEventListener('submit', async function (e) {
     formData.set('scheduledDate', scheduleInput.value);
   }
 
-  const files = document.getElementById('assets').files;
-  for (let i = 0; i < files.length; i++) {
-    formData.append('file', files[i]);
+  const filesInput = document.getElementById('assets');
+  if (filesInput && filesInput.files) {
+    for (let i = 0; i < filesInput.files.length; i++) {
+      formData.append('file', filesInput.files[i]);
+    }
   }
 
   try {
-    const res = await fetch(`/posts/create/${username}`, {
+    // ✅ POST to the namespaced API route
+    const res = await fetch(`/api/posts/create/${encodeURIComponent(username)}`, {
       method: 'POST',
+      headers: authHeaders(),   // ✅ include Bearer token
       body: formData
     });
 
@@ -49,6 +67,7 @@ form.addEventListener('submit', async function (e) {
       text: '✅ Your blog has been created successfully!',
       confirmButtonText: 'Go to Explore More Blogs'
     }).then(() => {
+      // redirect wherever your list page is; keep if you already have /posts.html
       window.location.href = '/posts?mine=true';
     });
 
@@ -56,7 +75,7 @@ form.addEventListener('submit', async function (e) {
     Swal.fire({
       icon: 'error',
       title: 'Failed to Create Blog',
-      text: err.message
+      text: err.message || 'Something went wrong.'
     });
   }
 });
@@ -108,7 +127,7 @@ document.getElementById("btn-discard").addEventListener("click", () => {
   });
 });
 
-// Handle contact form submission
+// Handle contact form submission (unchanged; /contact isn’t under /api)
 async function submitForm() {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -155,7 +174,7 @@ async function submitForm() {
 
 // Auth-based UI adjustments
 (function () {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (!token) return;
 
   const authBtns = document.getElementById('auth-buttons');
@@ -167,7 +186,8 @@ async function submitForm() {
   try {
     const { username } = JSON.parse(atob(token.split('.')[1]));
 
-    fetch(`/users/${username}`)
+    // /users stays as-is (not namespaced); add Authorization if it’s protected
+    fetch(`/users/${encodeURIComponent(username)}`, { headers: authHeaders() })
       .then(res => res.ok ? res.json() : null)
       .then(user => {
         const avatarUrl = user?.avatarUrl || '/images/profile-icon.jpg';
@@ -187,7 +207,7 @@ async function submitForm() {
   const ctaBtn = document.querySelector('.cta');
   if (ctaBtn) {
     ctaBtn.addEventListener('click', () => {
-      window.location.href = token ? '/createPosts' : '/login';
+      window.location.href = token ? '/createPosts.html' : '/login';
     });
   }
 })();

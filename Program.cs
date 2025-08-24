@@ -7,6 +7,7 @@ using System.Text;
 using FileBlogApi.Features.Auth;
 using FileBlogApi.Features.Admin;
 using FileBlogApi.Features.Contact;
+using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddAuthorization();
 
+// JWT
 var jwtSecret = builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("Jwt:Secret is missing from config");
 var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -38,28 +40,36 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddSingleton(new BlogService(builder.Environment.ContentRootPath));
+// BlogService (single instance via DI)
+builder.Services.AddSingleton<BlogService>(sp =>
+    new BlogService(builder.Environment.ContentRootPath));
 
-var origins = new[] {
-  "https://file-blog-alpha.vercel.app",
-  "https://file-blog-*.vercel.app"
-};
+// CORS (wildcard support)
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-  p.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+    p.SetIsOriginAllowed(origin =>
+    {
+        try
+        {
+            var host = new Uri(origin).Host;
+            return host.Equals("file-blog-alpha.vercel.app", StringComparison.OrdinalIgnoreCase)
+                   || (host.StartsWith("file-blog-", StringComparison.OrdinalIgnoreCase)
+                       && host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase));
+        }
+        catch { return false; }
+    })
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+));
+
 var app = builder.Build();
+
 app.UseCors();
-
-
-
-
-var blogService = new BlogService(builder.Environment.ContentRootPath);
-
-// Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 
-// Redirect *.html -> clean URL
+// Redirect *.html -> clean URL (e.g., /contactUs.html -> /contactUs)
 app.Use(async (ctx, next) =>
 {
     var path = ctx.Request.Path.Value ?? "";
@@ -84,22 +94,91 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/userfiles"
 });
 
+// ---------------------------------------------------------------
+// Pretty URLs (kebab) → existing files (camelCase or otherwise)
+var pretty = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+{
+    // nav items you showed
+    ["saved-posts"] = "savedPosts.html",
+    ["draft-posts"] = "draftPosts.html",
+    ["explore-posts"] = "posts.html",          // change if your list page is different
+    ["contact-us"] = "contactUs.html",
+    ["sign-up"] = "signup.html",
+    ["create-posts"] = "createPosts.html",
+
+    // add more as you go...
+};
+
+// Serve each pretty path
+foreach (var kv in pretty)
+{
+    var requestPath = "/" + kv.Key.Trim('/');
+    var filePath = kv.Value.TrimStart('/'); // under wwwroot
+
+    app.MapGet(requestPath, async (HttpContext ctx, IWebHostEnvironment env) =>
+    {
+        var full = Path.Combine(env.WebRootPath, filePath);
+        if (!System.IO.File.Exists(full))
+        {
+            ctx.Response.StatusCode = 404;
+            await ctx.Response.WriteAsync("Not Found");
+            return;
+        }
+        await ctx.Response.SendFileAsync(full);
+    });
+}
+
+// Redirect old camelCase paths (without .html) → kebab (so /savedPosts → /saved-posts)
+foreach (var kv in pretty)
+{
+    var kebab = "/" + kv.Key.Trim('/');
+    var camelNoExt = "/" + Path.GetFileNameWithoutExtension(kv.Value);
+
+    app.MapGet(camelNoExt, () => Results.Redirect(kebab, permanent: true));
+}
+
+// Fix tag 404s: /posts/tag/<tag> -> /posts?tag=<tag>
+app.MapGet("/posts/tag/{tag}", (string tag) =>
+    Results.Redirect($"/posts?tag={Uri.EscapeDataString(tag)}"));
+
+// Optional generic kebab route: /pages/contact-us -> contactUs.html
+static string KebabToCamel(string slug)
+{
+    var parts = slug.Split('-', StringSplitOptions.RemoveEmptyEntries);
+    if (parts.Length == 0) return slug;
+    var first = parts[0];
+    var rest = string.Concat(parts.Skip(1).Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
+    return first + rest;
+}
+app.MapGet("/pages/{slug}", async (string slug, HttpContext ctx, IWebHostEnvironment env) =>
+{
+    var camel = KebabToCamel(slug) + ".html";
+    var full = Path.Combine(env.WebRootPath, camel);
+    if (!System.IO.File.Exists(full))
+    {
+        ctx.Response.StatusCode = 404;
+        await ctx.Response.WriteAsync("Not Found");
+        return;
+    }
+    await ctx.Response.SendFileAsync(full);
+});
+
+// Resolve services
+var blogService = app.Services.GetRequiredService<BlogService>();
+
 // API / feature endpoints
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
-app.MapPostEndpoints(blogService);   // <-- contains the ONLY /posts GET
+app.MapPostEndpoints(blogService);
 app.MapAdminEndpoints();
 app.MapPostDetails(blogService);
 app.MapContactEndpoints();
 
-// Clean URLs for specific pages
-app.MapGet("/login", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
-app.MapGet("/signup", ctx => ctx.Response.SendFileAsync("wwwroot/signup.html"));
-// Single post page
+// Single post page (HTML)
 app.MapGet("/post/{slug}", ctx =>
     ctx.Response.SendFileAsync(Path.Combine(app.Environment.ContentRootPath, "wwwroot", "postDetail.html")));
 
-// Safe fallback (no crash if 404.html missing)
+// Fallback
 app.MapFallback(async ctx =>
 {
     var path = (ctx.Request.Path.Value ?? "").Trim('/');
@@ -124,8 +203,3 @@ app.MapFallback(async ctx =>
 });
 
 app.Run();
-
-// DTOs
-public record LoginRequest(string Username, string Password);
-public record SignupRequest(string Username, string Email, string Password, string Role = "Author");
-public record CreatePostRequest(string Title, string Description, string Body, string[] Tags, string[] Categories);

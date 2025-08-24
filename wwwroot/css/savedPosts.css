@@ -501,3 +501,80 @@ header.dark-mode  {
   a#logout-icon:hover {
   background-color: #f70000 !important;
 }
+
+/* Saved Posts: remove link underlines & keep card look */
+.post-card,
+.post-card:link,
+.post-card:visited,
+.post-card:hover,
+.post-card:active,
+.saved-wrapper a,
+.saved-wrapper a:link,
+.saved-wrapper a:visited,
+.saved-wrapper a:hover,
+.saved-wrapper a:active {
+  text-decoration: none !important;
+  color: inherit;            /* keep your headings/body color */
+}
+
+/* Make the anchor behave like a real card */
+.post-card {
+  display: block;            /* anchors are inline by default */
+}
+
+/* If your title is an <a> inside the card somewhere, also kill underline */
+.post-body h3 a {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+/* Optional: keep keyboard accessibility while removing underline */
+.post-card:focus-visible {
+  outline: 2px solid #688dd6;
+  outline-offset: 3px;
+}
+
+/* Dark mode link color should follow text */
+.dark-mode .post-card,
+.dark-mode .post-card a {
+  color: inherit;
+  text-decoration: none !important;
+}
+
+
+
+#create-post-btn {
+  background-color: #688dd6;
+  color: white;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-left: 80%;
+    margin-top: 80px;
+
+}
+
+#create-post-btn:hover {
+  background-color: #497fab;
+  box-shadow: 0 6px 16px rgba(0, 86, 179, 0.5);
+}
+#create-post-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}.dark-mode .category-btn,
+.dark-mode #create-post-btn,
+.dark-mode #post-comment-btn {
+  background-color: #688dd6;
+  color: #fff;
+}
+
+.dark-mode .category-btn:hover,
+.dark-mode #create-post-btn:hover,
+.dark-mode #post-comment-btn:hover {
+  background-color: #333;
+}

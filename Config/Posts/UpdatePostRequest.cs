@@ -1,5 +1,12 @@
-public class UpdatePostRequest
+using System;
+
+public sealed class UpdatePostRequest
 {
-    public string Title { get; set; } = string.Empty;
-    public string Body { get; set; } = string.Empty;
+    // Send only what you want to update; nulls mean "leave as is"
+    public string? Title { get; set; }
+    public string? Body  { get; set; }
+
+    public string? Status { get; set; }
+
+    public DateTimeOffset? PublishedDate { get; set; }
 }

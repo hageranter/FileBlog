@@ -170,9 +170,9 @@ body a {
   background: #4e4e4e;
 }
 
-/* Post details */
+/* Post details (detail page card) */
 #post-details {
-  max-width: 700px;
+  max-width: 1000px; /* widened */
   margin: 1rem auto;
   background: #fff;
   padding: 1rem;
@@ -332,21 +332,23 @@ body a {
   position: relative;
 }
 
+/* HERO IMAGE (detail view) — prevent cropping */
 .post-hero {
   width: 100%;
-  max-height: 400px;
-  overflow: hidden;
+  max-height: none;   /* was 400px */
+  overflow: visible;  /* allow full image to show */
 }
 
 .post-hero-image {
   width: 100%;
-  height: auto;
-  object-fit: cover;
+  height: auto;       /* keep natural height */
+  max-height: none;
+  object-fit: contain; /* avoid cropping */
   display: block;
 }
 
 .post-main-content {
-  max-width: 750px;
+  max-width: 1000px; /* widened */
   margin: 7px auto 3rem;
   background: white;
   padding: 2rem;
@@ -855,7 +857,7 @@ footer {
 
 
   .dark-mode #post-details{
-    max-width: 900px;
+    max-width: 1000px; /* widened in dark mode */
     margin: 1rem auto;
     background: #444;
     padding: 1rem;
@@ -1150,4 +1152,21 @@ header.dark-mode  {
 
 .category-btn {
   margin-top: auto; /* pushes the button to the bottom */
+}
+
+.publish-btn {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.05s ease;
+}
+.publish-btn:hover {
+  background-color: #23923d;
+}
+.publish-btn:active {
+  transform: translateY(1px);
 }

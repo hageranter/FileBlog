@@ -518,3 +518,43 @@ body.dark-mode  {
   a#logout-icon:hover {
   background-color: #f70000 !important;
 }
+
+
+
+
+#create-post-btn {
+  background-color: #688dd6;
+  color: white;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-left: 80%;
+    margin-top: 80px;
+
+
+}
+
+#create-post-btn:hover {
+  background-color: #497fab;
+  box-shadow: 0 6px 16px rgba(0, 86, 179, 0.5);
+}
+#create-post-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}.dark-mode .category-btn,
+.dark-mode #create-post-btn,
+.dark-mode #post-comment-btn {
+  background-color: #688dd6;
+  color: #fff;
+}
+
+.dark-mode .category-btn:hover,
+.dark-mode #create-post-btn:hover,
+.dark-mode #post-comment-btn:hover {
+  background-color: #333;
+}
