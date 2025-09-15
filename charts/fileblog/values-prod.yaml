@@ -1,0 +1,10 @@
+replicaCount: 2
+image:
+  repository: registry.arc-center.run/silverkeytech/fileblog
+  pullPolicy: IfNotPresent
+  tag: fileblog-dev-latest
+
+resources:
+  requests:
+    cpu: 60m
+    memory: 60M
