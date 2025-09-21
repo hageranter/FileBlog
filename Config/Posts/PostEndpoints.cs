@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-       using System.Security.Claims;
 
 namespace FileBlogApi.Features.Posts;
 
@@ -88,7 +87,8 @@ public static class PostEndpoints
                 return Results.BadRequest("Title and content are required.");
 
             DateTime? scheduledDate = null;
-            if (DateTime.TryParse(scheduledDateStr, out var parsed)) scheduledDate = parsed;
+            if (DateTime.TryParse(scheduledDateStr, out var parsed))
+                scheduledDate = DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
 
             var dto = new CreatePostRequest
             {
@@ -165,28 +165,22 @@ public static class PostEndpoints
         }).RequireAuthorization();
 
         // Saved by current user
-// ...
+        app.MapGet("/api/posts/saved", [Authorize] (HttpContext ctx) =>
+        {
+            var username =
+                ctx.User?.FindFirst("username")?.Value
+                ?? ctx.User?.FindFirst(ClaimTypes.Name)?.Value
+                ?? ctx.User?.Identity?.Name;
 
-// Saved by current user
-app.MapGet("/api/posts/saved", [Authorize] (HttpContext ctx) =>
-{
-    // accept username from multiple places to be safe
-    var username =
-        ctx.User?.FindFirst("username")?.Value
-        ?? ctx.User?.FindFirst(ClaimTypes.Name)?.Value
-        ?? ctx.User?.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(username)) return Results.Unauthorized();
 
-    if (string.IsNullOrWhiteSpace(username)) return Results.Unauthorized();
+            username = username.Trim();
 
-    username = username.Trim();
+            var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
+                .Where(p => (p.SavedBy ?? new List<string>())
+                    .Any(u => string.Equals(u, username, StringComparison.OrdinalIgnoreCase)));
 
-    var posts = blogService.GetAllPostsAndUpdateStatusIfNeeded()
-        .Where(p => (p.SavedBy ?? new List<string>())
-            .Any(u => string.Equals(u, username, StringComparison.OrdinalIgnoreCase)));
-
-    // Always 200 with an array (possibly empty) — easier for clients
-    return Results.Ok(posts);
-}).RequireAuthorization();
-
+            return Results.Ok(posts);
+        }).RequireAuthorization();
     }
 }

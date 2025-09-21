@@ -44,12 +44,22 @@
   </header>
 
   <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 16px;">
-    <h1 style="font-size: 28px; font-weight: bold;"></h1>
 
-    <div id="search-container">
-      <input type="text" id="search-input" placeholder="Search posts..."
-        style="padding: 8px; width: 170px; border-radius: 16px; border: 1px solid #ccc; font-size: 16px;" />
-    </div>
+   <div class="search-wrap">
+  <!-- left icon -->
+  <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+  </svg>
+
+  <input id="search-input" type="search" placeholder="Search posts…"
+         aria-label="Search posts" aria-expanded="false" aria-controls="search-suggestions" />
+
+  <!-- clear button -->
+  <button type="button" class="clear-btn" aria-label="Clear search" hidden>×</button>
+
+  <div id="search-suggestions" class="suggestions hidden" role="listbox" aria-label="Search suggestions"></div>
+</div>
+
   </div>
 
   <div id="posts"></div>

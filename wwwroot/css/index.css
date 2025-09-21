@@ -167,7 +167,7 @@ nav a:hover {
 
 .cta {
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  font-size: 20px;
   border: none;
   background-color: #fff;
   color: #333;
@@ -217,8 +217,13 @@ nav a:hover {
 
 .feature p {
   font-size: 1rem;
-  color: #666;
+  color: #000000;
 }
+.dark-mode .feature p {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
 
 /* Recent Posts */
 .recent-posts {
@@ -348,8 +353,8 @@ body.dark-mode .hero {
 }
 
 body.dark-mode .hero .cta {
-  background-color: #688dd6;
-  color: #fff;
+  background-color: #adafb4;
+  color: #000000;
   border: 1px solid #555;
 }
 
@@ -401,7 +406,7 @@ body.dark-mode .blog-card a:hover {
 }
 
 body.dark-mode .blog-category-tag {
-  background-color: #444;
+  background-color: rgb(64, 67, 69);
   color: #fff;
 }
 
@@ -499,8 +504,14 @@ body.dark-mode .blog-card-content h3 {
 
 /* Read more link */
 .read-more {
-  color: #4da6ff;
-  text-decoration: underline;
+  color: #072544;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-top: auto;
+}
+.dark-mode .read-more {
+  color: #7eb4eb;
+  text-decoration:none;
   font-size: 1rem;
   margin-top: auto;
 }
@@ -552,8 +563,8 @@ body.dark-mode .blog-card-content h3 {
 
 /* Read more link */
 .read-more {
-  color: #4da6ff;
-  text-decoration: underline;
+  color: #081f37;
+  text-decoration:none;
   font-size: 1rem;
   margin-top: auto;
 }

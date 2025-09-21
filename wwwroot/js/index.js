@@ -75,7 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="blog-card">
           <div class="image-wrapper" style="position: relative;">
             <img src="${image}" alt="${post.title}">
-            <span class="blog-category-tag">${post.categories?.[0] || 'Blog'}</span>
           </div>
           <div class="blog-card-content">
             <h3>${post.title}</h3>

@@ -17,6 +17,42 @@ function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/* ---------- SAFE RENDER HELPERS (NEW) ---------- */
+function decodeHtmlEntities(str = "") {
+  const ta = document.createElement("textarea");
+  ta.innerHTML = str;
+  return ta.value;
+}
+
+function renderPostBody(raw = "") {
+  let src = String(raw);
+
+  const looksEncodedHtml = /&lt;|&#60;/.test(src); // e.g., &lt;p&gt;
+  const looksRawHtml     = /<[^>]+>/.test(src);   // e.g., <p>
+
+  // 1) If HTML is entity-encoded, decode first
+  if (looksEncodedHtml) src = decodeHtmlEntities(src);
+
+  // 2) If not HTML after decoding, treat as Markdown -> HTML
+  if (!looksRawHtml && window.marked) {
+    src = marked.parse(src);
+  }
+
+  // 3) Sanitize before injecting
+  if (window.DOMPurify) {
+    src = DOMPurify.sanitize(src, {
+      ALLOWED_ATTR: ['href','target','rel','title','alt','src','class','id'],
+      ALLOWED_TAGS: [
+        'p','br','strong','em','u','s','a','img','code','pre','blockquote',
+        'ul','ol','li','h1','h2','h3','h4','h5','h6','hr','span','div','table',
+        'thead','tbody','tr','th','td'
+      ]
+    });
+  }
+  return src;
+}
+/* ---------- END SAFE RENDER HELPERS ---------- */
+
 // ---- Auth bootstrap ----
 if (token) {
   try {
@@ -148,6 +184,7 @@ async function loadPostDetails(slug) {
 
     const imageSrc = getImageSrc(post);
     const username = post.username || "Unknown";
+    const safeBodyHtml = renderPostBody(post.body || ""); // <-- NEW: render safely
 
     let avatarUrl = "/images/profile-icon.jpg";
     try {
@@ -186,7 +223,11 @@ async function loadPostDetails(slug) {
           <div class="post-hero">
             <img src="${imageSrc}" alt="Post cover" class="post-hero-image" />
           </div>
-          <div id="detail-body" class="post-body" contenteditable="false">${post.body ?? ''}</div>
+
+          <!-- RENDERED + SANITIZED BODY (NEW) -->
+          <div id="detail-body" class="post-body" contenteditable="false">
+            ${safeBodyHtml}
+          </div>
 
           <div class="post-actions">
             ${
@@ -203,9 +244,6 @@ async function loadPostDetails(slug) {
             }
           </div>
 
-          <div class="post-tags">
-            ${(post.tags || []).map(tag => `<span class="tag" data-tag="${tag}">#${tag}</span>`).join(' ')}
-          </div>
           <button id="save-detail-btn" class="hidden">Save</button>
         </article>
       `;

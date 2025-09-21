@@ -14,7 +14,6 @@ public static class UserEndpoints
             if (string.IsNullOrWhiteSpace(tokenUser))
                 return Results.Unauthorized();
 
-            // Prevent uploading for another user unless admin
             var role = ctx.User?.FindFirst("role")?.Value ?? "";
             if (!string.Equals(tokenUser, username, StringComparison.OrdinalIgnoreCase) &&
                 !role.Equals("admin", StringComparison.OrdinalIgnoreCase))
@@ -27,27 +26,25 @@ public static class UserEndpoints
             if (file is null)
                 return Results.BadRequest("No file uploaded.");
 
-            // Validate file type (only images)
             var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(ext))
                 return Results.BadRequest("Invalid file type. Only PNG, JPG, and WEBP are allowed.");
 
-            // Optional: limit size to 2MB
             if (file.Length > 2 * 1024 * 1024)
                 return Results.BadRequest("File too large. Max size is 2MB.");
 
-            var uploadsFolder = Path.Combine("wwwroot", "userfiles", username);
+            // Save under Content/Users so it's served by /userfiles
+            var uploadsFolder = Path.Combine("Content", "Users", username);
             Directory.CreateDirectory(uploadsFolder);
 
-            var uniqueName = $"avatar_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
+            var uniqueName = $"avatar_{DateTime.UtcNow:yyyyMMdd_HHmmssfff}{ext}";
             var filePath = Path.Combine(uploadsFolder, uniqueName);
             using var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
 
             var avatarUrl = $"/userfiles/{username}/{uniqueName}";
 
-            // ✅ Update user profile
             var user = userService.GetUser(username);
             if (user != null)
             {
@@ -75,7 +72,6 @@ public static class UserEndpoints
             if (user == null)
                 return Results.NotFound();
 
-            // Fallback avatar
             if (string.IsNullOrEmpty(user.AvatarUrl))
             {
                 user.AvatarUrl = "/images/avatar.png";

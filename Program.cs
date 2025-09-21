@@ -1,4 +1,8 @@
 using FileBlogApi.Features.Posts;
+using System.Linq; 
+using System.Reflection;
+using FileBlogApi.Features.Posts;
+
 using FileBlogApi.Features.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.FileProviders;
@@ -8,6 +12,8 @@ using FileBlogApi.Features.Auth;
 using FileBlogApi.Features.Admin;
 using FileBlogApi.Features.Contact;
 using Microsoft.AspNetCore.StaticFiles;
+using FileBlogApi.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +42,9 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = "FileBlogApi",
         ValidAudience = "FileBlogApi",
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -44,7 +52,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddSingleton<BlogService>(sp =>
     new BlogService(builder.Environment.ContentRootPath));
 
-// CORS (wildcard support)
+// CORS
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.SetIsOriginAllowed(origin =>
     {
@@ -62,6 +70,9 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     .AllowCredentials()
 ));
 
+// Lucene search service
+builder.Services.AddSingleton<IPostSearchService, LucenePostSearchService>();
+
 var app = builder.Build();
 
 app.UseCors();
@@ -69,7 +80,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 
-// Redirect *.html -> clean URL (e.g., /contactUs.html -> /contactUs)
+// Redirect *.html -> clean URL
 app.Use(async (ctx, next) =>
 {
     var path = ctx.Request.Path.Value ?? "";
@@ -82,6 +93,7 @@ app.Use(async (ctx, next) =>
     await next();
 });
 
+// Static files
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -94,26 +106,21 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/userfiles"
 });
 
-// ---------------------------------------------------------------
-// Pretty URLs (kebab) → existing files (camelCase or otherwise)
+// Pretty routes map
 var pretty = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 {
-    // nav items you showed
     ["saved-posts"] = "savedPosts.html",
     ["draft-posts"] = "draftPosts.html",
-    ["explore-posts"] = "posts.html",          // change if your list page is different
+    ["explore-posts"] = "posts.html",
     ["contact-us"] = "contactUs.html",
     ["sign-up"] = "signup.html",
     ["create-posts"] = "createPosts.html",
-
-    // add more as you go...
 };
 
-// Serve each pretty path
 foreach (var kv in pretty)
 {
     var requestPath = "/" + kv.Key.Trim('/');
-    var filePath = kv.Value.TrimStart('/'); // under wwwroot
+    var filePath = kv.Value.TrimStart('/');
 
     app.MapGet(requestPath, async (HttpContext ctx, IWebHostEnvironment env) =>
     {
@@ -128,20 +135,19 @@ foreach (var kv in pretty)
     });
 }
 
-// Redirect old camelCase paths (without .html) → kebab (so /savedPosts → /saved-posts)
+// Redirect camelCase paths (without .html) → kebab
 foreach (var kv in pretty)
 {
     var kebab = "/" + kv.Key.Trim('/');
     var camelNoExt = "/" + Path.GetFileNameWithoutExtension(kv.Value);
-
     app.MapGet(camelNoExt, () => Results.Redirect(kebab, permanent: true));
 }
 
-// Fix tag 404s: /posts/tag/<tag> -> /posts?tag=<tag>
+// Fix tag 404s
 app.MapGet("/posts/tag/{tag}", (string tag) =>
     Results.Redirect($"/posts?tag={Uri.EscapeDataString(tag)}"));
 
-// Optional generic kebab route: /pages/contact-us -> contactUs.html
+// Generic kebab route: /pages/{slug} -> {slugCamel}.html
 static string KebabToCamel(string slug)
 {
     var parts = slug.Split('-', StringSplitOptions.RemoveEmptyEntries);
@@ -165,8 +171,26 @@ app.MapGet("/pages/{slug}", async (string slug, HttpContext ctx, IWebHostEnviron
 
 // Resolve services
 var blogService = app.Services.GetRequiredService<BlogService>();
+var searchService = app.Services.GetRequiredService<IPostSearchService>();
 
-// API / feature endpoints
+// --- Search Endpoints (Lucene) ---
+app.MapGet("/api/search", async (HttpContext ctx, string? q, int? take) =>
+{
+    var query = q ?? string.Empty;
+    var limit = Math.Clamp(take ?? 20, 1, 100);
+    var results = await searchService.SearchAsync(query, limit);
+    return Results.Ok(results);
+});
+
+app.MapGet("/api/search/suggest", async (string? q, int? limit) =>
+{
+    var prefix = q ?? string.Empty;
+    var top = Math.Clamp(limit ?? 8, 1, 20);
+    var items = await searchService.SuggestAsync(prefix, top);
+    return Results.Ok(items.Select(t => new { text = t.text, type = t.type }));
+});
+
+// Existing endpoints
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapPostEndpoints(blogService);
@@ -174,7 +198,7 @@ app.MapAdminEndpoints();
 app.MapPostDetails(blogService);
 app.MapContactEndpoints();
 
-// Single post page (HTML)
+// Single post page
 app.MapGet("/post/{slug}", ctx =>
     ctx.Response.SendFileAsync(Path.Combine(app.Environment.ContentRootPath, "wwwroot", "postDetail.html")));
 
@@ -202,4 +226,50 @@ app.MapFallback(async ctx =>
     await ctx.Response.WriteAsync("404 Not Found");
 });
 
+
+
+
+
+
+// --- Build Lucene index at startup ---
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    var all = blogService.GetAllPosts();  // your real method
+    var dtos = all.Select(PostDto.From).ToList();
+    searchService.RebuildAsync(dtos);     // fire-and-forget is fine here
+    Console.WriteLine($"Lucene index built: {dtos.Count} posts.");
+});
+
 app.Run();
+
+
+static async Task<IEnumerable<Post>> TryGetAllPosts(BlogService blogService)
+{
+    // Try async names first
+    foreach (var name in new[] { "GetAllPostsAsync", "GetPostsAsync", "ListPostsAsync" })
+    {
+        var m = blogService.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.Public);
+        if (m != null)
+        {
+            var task = (Task)m.Invoke(blogService, null)!;
+            await task.ConfigureAwait(false);
+            var resultProp = task.GetType().GetProperty("Result");
+            var result = resultProp?.GetValue(task) as IEnumerable<Post>;
+            if (result != null) return result;
+        }
+    }
+
+    // Then sync names
+    foreach (var name in new[] { "GetAllPosts", "GetPosts", "ListPosts" })
+    {
+        var m = blogService.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.Public);
+        if (m != null)
+        {
+            var result = m.Invoke(blogService, null) as IEnumerable<Post>;
+            if (result != null) return result;
+        }
+    }
+
+    // Fallback: empty (so endpoint still succeeds)
+    return Array.Empty<Post>();
+}

@@ -102,8 +102,8 @@ body {
 }
 .sidebar a:hover,
 .sidebar a.active  {
-  background-color: #688dd6;
-  border-left: 4px solid #1abc9c;
+  background-color: #1451a0;
+  border-left: 4px solid #37a1bf;
 }
 .sidebar a i {
   margin-right: 10px;
@@ -544,11 +544,11 @@ header.dark-mode  {
 
 .dark-mode .admin-stat-card .stat-icon,
 .dark-mode .stat-content h3 {
-  color: #4da6ff;
+  color: #1451a0;
 }
 
 .dark-mode .btn-primary {
-  background: #4da6ff;
+  background: #1451a0;
   color: #fff;
 }
 

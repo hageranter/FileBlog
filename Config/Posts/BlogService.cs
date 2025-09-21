@@ -13,6 +13,10 @@ public class BlogService
 {
     private readonly string _root;
 
+    // Markdown pipeline: advanced extensions, HTML disabled for safety
+    private static readonly MarkdownPipeline MdPipeline =
+        new MarkdownPipelineBuilder().UseAdvancedExtensions().DisableHtml().Build();
+
     public BlogService(string root)
     {
         _root = root;
@@ -36,7 +40,7 @@ public class BlogService
             var markdown = File.ReadAllText(contentPath);
 
             var meta = ParseYamlFrontMatter(yaml);
-            var html = Markdown.ToHtml(markdown);
+            var html = Markdown.ToHtml(markdown, MdPipeline);
 
             var assetsPath = Path.Combine(dir, "assets");
             var assetFiles = Directory.Exists(assetsPath)
@@ -68,7 +72,6 @@ public class BlogService
                 ScheduledDate = meta.ScheduledDate,
                 Id = Path.GetFileName(dir),
                 Likes = meta.Likes,
-                // Normalize SavedBy/LikedBy once so queries never miss because of case/whitespace
                 SavedBy = (meta.SavedBy ?? new())
                     .Where(u => !string.IsNullOrWhiteSpace(u))
                     .Select(u => u.Trim())
@@ -104,17 +107,14 @@ public class BlogService
         GetAllPostsAndUpdateStatusIfNeeded()
             .Where(p => p.Categories.Contains(category, StringComparer.OrdinalIgnoreCase));
 
-    // ---------- NEW: resolve incoming slug (customSlug OR folderName) ----------
     private string? ResolveDirBySlug(string slug)
     {
         var folder = Path.Combine(_root, "content", "posts");
         if (!Directory.Exists(folder)) return null;
 
-        // 1) direct folder match
         var direct = Path.Combine(folder, slug);
         if (Directory.Exists(direct)) return direct;
 
-        // 2) find by meta.CustomSlug
         foreach (var d in Directory.GetDirectories(folder))
         {
             var metaPath = Path.Combine(d, "meta.yaml");
@@ -130,7 +130,7 @@ public class BlogService
                     return d;
                 }
             }
-            catch { /* ignore malformed meta */ }
+            catch { }
         }
 
         return null;
@@ -152,7 +152,7 @@ public class BlogService
         var markdown = File.ReadAllText(contentPath);
 
         var meta = ParseYamlFrontMatter(yaml);
-        var html = Markdown.ToHtml(markdown);
+        var html = Markdown.ToHtml(markdown, MdPipeline);
 
         var assetsPath = Path.Combine(dir, "assets");
         var assetFiles = Directory.Exists(assetsPath)
@@ -237,6 +237,12 @@ public class BlogService
         if (dir == null || file == null)
             return false;
 
+        // Validate extension and size
+        var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".png", ".jpg", ".jpeg", ".webp" };
+        var ext = Path.GetExtension(file.FileName);
+        if (!allowed.Contains(ext)) return false;
+        if (file.Length <= 0 || file.Length > 5 * 1024 * 1024) return false;
+
         var assetsPath = Path.Combine(dir, "assets");
         var thumbsPath = Path.Combine(assetsPath, "thumbs");
         var largePath = Path.Combine(assetsPath, "large");
@@ -245,7 +251,9 @@ public class BlogService
         Directory.CreateDirectory(thumbsPath);
         Directory.CreateDirectory(largePath);
 
-        var originalFileName = Path.GetFileName(file.FileName);
+        var baseName = Path.GetFileNameWithoutExtension(file.FileName);
+        var stamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmssfff");
+        var originalFileName = $"{baseName}_{stamp}{ext}";
         var fileExtension = Path.GetExtension(originalFileName);
         var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
 
@@ -257,7 +265,7 @@ public class BlogService
             file.CopyTo(stream);
 
         using var inputStream = file.OpenReadStream();
-        using var image = Image.Load(inputStream);
+        using var image = Image.Load(inputStream); // throws if not an image
 
         image.Clone(x => x.Resize(new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(300, 0) }))
             .Save(Path.Combine(thumbsPath, thumbFileName));
@@ -415,7 +423,6 @@ public class BlogService
 
         post.Likes = post.LikedBy.Count;
 
-        // Write by folder to avoid ambiguous slug
         UpdateMeta(post.FolderName, meta =>
         {
             meta.LikedBy = new List<string>(post.LikedBy);
@@ -431,7 +438,6 @@ public class BlogService
         var post = GetPostBySlug(slug);
         if (post == null) return false;
 
-        // Case-insensitive membership
         bool wasSaved = post.SavedBy.Any(u => string.Equals(u, username, StringComparison.OrdinalIgnoreCase));
 
         UpdateMeta(post.FolderName, meta =>
@@ -480,11 +486,15 @@ public class BlogService
         comment.Type = comment.Type?.ToLower() ?? "public";
         comment.VisibleToAuthorOnly = comment.Type == "review";
 
-        var avatarFolder = Path.Combine("wwwroot", "userfiles", comment.Username);
+        // Load avatar from Content/Users to match /userfiles static mapping
+        var avatarFolder = Path.Combine(_root, "Content", "Users", comment.Username);
         if (Directory.Exists(avatarFolder))
         {
             var latestAvatar = Directory.GetFiles(avatarFolder, "avatar_*.*")
-                .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg") || f.EndsWith(".webp"))
+                .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                         || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                         || f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                         || f.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(f => f)
                 .FirstOrDefault();
 
@@ -505,11 +515,8 @@ public class BlogService
         File.WriteAllText(commentsPath, json);
     }
 
-    // -------------------- NEW: Update/Publish APIs --------------------
+    // ---- Update/Publish APIs ----
 
-    /// <summary>
-    /// Partially update post: title, body, status, publishedDate (if provided).
-    /// </summary>
     public Task<Meta> UpdatePostAsync(string slug, UpdatePostRequest req)
     {
         var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
@@ -533,7 +540,6 @@ public class BlogService
 
         if (req.PublishedDate.HasValue)
         {
-            // keep your DateTime? type: convert from DateTimeOffset
             meta.PublishedDate = req.PublishedDate.Value.UtcDateTime;
         }
 
@@ -543,9 +549,6 @@ public class BlogService
         return Task.FromResult(meta);
     }
 
-    /// <summary>
-    /// Update only status (and optional publishedDate).
-    /// </summary>
     public Task<Meta> UpdatePostStatusAsync(string slug, string status, DateTimeOffset? publishedDate)
     {
         var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
@@ -566,9 +569,6 @@ public class BlogService
         return Task.FromResult(meta);
     }
 
-    /// <summary>
-    /// Convenience publish: set status=published and stamp PublishedDate if missing.
-    /// </summary>
     public Task<Meta> PublishPostAsync(string slug)
     {
         var dir = ResolveDirBySlug(slug) ?? throw new InvalidOperationException("Post not found");
@@ -593,7 +593,7 @@ public class BlogService
         File.WriteAllText(metaPath, serializer.Serialize(meta));
     }
 
-    // -------------------- Meta DTO --------------------
+    // ---- Meta DTO ----
     public class Meta
     {
         public string? Title { get; set; }

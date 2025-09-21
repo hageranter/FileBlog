@@ -227,7 +227,7 @@ a {
   transition: background 0.2s ease;
 }
 .btn-primary {
-  background: #688dd6;
+  background: #1451a0;
   color: #fff;
 }
 .btn-secondary {
@@ -863,7 +863,7 @@ body.dark-mode  {
 }
 
 .dark-mode .btn-primary {
-  background: #4da6ff;
+  background: #1451a0;
   color: #fff;
 }
 

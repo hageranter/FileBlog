@@ -102,7 +102,7 @@ body.dark-mode  {
 
 .dark-mode .button input[type="button"] {
   background: #4da6ff;
-  color: #fff;
+  color: #000000;
 }
 
 .dark-mode .button input[type="button"]:hover {
