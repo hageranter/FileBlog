@@ -1,5 +1,5 @@
 replicaCount: 1
 image:
-  repository: registry.arc-center.run/silverkeytech/fileblog
+  repository: registry.arc-center.run/silverkeytech/fileblog/hagerblog
   pullPolicy: IfNotPresent
-  tag: fileblog-dev-latest
+  tag: 864d8d
